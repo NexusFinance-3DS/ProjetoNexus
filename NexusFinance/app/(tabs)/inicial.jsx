@@ -13,8 +13,15 @@ export default function inicial() {
         alignItems: "center",
       }}
     >
-      <Text>Inicio do projeto nexus, que comecem os jogos!</Text>
-      
+      <Text>Navegue nos elementos abaixo:</Text>
+      <Button
+        title="Verificação de CEP"
+        onPress={() => roteador.push("./cep")}
+      />      
+      <Button
+        title="Banco de dados local"
+        onPress={() => roteador.push("./banco")}
+      />
     </View>
   );
 }
