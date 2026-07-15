@@ -6,13 +6,7 @@ export default function inicial() {
   const roteador = useRouter();
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <View>
       <Text>Navegue nos elementos abaixo:</Text>
       <Button
         title="Verificação de CEP"

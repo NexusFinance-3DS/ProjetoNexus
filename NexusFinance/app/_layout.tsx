@@ -1,0 +1,35 @@
+import { Stack } from "expo-router";
+
+export default function RootLayout() {
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#000",
+        },
+        headerTintColor: "#fff",
+        headerTitleStyle: {
+          fontWeight: "600",
+        },
+        contentStyle: {
+          backgroundColor: "#000",
+        },
+      }}
+    >
+      <Stack.Screen
+        name="auth/boasVindas"
+        options={{ title: "Bem-vindo" }}
+      />
+
+      <Stack.Screen
+        name="auth/login"
+        options={{ title: "Entrar" }}
+      />
+
+      <Stack.Screen
+        name="auth/cadastro"
+        options={{ title: "Criar Conta" }}
+      />
+    </Stack>
+  );
+}
