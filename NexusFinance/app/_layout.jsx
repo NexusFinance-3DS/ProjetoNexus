@@ -30,6 +30,18 @@ export default function RootLayout() {
         name="auth/cadastro"
         options={{ title: "Criar Conta" }}
       />
+      <Stack.Screen
+        name="(tabs)/inicial"
+        options={{ title: "Início" }}
+      />
+      <Stack.Screen
+        name="(tabs)/fluxoFinanceiro"
+        options={{ title: "Fluxo Financeiro" }}
+      />
+      <Stack.Screen
+        name="(tabs)/metas"
+        options={{ title: "Metas" }}
+      />
     </Stack>
   );
 }
