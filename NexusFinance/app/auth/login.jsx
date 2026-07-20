@@ -18,8 +18,7 @@ function criarConta() {
       return;
     }
     setErro("");
-    // aqui depois entra a lógica real de login (verificar no banco, API)
-    Alert.alert("Login enviado", `Email: ${email}\nSenha: ${senha}`);
+    router.push("/inicial");
   }
 
   return (
