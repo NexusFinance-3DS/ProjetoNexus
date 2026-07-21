@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from '../styles/inicio';
@@ -8,9 +8,13 @@ import navStyles from '../styles/barraNavegacao';
 export default function inicial() {
   return (
     <View style={styles.container}>
+      <View style={styles.saldoContainer}>
+          <Text style={styles.titleSaldo}>Saldo Total:</Text>
+          <Text style={styles.valor}>R$ 100,00</Text>
+        </View>
       <View style={styles.content}>
-        <Text style={styles.title}>Tela inicial</Text>
-        <Text style={styles.subtitle} />
+        
+        
       </View>
 
       <View style={navStyles.tabBar}>

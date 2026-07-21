@@ -8,9 +8,9 @@ export default function Login() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
 
-function criarConta() {
-        router.push("/auth/cadastro");
-}
+  function criarConta() {
+    router.push("/auth/cadastro");
+  }
 
   function entrar() {
     if (!email || !senha) {
@@ -22,23 +22,24 @@ function criarConta() {
   }
 
   return (
-    
+
     <View style={styles.tela}>
-        <Image
-  source={require("../../assets/images/foto.png")}
-  style={{
-    alignSelf: "center",
-    width: 150,
-    height: 150,
-    marginBottom: 60,
-  }}
-/>
+      <Image
+        source={require("../../assets/images/foto.png")}
+        style={{
+          alignSelf: "center",
+          width: 150,
+          height: 150,
+          marginBottom: 60,
+        }}
+      />
       <Text style={styles.titulo}>Entrar</Text>
 
       <Text style={styles.label}>Email</Text>
       <TextInput
         style={styles.input}
         value={email}
+        placeholder="Digite seu email"
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
@@ -49,6 +50,7 @@ function criarConta() {
       <TextInput
         style={styles.input}
         value={senha}
+        placeholder="Digite sua senha"
         onChangeText={setSenha}
         secureTextEntry
         placeholderTextColor="#666"

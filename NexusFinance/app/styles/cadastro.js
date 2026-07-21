@@ -24,31 +24,20 @@ export default StyleSheet.create({
   input: {
     width: "100%",
     height: 52,
-
-    backgroundColor: "#121826",
-
-    color: "#FFFFFF",
+    backgroundColor: "#1c1c1c",
+    color: "#fff",
     fontSize: 16,
-
     borderRadius: 12,
-
     paddingHorizontal: 16,
-
     marginBottom: 18,
   },
 
   button: {
-    width: "100%",
-    height: 52,
-
-    backgroundColor: "#5B4BFF",
-
-    borderRadius: 12,
-
-    justifyContent: "center",
+    backgroundColor: "#635bff",
+    borderRadius: 10,
+    padding: 14,
+    marginTop: 20,
     alignItems: "center",
-
-    marginTop: 12,
   },
 
   buttonText: {
