@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {View, Text, TextInput, TouchableOpacity,} from "react-native";
+import {View, Text, TextInput, TouchableOpacity} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import styles from "../styles/cadastro";
@@ -10,9 +10,9 @@ export default function Cadastro() {
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
 
-  function continuar() {
+  const continuar = () => {
     router.push("/auth/criarSenha");
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,6 +23,8 @@ export default function Cadastro() {
           style={styles.input}
           placeholder="Email"
           placeholderTextColor="#999"
+          keyboardType="email-address"
+          autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
         />
@@ -52,7 +54,10 @@ export default function Cadastro() {
           onChangeText={setDataNascimento}
         />
 
-        <TouchableOpacity style={styles.button} onPress={continuar}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={continuar}
+        >
           <Text style={styles.buttonText}>Continuar</Text>
         </TouchableOpacity>
       </View>
