@@ -14,7 +14,24 @@ export default function inicial() {
         </View>
       <View style={styles.content}>
         
-        
+        <Text style={styles.title}>Visão Rápida</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.visaoRapidaContainer}>
+          <View style={styles.card}>
+            <Icon name="keyboard-double-arrow-up" size={38} color="#55ff00" />
+            <Text style={styles.cardTitle}>Receitas</Text>
+            <Text style={styles.cardValue}>R$ 500,00</Text>
+          </View>
+          <View style={styles.card}>
+            <Icon name="keyboard-double-arrow-down" size={38} color="#ff0000" />
+            <Text style={styles.cardTitle}>Despesas</Text>
+            <Text style={styles.cardValue}>R$ 400,00</Text>
+          </View>
+          <View style={styles.card}>
+            <Icon name="attach-money" size={38} color="#fff" />
+            <Text style={styles.cardTitle}>Investimentos</Text>
+            <Text style={styles.cardValue}>R$ 100,00</Text>
+          </View>
+        </ScrollView>
       </View>
 
       <View style={navStyles.tabBar}>
