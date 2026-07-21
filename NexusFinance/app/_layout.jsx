@@ -25,7 +25,6 @@ export default function RootLayout() {
         name="auth/login"
         options={{ title: "Entrar" }}
       />
-
       <Stack.Screen
         name="auth/cadastro"
         options={{ title: "Criar Conta" }}
