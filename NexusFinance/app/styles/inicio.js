@@ -38,10 +38,11 @@ export default StyleSheet.create({
   },
 
   title: {
-    fontSize: 22,
+    fontSize: 20,
+    marginTop: 20,
+    marginBottom: -5,
     fontWeight: "600",
     color: "#fff",
-    marginBottom: 8,
     textAlign: "center",
   },
   visaoRapidaContainer: {
@@ -49,20 +50,22 @@ export default StyleSheet.create({
     width: "100%",
   },
   card: {
-    backgroundColor: "#271ae1",
+    backgroundColor: "#1c1c1c",
     padding: 16,
-    borderRadius: 8,
-    marginRight: 16,
-    width: 200,
+    borderRadius: 30,
+    marginRight: 9,
+    width: 150,
+    height: 130,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "600",
     color: "#fff",
-    marginBottom: 8,
+    marginBottom: -6,
   },
   cardValue: {
-    fontSize: 24,
+    marginTop: 8,
+    fontSize: 23,
     fontWeight: "bold",
     color: "#fff",
   },
