@@ -44,6 +44,14 @@ export default StyleSheet.create({
     marginTop: 16,
     textAlign: "center",
   },
+
+  link2: {
+    color: "#635bff",
+    fontSize: 12,
+    marginTop: 16,
+    textAlign: "left",
+  },
+
   erro: {
     color: "#ff6b6b",
     fontSize: 13,
