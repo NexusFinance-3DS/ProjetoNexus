@@ -16,8 +16,8 @@ export default function boasVindas() {
                 source={require("../../assets/images/moedas.png")}
                 style={{
                     alignSelf: "center",
-                    width: 150,
-                    height: 150,
+                    width: 200,
+                    height: 180,
                     marginBottom: 60,
                 }}
             />
