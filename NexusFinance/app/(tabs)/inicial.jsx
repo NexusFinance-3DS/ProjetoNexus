@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from '../styles/inicio';
@@ -8,14 +8,23 @@ import navStyles from '../styles/barraNavegacao';
 export default function inicial() {
   return (
     <View style={styles.container}>
+      <ScrollView>
       <View style={styles.saldoContainer}>
-          <Text style={styles.titleSaldo}>Saldo Total:</Text>
-          <Text style={styles.valor}>R$ 100,00</Text>
-        </View>
+        <Text style={styles.titleSaldo}>Saldo Total:</Text>
+        <Text style={styles.valor}>R$ 100,00</Text>
+      </View>
       <View style={styles.content}>
-        
+      
         <Text style={styles.title}>Visão Rápida</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.visaoRapidaContainer}>
+        <ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={{
+    paddingVertical: 5,
+    paddingRight: 45,
+    paddingLeft: 10,
+  }}
+>
           <View style={styles.card}>
             <Icon name="keyboard-double-arrow-up" size={38} color="#55ff00" />
             <Text style={styles.cardTitle}>Receitas</Text>
@@ -32,8 +41,18 @@ export default function inicial() {
             <Text style={styles.cardValue}>R$ 100,00</Text>
           </View>
         </ScrollView>
+        <View style={styles.metasContainer}>
+            <View style={styles.metaCard}>
+              <Text style={styles.metaTitle}>Metas em andamento</Text>
+              <Text style={styles.metaValue}>R$ 200,00</Text>
+            </View>
+          </View>
+          
       </View>
-
+      </ScrollView>
+      
+      
+      {/*barra de navegação inferior*/}
       <View style={navStyles.tabBar}>
         <TouchableOpacity
           style={navStyles.tabItem}

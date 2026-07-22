@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   tabBar: {
     flexDirection: "row",
-    width: "115%",
+    width: "105%",
     height: 70,
     borderWidth: 1,
     borderColor: "#201f2c",
@@ -12,6 +12,8 @@ export default StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 6,
     alignItems: "center",
+    position: 'absolute',
+    bottom: 0,
   },
 
   tabItem: {
