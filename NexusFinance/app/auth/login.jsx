@@ -12,6 +12,10 @@ export default function Login() {
     router.push("/auth/cadastro");
   }
 
+  function recuperarSenha() {
+    router.push("/auth/recuperarSenha");
+  }
+
   function entrar() {
     if (!email || !senha) {
       setErro("Preencha email e senha.");
@@ -55,6 +59,12 @@ export default function Login() {
         secureTextEntry
         placeholderTextColor="#666"
       />
+
+      <TouchableOpacity>
+        <Text style={styles.link2} onPress={recuperarSenha}>
+          Esqueceu sua senha?
+        </Text>
+      </TouchableOpacity>
 
       {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
