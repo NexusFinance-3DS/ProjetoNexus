@@ -4,7 +4,7 @@ export default StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#0f0f0f",
   },
 
   content: {

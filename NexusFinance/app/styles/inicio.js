@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
   flex: 1,
-  backgroundColor: "#000",
+  backgroundColor: "#0f0f0f",
   alignItems: "stretch",
   marginLeft: -10,
   marginRight: -10,
@@ -40,6 +40,7 @@ export default StyleSheet.create({
   },
 
   title: {
+    flexDirection: "row",
     fontSize: 20,
     marginTop: 16,
     marginLeft: 20,
@@ -62,6 +63,7 @@ export default StyleSheet.create({
     height: 130,
   },
   cardTitle: {
+    flexDirection: "row",
     fontSize: 17,
     fontWeight: "600",
     color: "#fff",
@@ -76,13 +78,14 @@ export default StyleSheet.create({
   metasContainer: {
     marginTop: 16,
   },
+
   metaCard: {
     backgroundColor: "#1c1c1c",
     padding: 16,
     marginLeft: 10,
     marginRight: 10,
     width: "86%",
-    height: 100,
+    height: 200,
     borderRadius: 8,
     marginBottom: 10,
   },
@@ -97,5 +100,9 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+  graficos:{
+    flexDirection: "row",
+    marginTop: 30,
+  }
 
 });
