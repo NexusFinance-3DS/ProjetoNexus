@@ -1,61 +1,240 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import styles from '../styles/metas';
-import navStyles from '../styles/barraNavegacao';
+import React, { useState } from "react";
+import {View, Text, TouchableOpacity, Modal, TextInput, FlatList,} from "react-native";
+import { router } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import styles from "../styles/metas";
+import navStyles from "../styles/barraNavegacao";
 
-export default function metas() {
-  return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Tela de Metas</Text>
-        <Text style={styles.subtitle} />
+export default function Metas() {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [nomeMeta, setNomeMeta] = useState("");
+  const [valorMeta, setValorMeta] = useState("");
+  const [valorAtual, setValorAtual] = useState("");
+
+  const [metas, setMetas] = useState([
+    {
+      id: "1",
+      nome: "Comprar um carro",
+      objetivo: 50000,
+      atual: 18000,
+    }
+  ]);
+
+  function adicionarMeta() {
+    if (
+      nomeMeta.trim() === "" ||
+      valorMeta.trim() === "" ||
+      valorAtual.trim() === ""
+    ) {
+      return;
+    }
+
+    const novaMeta = {
+      id: Date.now().toString(),
+      nome: nomeMeta,
+      objetivo: Number(valorMeta),
+      atual: Number(valorAtual),
+    };
+
+    setMetas([...metas, novaMeta]);
+
+    setNomeMeta("");
+    setValorMeta("");
+    setValorAtual("");
+
+    setModalVisible(false);
+  }
+
+  function renderItem({ item }) {
+    const porcentagem = Math.min(
+      (item.atual / item.objetivo) * 100,
+      100
+    );
+
+    return (
+      <View style={styles.card}>
+
+        <View style={styles.cardHeader}>
+          <Icon
+            name="track-changes"
+            size={32}
+            color="#6C3EF4"
+          />
+
+          <Text style={styles.nomeMeta}>
+            {item.nome}
+          </Text>
+        </View>
+
+        <View style={styles.progressBackground}>
+          <View
+            style={[
+              styles.progressFill,
+              { width: `${porcentagem}%` },
+            ]}
+          />
+        </View>
+
+        <View style={styles.infoLinha}>
+          <Text style={styles.valor}>
+            R$ {item.atual.toLocaleString("pt-BR")}
+          </Text>
+
+          <Text style={styles.valor}>
+            R$ {item.objetivo.toLocaleString("pt-BR")}
+          </Text>
+        </View>
+
+        <Text style={styles.porcentagem}>
+          {porcentagem.toFixed(0)}%
+        </Text>
+
       </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}> 
+      <Text style={styles.title}>Minhas Metas</Text>
+
+      <FlatList
+        data={metas}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 150,
+        }}
+      />
+
+      <TouchableOpacity
+        style={styles.botaoAdicionar}
+        onPress={() => setModalVisible(true)}
+      >
+        <Icon
+          name="add"
+          size={25}
+          color="#FFF"
+        />
+
+        <Text style={styles.botaoTexto}>
+          Adicionar Meta
+        </Text>
+      </TouchableOpacity>
+
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.modalBackground}>
+
+          <View style={styles.modal}>
+
+            <Text style={styles.modalTitulo}>
+              Nova Meta
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Nome da meta"
+              placeholderTextColor="#888"
+              value={nomeMeta}
+              onChangeText={setNomeMeta}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Valor da meta"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={valorMeta}
+              onChangeText={setValorMeta}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Quanto você já possui?"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={valorAtual}
+              onChangeText={setValorAtual}
+            />
+
+            <View style={styles.modalButtons}>
+
+              <TouchableOpacity
+                style={styles.cancelar}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelarTexto}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.salvar}
+                onPress={adicionarMeta}
+              >
+                <Text style={styles.salvarTexto}>
+                  Salvar
+                </Text>
+              </TouchableOpacity>
+
+            </View>
+
+          </View>
+
+        </View>
+      </Modal>
+
+      {/* Barra de navegação */}
 
       <View style={navStyles.tabBar}>
-        <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push('/inicial')}
-          activeOpacity={0.8}
-        >
-          <Icon name="home" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Início</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push('/fluxoFinanceiro')}
-          activeOpacity={0.8}
-        >
-          <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push('/auth/login')}
-          activeOpacity={0.8}
-        >
-          <Icon name="add-circle" size={56} color="rgb(255, 255, 255)" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push('/metas')}
-          activeOpacity={0.8}
-        >
-          <Icon name="radar" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Metas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push('/auth/login')}
-          activeOpacity={0.8}
-        >
-          <Icon name="menu" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>mais</Text>
-        </TouchableOpacity>
-      </View>
+              <TouchableOpacity
+                style={navStyles.tabItem}
+                onPress={() => router.push('/inicial')}
+                activeOpacity={0.8}
+              >
+                <Icon name="home" size={32} color="#ffffff" />
+                <Text style={navStyles.tabLabel}>Início</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity
+                style={navStyles.tabItem}
+                onPress={() => router.push('/fluxoFinanceiro')}
+                activeOpacity={0.8}
+              >
+                <Icon name="swap-horiz" size={32} color="#ffffff" />
+                <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity
+                style={navStyles.tabItem}
+                onPress={() => router.push('/auth/login')}
+                activeOpacity={0.8}
+              >
+                <Icon name="add-circle" size={56} color="rgb(255, 255, 255)" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={navStyles.tabItem}
+                onPress={() => router.push('/metas')}
+                activeOpacity={0.8}
+              >
+                <Icon name="radar" size={32} color="#ffffff" />
+                <Text style={navStyles.tabLabel}>Metas</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={navStyles.tabItem}
+                onPress={() => router.push('/auth/login')}
+                activeOpacity={0.8}
+              >
+                <Icon name="menu" size={32} color="#ffffff" />
+                <Text style={navStyles.tabLabel}>mais</Text>
+              </TouchableOpacity>
+            </View>
+            
     </View>
   );
 }
