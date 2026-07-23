@@ -4,7 +4,6 @@ import { router } from "expo-router";
 import styles from "../styles/boasVindas";
 
 export default function boasVindas() {
-    const [erro, setErro] = useState("");
 
     function criarConta() {
         router.push("/auth/cadastro");
@@ -21,11 +20,9 @@ export default function boasVindas() {
                     marginBottom: 60,
                 }}
             />
-            
+            <View style={{backgroundColor: "#171717a5", borderRadius: 20, alignItems: "center",}}>
             <Text style={styles.titulo}>Organize seus gastos de uma maneira mais eficiente!</Text>
             <Text style={styles.subtitulo}>Controle seu orçamento e alcance suas metas financeiras com facilidade.</Text>
-
-            {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
             <TouchableOpacity style={styles.botao} onPress={criarConta}>
                 <Text style={styles.textoBotao}>Criar Conta</Text>
@@ -34,7 +31,7 @@ export default function boasVindas() {
             <TouchableOpacity onPress={() => router.push("/auth/login")}>
                 <Text style={styles.link}>Já tenho uma conta</Text>
             </TouchableOpacity>
-            
+            </View>
         </View>
     );
 }

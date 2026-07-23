@@ -19,7 +19,7 @@ export default StyleSheet.create({
     color: "#fff",
     fontSize: 22,
     fontWeight: "600",
-    marginBottom: 16,
+    marginTop: 10,
     textAlign: "center",
   },
 
@@ -27,16 +27,20 @@ export default StyleSheet.create({
     color: "#aaa",
     fontSize: 14,
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 20,
+    paddingLeft: 20,
+    paddingRight:20,
   },
 
   botao: {
     backgroundColor: "#635bff",
     borderRadius: 10,
-    padding: 14,
+    paddingLeft: "35%",
+    paddingBottom: 20,
+    paddingTop: 20,
+    paddingRight:"35%",
     marginTop: 20,
     alignItems: "center",
-    width: "100%",
   },
 
   textoBotao: {
@@ -48,13 +52,8 @@ export default StyleSheet.create({
   link: {
     color: "#aaa",
     fontSize: 14,
-    marginTop: 16,
+    marginTop: 10,
+    marginBottom: 15,
     textAlign: "center",
-  },
-
-  erro: {
-    color: "#ff6b6b",
-    fontSize: 13,
-    marginTop: 8,
   },
 });

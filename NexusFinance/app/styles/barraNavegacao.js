@@ -13,7 +13,7 @@ export default StyleSheet.create({
     paddingHorizontal: 6,
     alignItems: "center",
     position: 'absolute',
-    bottom: 0,
+    bottom: -10,
   },
 
   tabItem: {
@@ -29,5 +29,21 @@ export default StyleSheet.create({
     color: "#ffffff",
     fontWeight: "500",
     marginTop: 4,
+  },
+  // Menu expandido e navegação
+  menuExpandido: {
+    position: "absolute",
+    bottom: 70,
+    left: 10,
+    right: 10,
+    height: 80,
+    backgroundColor: "#17171c",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    
+  },
+  itemMenu: {
+    alignItems: "center",
   },
 });

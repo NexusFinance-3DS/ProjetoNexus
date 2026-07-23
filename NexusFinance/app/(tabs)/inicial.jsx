@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from '../styles/inicio';
 import navStyles from '../styles/barraNavegacao';
+import barraNavegacao from '../styles/barraNavegacao';
 
 export default function inicial() {
+  const [menuAberto, setMenuAberto] = useState(false);
+
+  // Dados 
   const valorMeta = 30000.00;
   const valorTotalMeta = 100000;
   const renda = 1621.00;
@@ -17,34 +21,59 @@ export default function inicial() {
   const porcentagem = (valorMeta / valorTotalMeta) * 100;
   const titleMeta = "Comprar a casa do Nathan"
 
+  const distribuicao = [
+    {
+      label: "Necessidades",
+      valor: gastosNecessidades,
+      cor: "#5145FF",
+      percentual: (gastosNecessidades / renda) * 100,
+    },
+    {
+      label: "Desejos",
+      valor: gastosDesejos,
+      cor: "#FF6B6B",
+      percentual: (gastosDesejos / renda) * 100,
+    },
+    {
+      label: "Investimentos",
+      valor: gastosInvestimentos,
+      cor: "#2ED573",
+      percentual: (gastosInvestimentos / renda) * 100,
+    },
+  ];
+
+  const totalDistribuido = gastosNecessidades + gastosDesejos + gastosInvestimentos;
+
   return (
     <View style={styles.container}>
       <ScrollView>
+        {/* Seção de saldo geral */}
         <View style={styles.saldoContainer}>
           <Text style={styles.titleSaldo}>Saldo Total:</Text>
-          <Text style={styles.valor}>R$ {renda - despesa}</Text>
+          <Text style={styles.valor}>R$ {(renda - despesa).toFixed(2)}</Text>
         </View>
         <View style={styles.content}>
 
+          {/* Cards de visão rápida */}
           <Text style={styles.title}>Visão Rápida</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
               paddingVertical: 5,
-              paddingRight: 45,
+              paddingRight: 100,
               paddingLeft: 10,
             }}
           >
             <View style={styles.card}>
               <Icon name="keyboard-double-arrow-up" size={38} color="#55ff00" />
               <Text style={styles.cardTitle}>Receitas</Text>
-              <Text style={styles.cardValue}>R$ {renda}</Text>
+              <Text style={styles.cardValue}>R$ {(renda).toFixed(2)}</Text>
             </View>
             <View style={styles.card}>
               <Icon name="keyboard-double-arrow-down" size={38} color="#ff0000" />
               <Text style={styles.cardTitle}>Despesas</Text>
-              <Text style={styles.cardValue}>R$ {despesa}</Text>
+              <Text style={styles.cardValue}>R$ {(despesa).toFixed(2)}</Text>
             </View>
             <View style={styles.card}>
               <Icon name="attach-money" size={38} color="#fff" />
@@ -52,11 +81,13 @@ export default function inicial() {
               <Text style={styles.cardValue}>R$ 100,00</Text>
             </View>
           </ScrollView>
+
+          {/* Card de metas e progresso da meta */}
           <View style={styles.metasContainer}>
             <View style={styles.metaCard}>
               <View style={styles.cardTitle}>
                 <Text style={{ color: "#ffffff", borderRadius: 20, width: "60%", fontSize: 20 }}>Metas em andamento</Text>
-                <Text style={{ color: "#ffffff", backgroundColor: "#4800fff9", borderRadius: 20, width: "30%", marginLeft: "10%", textAlign: "center", fontSize: 20 }} onPress={() => router.push('/metas')}>Ver metas</Text>
+                <Text style={{ color: "#ffffff", backgroundColor: "#4800fff9", borderRadius: 20, width: "30%", marginLeft: "10%", textAlign: "center", fontSize: 12, fontWeight: "600", paddingTop:5 }} onPress={() => router.push('/metas')}>Ver metas</Text>
               </View>
               <View style={styles.metaValue}>
                 <View style={styles.graficos}>
@@ -109,44 +140,40 @@ export default function inicial() {
               </View>
             </View>
           </View>
+
+          {/* Card de distribuição da renda */}
           <View style={styles.metasContainer}>
             <View style={styles.metaCard}>
-              <View style={{ flexDirection: "row" }}>
-                <Text style={{ color: "#ffffff", borderRadius: 20, width: "60%", fontSize: 20 }}>Distribuição da renda</Text>
-                <Text style={{ color: "#ffffff", backgroundColor: "#4800fff9", borderRadius: 20, width: "30%", marginLeft: "10%", textAlign: "center", fontSize: 20 }}>R$ {renda}</Text>
+              <View style={styles.distribuicaoHeader}>
+                <Text style={styles.distribuicaoTitle}>Distribuição da renda</Text>
+                <View style={styles.totalBadge}>
+                  <Text style={styles.totalBadgeText}>Total: R$ {renda}</Text>
+                </View>
               </View>
-              <View style={styles.distribuicao}>
 
-                <View style={styles.necessidade}>
-                  <Text>Necessidades</Text>
-                  <View
-                      style={{
-                        marginTop: 10,
-                        width: 200,
-                        height: 6,
-                        backgroundColor: "#222",
-                        borderRadius: 10,
-                      }}
-                    >
-
+              <View style={styles.distribuicaoLista}>
+                {distribuicao.map((item) => (
+                  <View key={item.label} style={styles.distribuicaoItem}>
+                    <View style={styles.distribuicaoLabelRow}>
+                      <View style={[styles.colorDot, { backgroundColor: item.cor }]} />
+                      <Text style={styles.distribuicaoLabel}>{item.label}</Text>
+                      <Text style={styles.distribuicaoValor}>R$ {item.valor.toFixed(2)}</Text>
+                    </View>
+                    <View style={styles.progressTrack}>
                       <View
-                        style={{
-                          width: `${porcentagem}%`,
-                          height: 6,
-                          backgroundColor: "#5145FF",
-                          borderRadius: 10,
-                        }}
+                        style={[
+                          styles.progressFill,
+                          { width: `${Math.min(item.percentual, 100)}%`, backgroundColor: item.cor },
+                        ]}
                       />
                     </View>
-                  <Text>Limites</Text>
-                </View>
-                <View style={styles.desejos}>
+                    <Text style={styles.percentText}>{item.percentual.toFixed(1)}% da renda</Text>
+                  </View>
+                ))}
+              </View>
 
-                </View>
-                <View style = {styles.investimentos}>
-
-                </View>
-
+              <View style={styles.distribuicaoFooter}>
+                <Text style={styles.footerText}>Restante: R$ {(renda - totalDistribuido).toFixed(2)}</Text>
               </View>
             </View>
           </View>
@@ -154,49 +181,82 @@ export default function inicial() {
         </View>
       </ScrollView>
 
+      {/* Menu expandido */}
+      {menuAberto && (
+        <View style={barraNavegacao.menuExpandido}>
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="attach-money" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Receitas</Text>
+          </TouchableOpacity>
 
-      {/*barra de navegação inferior*/}
-      <View style={navStyles.tabBar}>
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="receipt" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Despesas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="swap-horiz" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Transações</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="category" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Categoria</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="flag" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Metas</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Barra de navegação inferior */}
+      <View style={barraNavegacao.tabBar}>
         <TouchableOpacity
-          style={navStyles.tabItem}
+          style={barraNavegacao.tabItem}
           onPress={() => router.push('/inicial')}
           activeOpacity={0.8}
         >
           <Icon name="home" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Início</Text>
+          <Text style={barraNavegacao.tabLabel}>Início</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={navStyles.tabItem}
+          style={barraNavegacao.tabItem}
           onPress={() => router.push('/fluxoFinanceiro')}
           activeOpacity={0.8}
         >
           <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
+          <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push('/auth/login')}
+          style={barraNavegacao.tabItem}
+          onPress={() => setMenuAberto(!menuAberto)}
           activeOpacity={0.8}
         >
-          <Icon name="add-circle" size={56} color="rgb(255, 255, 255)" />
+          <Icon
+            name={menuAberto ? "close" : "add-circle"}
+            size={56}
+            color="#fff"
+          />
         </TouchableOpacity>
         <TouchableOpacity
-          style={navStyles.tabItem}
+          style={barraNavegacao.tabItem}
           onPress={() => router.push('/metas')}
           activeOpacity={0.8}
         >
           <Icon name="radar" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Metas</Text>
+          <Text style={barraNavegacao.tabLabel}>Metas</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={navStyles.tabItem}
+          style={barraNavegacao.tabItem}
           onPress={() => router.push('/auth/login')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>mais</Text>
+          <Text style={barraNavegacao.tabLabel}>mais</Text>
         </TouchableOpacity>
       </View>
     </View>
