@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   tela: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#0f0f0f",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
