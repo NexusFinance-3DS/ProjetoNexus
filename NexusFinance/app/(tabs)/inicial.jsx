@@ -87,7 +87,7 @@ export default function inicial() {
             <View style={styles.metaCard}>
               <View style={styles.cardTitle}>
                 <Text style={{ color: "#ffffff", borderRadius: 20, width: "60%", fontSize: 20 }}>Metas em andamento</Text>
-                <Text style={{ color: "#ffffff", backgroundColor: "#4800fff9", borderRadius: 20, width: "30%", marginLeft: "10%", textAlign: "center", fontSize: 12, fontWeight: "600", paddingTop:5 }} onPress={() => router.push('/metas')}>Ver metas</Text>
+                <Text style={{ color: "#ffffff", backgroundColor: "#4800fff9", borderRadius: 20, width: "30%", marginLeft: "10%", textAlign: "center", fontSize: 12, fontWeight: "600", paddingTop: 5 }} onPress={() => router.push('/metas')}>Ver metas</Text>
               </View>
               <View style={styles.metaValue}>
                 <View style={styles.graficos}>
