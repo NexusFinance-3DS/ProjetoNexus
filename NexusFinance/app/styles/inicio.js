@@ -186,4 +186,54 @@ export default StyleSheet.create({
     fontSize: 13,
     fontWeight: "600",
   },
+
+  header: {
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 30,
+},
+
+profileContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+},
+
+profileCircle: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 4,
+    borderColor: "#FFF",
+    justifyContent: "center",
+    alignItems: "center",
+},
+
+profileText: {
+    marginLeft: 15,
+},
+
+greeting: {
+    color: "#FFF",
+    fontSize: 22,
+    fontWeight: "600",
+},
+
+subtitle: {
+    color: "#C5C5C5",
+    fontSize: 15,
+    marginTop: 4,
+},
+
+notificationButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#1B2230",
+    justifyContent: "center",
+    alignItems: "center",
+},
+
 });
