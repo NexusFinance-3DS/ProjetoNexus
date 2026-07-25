@@ -3,10 +3,11 @@ import {View, Text, TouchableOpacity, Modal, TextInput, FlatList,} from "react-n
 import { router } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import styles from "../styles/metas";
-import navStyles from "../styles/barraNavegacao";
+import barraNavegacao from "../styles/barraNavegacao";
 
 export default function Metas() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(false);
 
   const [nomeMeta, setNomeMeta] = useState("");
   const [valorMeta, setValorMeta] = useState("");
@@ -189,49 +190,82 @@ export default function Metas() {
         </View>
       </Modal>
 
-      {/* Barra de navegação */}
-
-      <View style={navStyles.tabBar}>
+      {/* Menu expandido */}
+            {menuAberto && (
+              <View style={barraNavegacao.menuExpandido}>
+                <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
+                  <Icon name="attach-money" size={30} color="#fff" />
+                  <Text style={barraNavegacao.tabLabel}>Receitas</Text>
+                </TouchableOpacity>
+      
+                <TouchableOpacity style={barraNavegacao.itemMenu}>
+                  <Icon name="receipt" size={30} color="#fff" />
+                  <Text style={barraNavegacao.tabLabel}>Despesas</Text>
+                </TouchableOpacity>
+      
+                <TouchableOpacity style={barraNavegacao.itemMenu}>
+                  <Icon name="swap-horiz" size={30} color="#fff" />
+                  <Text style={barraNavegacao.tabLabel}>Transações</Text>
+                </TouchableOpacity>
+      
+                <TouchableOpacity style={barraNavegacao.itemMenu}>
+                  <Icon name="category" size={30} color="#fff" />
+                  <Text style={barraNavegacao.tabLabel}>Categoria</Text>
+                </TouchableOpacity>
+      
+                <TouchableOpacity style={barraNavegacao.itemMenu}>
+                  <Icon name="flag" size={30} color="#fff" />
+                  <Text style={barraNavegacao.tabLabel}>Metas</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+      
+            {/* Barra de navegação inferior */}
+            <View style={barraNavegacao.tabBar}>
               <TouchableOpacity
-                style={navStyles.tabItem}
+                style={barraNavegacao.tabItem}
                 onPress={() => router.push('/inicial')}
                 activeOpacity={0.8}
               >
                 <Icon name="home" size={32} color="#ffffff" />
-                <Text style={navStyles.tabLabel}>Início</Text>
+                <Text style={barraNavegacao.tabLabel}>Início</Text>
               </TouchableOpacity>
       
               <TouchableOpacity
-                style={navStyles.tabItem}
+                style={barraNavegacao.tabItem}
                 onPress={() => router.push('/fluxoFinanceiro')}
                 activeOpacity={0.8}
               >
                 <Icon name="swap-horiz" size={32} color="#ffffff" />
-                <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
+                <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
               </TouchableOpacity>
       
               <TouchableOpacity
-                style={navStyles.tabItem}
-                onPress={() => router.push('/auth/login')}
+                style={barraNavegacao.tabItem}
+                onPress={() => setMenuAberto(!menuAberto)}
                 activeOpacity={0.8}
               >
-                <Icon name="add-circle" size={56} color="rgb(255, 255, 255)" />
+                <Icon
+                  name={menuAberto ? "close" : "add-circle"}
+                  size={56}
+                  color="#fff"
+                />
               </TouchableOpacity>
               <TouchableOpacity
-                style={navStyles.tabItem}
+                style={barraNavegacao.tabItem}
                 onPress={() => router.push('/metas')}
                 activeOpacity={0.8}
               >
                 <Icon name="radar" size={32} color="#ffffff" />
-                <Text style={navStyles.tabLabel}>Metas</Text>
+                <Text style={barraNavegacao.tabLabel}>Metas</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={navStyles.tabItem}
+                style={barraNavegacao.tabItem}
                 onPress={() => router.push('/auth/login')}
                 activeOpacity={0.8}
               >
                 <Icon name="menu" size={32} color="#ffffff" />
-                <Text style={navStyles.tabLabel}>mais</Text>
+                <Text style={barraNavegacao.tabLabel}>mais</Text>
               </TouchableOpacity>
             </View>
             

@@ -47,6 +47,36 @@ export default function inicial() {
   return (
     <View style={styles.container}>
       <ScrollView>
+
+        {/* Cabeçalho */}
+        <View style={styles.header}>
+
+          <TouchableOpacity
+            style={styles.profileContainer}
+            onPress={() => router.push("/perfil")}
+            activeOpacity={0.8}
+          >
+            <View style={styles.profileCircle}>
+              <Icon name="person-outline" size={55} color="#FFF" />
+            </View>
+
+            <View style={styles.profileText}>
+              <Text style={styles.greeting}>Olá, Cesar</Text>
+              <Text style={styles.subtitle}>
+                Vamos organizar{"\n"}suas finanças hoje?
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.notificationButton}
+            activeOpacity={0.8}
+          >
+            <Icon name="notifications" size={28} color="#FFF" />
+          </TouchableOpacity>
+
+        </View>
+
         {/* Seção de saldo geral */}
         <View style={styles.saldoContainer}>
           <Text style={styles.titleSaldo}>Saldo Total:</Text>
