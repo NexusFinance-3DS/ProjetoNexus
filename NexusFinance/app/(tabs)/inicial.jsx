@@ -184,7 +184,7 @@ export default function inicial() {
       {/* Menu expandido */}
       {menuAberto && (
         <View style={barraNavegacao.menuExpandido}>
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
             <Icon name="attach-money" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
