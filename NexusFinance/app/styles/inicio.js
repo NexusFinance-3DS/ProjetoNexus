@@ -11,6 +11,36 @@ export default StyleSheet.create({
     paddingBottom: 80,
   },
 
+  profileContaine: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    marginTop: 15,
+  },
+  profileCircle: {
+    width: 85,
+    height: 85,
+    borderRadius: 50,
+    borderWidth: 4,
+    borderColor: "#FFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileInfo: {
+    marginLeft: 18,
+  },
+  nome: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  email: {
+    color: "#A5A5A5",
+    fontSize: 15,
+    marginTop: 4,
+  },
+
   // Saldo geral
   saldoContainer: {
     marginTop: 16,
@@ -20,7 +50,7 @@ export default StyleSheet.create({
     backgroundColor: "#281fa8",
     height: 150,
     width: "95%",
-    borderRadius: 8,
+    borderRadius: 25,
   },
   titleSaldo: {
     marginTop: 10,
@@ -194,14 +224,14 @@ export default StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
     marginBottom: 30,
-},
+  },
 
-profileContainer: {
+  profileContainer: {
     flexDirection: "row",
     alignItems: "center",
-},
+  },
 
-profileCircle: {
+  profileCircle: {
     width: 82,
     height: 82,
     borderRadius: 41,
@@ -209,31 +239,31 @@ profileCircle: {
     borderColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",
-},
+  },
 
-profileText: {
+  profileText: {
     marginLeft: 15,
-},
+  },
 
-greeting: {
+  greeting: {
     color: "#FFF",
     fontSize: 22,
     fontWeight: "600",
-},
+  },
 
-subtitle: {
+  subtitle: {
     color: "#C5C5C5",
     fontSize: 15,
     marginTop: 4,
-},
+  },
 
-notificationButton: {
+  notificationButton: {
     width: 52,
     height: 52,
     borderRadius: 26,
     backgroundColor: "#1B2230",
     justifyContent: "center",
     alignItems: "center",
-},
+  },
 
 });

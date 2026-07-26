@@ -47,36 +47,27 @@ export default function inicial() {
   return (
     <View style={styles.container}>
       <ScrollView>
+        <TouchableOpacity onPress={() => router.push('/perfil')}>{/* Perfil */}
+        <View style={styles.profileContaine}>
+          <View style={styles.profileCircle}>
+            <Icon
+              name="person-outline"
+              size={60}
+              color="#FFF"
+            />
+          </View>
 
-        {/* Cabeçalho */}
-        <View style={styles.header}>
+          <View style={styles.profileInfo}>
+            <Text style={styles.nome}>
+              Cesar Serra
+            </Text>
 
-          <TouchableOpacity
-            style={styles.profileContainer}
-            onPress={() => router.push("/perfil")}
-            activeOpacity={0.8}
-          >
-            <View style={styles.profileCircle}>
-              <Icon name="person-outline" size={55} color="#FFF" />
-            </View>
+            <Text style={styles.email}>
+              cesar.serra@gmail.com
+            </Text>
+          </View>
 
-            <View style={styles.profileText}>
-              <Text style={styles.greeting}>Olá, Cesar</Text>
-              <Text style={styles.subtitle}>
-                Vamos organizar{"\n"}suas finanças hoje?
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.notificationButton}
-            activeOpacity={0.8}
-          >
-            <Icon name="notifications" size={28} color="#FFF" />
-          </TouchableOpacity>
-
-        </View>
-
+        </View></TouchableOpacity>
         {/* Seção de saldo geral */}
         <View style={styles.saldoContainer}>
           <Text style={styles.titleSaldo}>Saldo Total:</Text>
