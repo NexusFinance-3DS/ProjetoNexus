@@ -210,7 +210,7 @@ export default function inicial() {
             <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
             <Icon name="receipt" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>

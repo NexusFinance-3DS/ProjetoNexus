@@ -20,18 +20,16 @@ export default function novaReceita() {
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.addValor}>
-                    <Text style={styles.titulo}>Adicione o valor</Text>
-                    <View style={styles.valorWrap}>
-                        <Text style={styles.currency}>R$</Text>
+                    <Text style={styles.titulo}>Adicione o valor:</Text>
                         <TextInput
                             style={[styles.InputValor, {textAlign: 'right'}]}
                             value={valor}
                             onChangeText={(texto) => setValor(texto)}
                             keyboardType="numeric"
-                            placeholder="0,00"
+                            placeholder="R$ 0,00"
                             placeholderTextColor="#3f3f3f"
                         />
-                    </View>
+                    
                 </View>
                 <View style={styles.inputFull}>
                     <Text style={{color:"#fff", marginLeft:10,marginBottom:5, fontSize:16,}}>Descrição</Text>
@@ -107,20 +105,7 @@ export default function novaReceita() {
                     <TouchableOpacity
                         style={styles.saveButton}
                         activeOpacity={0.8}
-                        onPress={() => {
-                            const valorNum = parseFloat(String(valor).replace(/[^0-9\-,.]/g, '').replace(',', '.')) || 0;
-                            if (!valor || valorNum <= 0) {
-                                Alert.alert('Erro', 'Informe um valor válido para a receita.');
-                                return;
-                            }
-                            if (!descricao || descricao.trim() === '') {
-                                Alert.alert('Erro', 'Informe uma descrição para a receita.');
-                                return;
-                            }
-                            // TODO: salvar em backend ou storage
-                            Alert.alert('Sucesso', 'Receita salva com sucesso.');
-                            router.push('/fluxoFinanceiro');
-                        }}
+
                     >
                         <Text style={styles.saveButtonText}>Salvar receita</Text>
                     </TouchableOpacity>
@@ -128,34 +113,34 @@ export default function novaReceita() {
             </ScrollView>
 
             {/* Menu expandido */}
-            {menuAberto && (
-                <View style={barraNavegacao.menuExpandido}>
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                  {menuAberto && (
+                    <View style={barraNavegacao.menuExpandido}>
+                      <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
                         <Icon name="attach-money" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Receitas</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                      </TouchableOpacity>
+            
+                      <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
                         <Icon name="receipt" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Despesas</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                      </TouchableOpacity>
+            
+                      <TouchableOpacity style={barraNavegacao.itemMenu}>
                         <Icon name="swap-horiz" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Transações</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                      </TouchableOpacity>
+            
+                      <TouchableOpacity style={barraNavegacao.itemMenu}>
                         <Icon name="category" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Categoria</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                      </TouchableOpacity>
+            
+                      <TouchableOpacity style={barraNavegacao.itemMenu}>
                         <Icon name="flag" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Metas</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
+                      </TouchableOpacity>
+                    </View>
+                  )}
 
             {/* Barra de navegação inferior */}
             <View style={barraNavegacao.tabBar}>
