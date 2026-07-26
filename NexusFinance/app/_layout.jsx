@@ -45,6 +45,10 @@ export default function RootLayout() {
         name="receita/novaReceita"
         options={{ title: "Nova Receita" }}
       />
+      <Stack.Screen
+        name="(tabs)/perfil"
+        options={{ title: "Perfil" }}
+      />
     </Stack>
   );
 }

@@ -14,7 +14,6 @@ export default function Perfil() {
       <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* Perfil */}
-
         <View style={styles.profileContainer}>
 
           <View style={styles.profileCircle}>

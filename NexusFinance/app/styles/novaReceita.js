@@ -19,18 +19,37 @@ export default StyleSheet.create({
   addValor:{
     flexDirection: "row",
     backgroundColor: "#1c1c1c",
-    padding:10,
+    padding:12,
     margin: 20,
     borderRadius: 35,
-    alignItems: "center"
+    alignItems: "center",
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#242424'
   },
 
   InputValor:{
     color: "#55ff00",
     marginLeft: "15%",
-    borderRadius: 20,
+    borderRadius: 12,
     width: "40%",
-    backgroundColor: "#6a66667b"
+    backgroundColor: "#1c1c1c",
+    height: 52,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+  },
+  valorWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    flex: 1,
+    marginLeft: 12,
+  },
+  currency: {
+    color: '#55ff00',
+    fontWeight: '700',
+    marginRight: 8,
+    fontSize: 18,
   },
   input: {
     width: "100%",
@@ -41,5 +60,54 @@ export default StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 18,
+  },
+  inputFull: {
+    paddingHorizontal: 20,
+    marginBottom: 6,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#121212',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginHorizontal: 18,
+    marginBottom: 10,
+    borderRadius: 10,
+  },
+  iconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: '#1f1f1f',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  listItemText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  listItemSub: {
+    color: '#9b9b9b',
+    fontSize: 13,
+    marginTop: 4,
+  },
+  saveWrapper: {
+    paddingHorizontal: 18,
+    marginTop: 10,
+    marginBottom: 84,
+  },
+  saveButton: {
+    backgroundColor: '#5a39ff',
+    paddingVertical: 14,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
 })
