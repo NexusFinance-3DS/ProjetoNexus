@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {View, Text, TouchableOpacity, Modal, TextInput, FlatList,} from "react-native";
+import { View, Text, TouchableOpacity, Modal, TextInput, FlatList, } from "react-native";
 import { router } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import styles from "../styles/metas";
@@ -96,7 +96,7 @@ export default function Metas() {
   }
 
   return (
-    <View style={styles.container}> 
+    <View style={styles.container}>
       <Text style={styles.title}>Minhas Metas</Text>
 
       <FlatList
@@ -191,84 +191,84 @@ export default function Metas() {
       </Modal>
 
       {/* Menu expandido */}
-            {menuAberto && (
-              <View style={barraNavegacao.menuExpandido}>
-                <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
-                  <Icon name="attach-money" size={30} color="#fff" />
-                  <Text style={barraNavegacao.tabLabel}>Receitas</Text>
-                </TouchableOpacity>
-      
-                <TouchableOpacity style={barraNavegacao.itemMenu}>
-                  <Icon name="receipt" size={30} color="#fff" />
-                  <Text style={barraNavegacao.tabLabel}>Despesas</Text>
-                </TouchableOpacity>
-      
-                <TouchableOpacity style={barraNavegacao.itemMenu}>
-                  <Icon name="swap-horiz" size={30} color="#fff" />
-                  <Text style={barraNavegacao.tabLabel}>Transações</Text>
-                </TouchableOpacity>
-      
-                <TouchableOpacity style={barraNavegacao.itemMenu}>
-                  <Icon name="category" size={30} color="#fff" />
-                  <Text style={barraNavegacao.tabLabel}>Categoria</Text>
-                </TouchableOpacity>
-      
-                <TouchableOpacity style={barraNavegacao.itemMenu}>
-                  <Icon name="flag" size={30} color="#fff" />
-                  <Text style={barraNavegacao.tabLabel}>Metas</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-      
-            {/* Barra de navegação inferior */}
-            <View style={barraNavegacao.tabBar}>
-              <TouchableOpacity
-                style={barraNavegacao.tabItem}
-                onPress={() => router.push('/inicial')}
-                activeOpacity={0.8}
-              >
-                <Icon name="home" size={32} color="#ffffff" />
-                <Text style={barraNavegacao.tabLabel}>Início</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity
-                style={barraNavegacao.tabItem}
-                onPress={() => router.push('/fluxoFinanceiro')}
-                activeOpacity={0.8}
-              >
-                <Icon name="swap-horiz" size={32} color="#ffffff" />
-                <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity
-                style={barraNavegacao.tabItem}
-                onPress={() => setMenuAberto(!menuAberto)}
-                activeOpacity={0.8}
-              >
-                <Icon
-                  name={menuAberto ? "close" : "add-circle"}
-                  size={56}
-                  color="#fff"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={barraNavegacao.tabItem}
-                onPress={() => router.push('/metas')}
-                activeOpacity={0.8}
-              >
-                <Icon name="radar" size={32} color="#ffffff" />
-                <Text style={barraNavegacao.tabLabel}>Metas</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={barraNavegacao.tabItem}
-                onPress={() => router.push('/auth/login')}
-                activeOpacity={0.8}
-              >
-                <Icon name="menu" size={32} color="#ffffff" />
-                <Text style={barraNavegacao.tabLabel}>mais</Text>
-              </TouchableOpacity>
-            </View>
-            
+      {menuAberto && (
+        <View style={barraNavegacao.menuExpandido}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
+            <Icon name="attach-money" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Receitas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="receipt" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Despesas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="swap-horiz" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Transações</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="category" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Categoria</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
+            <Icon name="flag" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Metas</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Barra de navegação inferior */}
+      <View style={barraNavegacao.tabBar}>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/inicial')}
+          activeOpacity={0.8}
+        >
+          <Icon name="home" size={32} color="#ffffff" />
+          <Text style={barraNavegacao.tabLabel}>Início</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/fluxoFinanceiro')}
+          activeOpacity={0.8}
+        >
+          <Icon name="swap-horiz" size={32} color="#ffffff" />
+          <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => setMenuAberto(!menuAberto)}
+          activeOpacity={0.8}
+        >
+          <Icon
+            name={menuAberto ? "close" : "add-circle"}
+            size={56}
+            color="#fff"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/metas')}
+          activeOpacity={0.8}
+        >
+          <Icon name="radar" size={32} color="#ffffff" />
+          <Text style={barraNavegacao.tabLabel}>Metas</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/auth/login')}
+          activeOpacity={0.8}
+        >
+          <Icon name="menu" size={32} color="#ffffff" />
+          <Text style={barraNavegacao.tabLabel}>mais</Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 }

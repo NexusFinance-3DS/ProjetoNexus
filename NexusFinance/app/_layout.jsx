@@ -43,11 +43,15 @@ export default function RootLayout() {
       />
       <Stack.Screen
         name="receita/novaReceita"
-        options={{ title: "Nova Receita" }}
+        options={{ title: "Nova receita" }}
       />
       <Stack.Screen
         name="(tabs)/perfil"
         options={{ title: "Perfil" }}
+      />
+      <Stack.Screen
+        name="despesa/novaDespesa"
+        options={{ title: "Nova despesa" }}
       />
     </Stack>
   );
