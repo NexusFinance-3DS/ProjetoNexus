@@ -1,51 +1,335 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import navStyles from '../styles/barraNavegacao';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import { router } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function dashboard() {
-    <View style={navStyles.tabBar}>
-            <TouchableOpacity
-              style={navStyles.tabItem}
-              onPress={() => router.push('/inicial')}
-              activeOpacity={0.8}
-            >
-              <Icon name="home" size={32} color="#ffffff" />
-              <Text style={navStyles.tabLabel}>Início</Text>
-            </TouchableOpacity>
-    
-            <TouchableOpacity
-              style={navStyles.tabItem}
-              onPress={() => router.push('/auth/boasVindas')}
-              activeOpacity={0.8}
-            >
-              <Icon name="swap-horiz" size={32} color="#ffffff" />
-              <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
-            </TouchableOpacity>
-    
-            <TouchableOpacity
-              style={navStyles.tabItem}
-              onPress={() => router.push('/auth/login')}
-              activeOpacity={0.8}
-            >
-              <Icon name="add-circle" size={56} color="rgb(255, 255, 255)" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={navStyles.tabItem}
-              onPress={() => router.push('/auth/login')}
-              activeOpacity={0.8}
-            >
-              <Icon name="radar" size={32} color="#ffffff" />
-              <Text style={navStyles.tabLabel}>Metas</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={navStyles.tabItem}
-              onPress={() => router.push('/auth/login')}
-              activeOpacity={0.8}
-            >
-              <Icon name="menu" size={32} color="#ffffff" />
-              <Text style={navStyles.tabLabel}>mais</Text>
-            </TouchableOpacity>
+import {
+  PieChart,
+  LineChart,
+} from "react-native-chart-kit";
+
+import styles from "../styles/dashboard";
+import navStyles from "../styles/barraNavegacao";
+
+export default function Dashboard() {
+  const [menuAberto, setMenuAberto] = useState(false);
+
+  const screenWidth = 340;
+
+  const pieData = [
+    {
+      name: "Alimentação",
+      population: 981,
+      color: "#6C63FF",
+      legendFontColor: "#FFF",
+      legendFontSize: 13,
+    },
+    {
+      name: "Transporte",
+      population: 654,
+      color: "#5145FF",
+      legendFontColor: "#FFF",
+      legendFontSize: 13,
+    },
+    {
+      name: "Lazer",
+      population: 490,
+      color: "#7C6BFF",
+      legendFontColor: "#FFF",
+      legendFontSize: 13,
+    },
+    {
+      name: "Moradia",
+      population: 817,
+      color: "#291CFF",
+      legendFontColor: "#FFF",
+      legendFontSize: 13,
+    },
+    {
+      name: "Outros",
+      population: 328,
+      color: "#666",
+      legendFontColor: "#FFF",
+      legendFontSize: 13,
+    },
+  ];
+
+  const lineData = {
+    labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
+    datasets: [
+      {
+        data: [1200, 2500, 3200, 2400, 3000, 4200, 5000],
+      },
+    ],
+  };
+
+  return (
+    <View style={styles.container}>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.back}
+        >
+          <Icon
+            name="arrow-back"
+            size={28}
+            color="#FFF"
+          />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          Dashboard
+        </Text>
+
+        <View style={styles.card}>
+
+          <Text style={styles.cardTitle}>
+            Gastos por categoria
+          </Text>
+
+          <View style={styles.graficoContainer}>
+
+  <PieChart
+    data={pieData}
+    width={180}
+    height={180}
+    accessor="population"
+    backgroundColor="transparent"
+    hasLegend={false}
+    chartConfig={{
+      color: () => "#FFF",
+    }}
+  />
+
+  <View style={styles.legenda}>
+
+    {pieData.map((item, index) => (
+      <View key={index} style={styles.itemLegenda}>
+
+        <View
+          style={[
+            styles.corLegenda,
+            { backgroundColor: item.color },
+          ]}
+        />
+
+        <Text style={styles.textoLegenda}>
+          {item.name}
+        </Text>
+
+      </View>
+    ))}
+
+  </View>
+
+</View>
+
+        </View>
+
+        <View style={styles.card}>
+
+          <Text style={styles.cardTitle}>
+            Evolução de saldo
+          </Text>
+
+          <LineChart
+            data={lineData}
+            width={screenWidth -40}
+            height={190}
+            withDots={false}
+            withShadow={false}
+            withInnerLines={true}
+            withOuterLines={false}
+            bezier
+            chartConfig={{
+              backgroundGradientFrom: "#11151D",
+              backgroundGradientTo: "#11151D",
+              decimalPlaces: 0,
+              color: () => "#5145FF",
+              labelColor: () => "#AAA",
+            }}
+            style={{
+              borderRadius: 15,
+            }}
+          />
+
+        </View>
+
+        <View style={styles.card}>
+
+          <Text style={styles.cardTitle}>
+            Resumo do mês
+          </Text>
+
+          <View style={styles.resumoItem}>
+
+            <View style={styles.iconGreen}>
+              <Icon
+                name="arrow-upward"
+                size={34}
+                color="#00FF66"
+              />
+            </View>
+
+            <View style={{ flex: 1 }}>
+
+              <Text style={styles.resumoTitulo}>
+                Receitas
+              </Text>
+
+              <Text style={styles.resumoValor}>
+                R$ 8.100,00
+              </Text>
+
+              <View style={styles.progress}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: "78%",
+                    },
+                  ]}
+                />
+              </View>
+
+            </View>
+
+            <Text style={styles.percent}>
+              78%
+            </Text>
+
           </View>
+
+          <View style={styles.resumoItem}>
+
+            <View style={styles.iconRed}>
+              <Icon
+                name="arrow-downward"
+                size={34}
+                color="#FF3030"
+              />
+            </View>
+
+            <View style={{ flex: 1 }}>
+
+              <Text style={styles.resumoTitulo}>
+                Despesas
+              </Text>
+
+              <Text style={styles.resumoValor}>
+                R$ 3.270,00
+              </Text>
+
+              <View style={styles.progress}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: "32%",
+                    },
+                  ]}
+                />
+              </View>
+
+            </View>
+
+            <Text style={styles.percent}>
+              32%
+            </Text>
+
+          </View>
+
+        </View>
+    
+        <View style={{ height: 100 }} />
+
+      </ScrollView>
+
+      {/* Menu expandido */}
+      {menuAberto && (
+        <View style={navStyles.menuExpandido}>
+          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/receita/novaReceita")}>
+            <Icon name="attach-money" size={30} color="#fff" />
+            <Text style={navStyles.tabLabel}>Receitas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/despesa/novaDespesa")}>
+            <Icon name="receipt" size={30} color="#fff" />
+            <Text style={navStyles.tabLabel}>Despesas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/fluxoFinanceiro")}>
+            <Icon name="swap-horiz" size={30} color="#fff" />
+            <Text style={navStyles.tabLabel}>Transações</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={navStyles.itemMenu}>
+            <Icon name="category" size={30} color="#fff" />
+            <Text style={navStyles.tabLabel}>Categoria</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/metas")}>
+            <Icon name="flag" size={30} color="#fff" />
+            <Text style={navStyles.tabLabel}>Metas</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Barra de navegação */}
+      <View style={navStyles.tabBar}>
+        <TouchableOpacity
+          style={navStyles.tabItem}
+          onPress={() => router.push("/inicial")}
+          activeOpacity={0.8}
+        >
+          <Icon name="home" size={32} color="#ffffff" />
+          <Text style={navStyles.tabLabel}>Início</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={navStyles.tabItem}
+          onPress={() => router.push("/fluxoFinanceiro")}
+          activeOpacity={0.8}
+        >
+          <Icon name="swap-horiz" size={32} color="#ffffff" />
+          <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={navStyles.tabItem}
+          onPress={() => setMenuAberto(!menuAberto)}
+          activeOpacity={0.8}
+        >
+          <Icon
+            name={menuAberto ? "close" : "add-circle"}
+            size={56}
+            color="#fff"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={navStyles.tabItem}
+          onPress={() => router.push("/metas")}
+          activeOpacity={0.8}
+        >
+          <Icon name="radar" size={32} color="#ffffff" />
+          <Text style={navStyles.tabLabel}>Metas</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={navStyles.tabItem}
+          onPress={() => router.push("/dashboard")}
+          activeOpacity={0.8}
+        >
+          <Icon name="menu" size={32} color="#ffffff" />
+          <Text style={navStyles.tabLabel}>mais</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
