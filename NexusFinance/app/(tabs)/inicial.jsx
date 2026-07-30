@@ -273,7 +273,7 @@ export default function inicial() {
         </TouchableOpacity>
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push('/auth/login')}
+          onPress={() => router.push('/dashboard')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />
