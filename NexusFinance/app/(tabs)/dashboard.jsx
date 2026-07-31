@@ -1,17 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { router } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-import {
-  PieChart,
-  LineChart,
-} from "react-native-chart-kit";
+import {PieChart, LineChart} from "react-native-chart-kit";
 
 import styles from "../styles/dashboard";
 import navStyles from "../styles/barraNavegacao";
@@ -71,7 +63,7 @@ export default function Dashboard() {
   return (
     <View style={styles.container}>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
         <TouchableOpacity
           onPress={() => router.back()}

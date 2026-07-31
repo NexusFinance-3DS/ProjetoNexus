@@ -2,12 +2,10 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+  flex: 1,
   backgroundColor: "#000",
   alignItems: "stretch",
-  marginLeft: -10,
-  marginRight: -10,
-  paddingHorizontal: 10,
+  
   paddingTop: 10,
   paddingBottom: 80,
   },
@@ -17,6 +15,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 25,
+    paddingHorizontal: 10,
   },
 
   card: {

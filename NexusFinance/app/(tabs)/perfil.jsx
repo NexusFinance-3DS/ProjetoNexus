@@ -11,7 +11,7 @@ export default function Perfil() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
         {/* Perfil */}
         <View style={styles.profileContainer}>
@@ -144,7 +144,10 @@ export default function Perfil() {
             <Icon name="chevron-right" size={24} color="#FFF" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.itemMenu}>
+          <TouchableOpacity
+            style={styles.itemMenu}
+            onPress={() => router.push("/relatorios")}
+          >
             <View style={styles.itemLeft}>
               <Icon name="description" size={24} color="#FFF" />
               <Text style={styles.itemTexto}>Relatórios</Text>

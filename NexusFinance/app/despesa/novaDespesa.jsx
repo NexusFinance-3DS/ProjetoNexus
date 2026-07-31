@@ -19,7 +19,7 @@ export default function novaDespesa() {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
+            <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
                 <View style={styles.addValor}>
                     <Text style={styles.titulo}>Adicione o valor:</Text>
                         <TextInput

@@ -101,6 +101,7 @@ export default function Metas() {
 
       <FlatList
         data={metas}
+        contentContainerStyle={{ paddingBottom: 150 }}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
