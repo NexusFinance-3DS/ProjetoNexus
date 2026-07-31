@@ -44,6 +44,14 @@ const styles = StyleSheet.create({
 
   profileInfo: {
     marginLeft: 18,
+    flex: 1,
+  },
+
+  settingsButton: {
+    marginLeft: "auto",
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   nome: {

@@ -34,6 +34,13 @@ export default function Perfil() {
             </Text>
           </View>
 
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={() => router.push("/configuracoes")}
+          >
+            <Icon name="settings" size={24} color="#FFF" />
+          </TouchableOpacity>
+
         </View>
 
         {/* Resumo */}
