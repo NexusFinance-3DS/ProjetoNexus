@@ -40,7 +40,7 @@ export default function fluxoFinanceiro() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         <Text style={styles.title}>Fluxo Financeiro</Text>
 
         <View style={styles.filtroContainer}>
