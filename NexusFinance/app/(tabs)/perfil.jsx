@@ -143,7 +143,10 @@ export default function Perfil() {
             <Icon name="chevron-right" size={24} color="#FFF" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.itemMenu}>
+          <TouchableOpacity
+            style={styles.itemMenu}
+            onPress={() => router.push("/notificacoes")}
+          >
             <View style={styles.itemLeft}>
               <Icon name="notifications-none" size={24} color="#FFF" />
               <Text style={styles.itemTexto}>Notificações</Text>
