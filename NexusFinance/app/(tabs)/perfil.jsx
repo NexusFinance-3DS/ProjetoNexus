@@ -135,7 +135,7 @@ export default function Perfil() {
 
         <View style={styles.menuCard}>
 
-          <TouchableOpacity style={styles.itemMenu}>
+          <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/meuCadastro")}>
             <View style={styles.itemLeft}>
               <Icon name="person-outline" size={24} color="#FFF" />
               <Text style={styles.itemTexto}>Meu cadastro</Text>
@@ -165,7 +165,7 @@ export default function Perfil() {
             <Icon name="chevron-right" size={24} color="#FFF" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.itemMenu}>
+          <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/centralAjuda")}>
             <View style={styles.itemLeft}>
               <Icon name="support-agent" size={24} color="#FFF" />
               <Text style={styles.itemTexto}>Central de ajuda</Text>
@@ -173,7 +173,7 @@ export default function Perfil() {
             <Icon name="chevron-right" size={24} color="#FFF" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.itemMenu}>
+          <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/sobreApp")}>
             <View style={styles.itemLeft}>
               <Icon name="info-outline" size={24} color="#FFF" />
               <Text style={styles.itemTexto}>Sobre o aplicativo</Text>
