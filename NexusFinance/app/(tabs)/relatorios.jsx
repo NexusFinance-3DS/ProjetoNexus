@@ -35,10 +35,6 @@ export default function Relatorios() {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
 
-        <Text style={styles.title}>
-          Relatórios
-        </Text>
-
         {/* Período */}
 
         <View style={styles.card}>
