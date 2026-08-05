@@ -62,32 +62,6 @@ export default function Notificacoes() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        <View style={styles.header}>
-
-          <TouchableOpacity
-            onPress={() => router.back()}
-          >
-            <Icon
-              name="arrow-back"
-              size={28}
-              color="#FFF"
-            />
-          </TouchableOpacity>
-
-          <Text style={styles.title}>
-            Notificações
-          </Text>
-
-          <TouchableOpacity>
-            <Icon
-              name="delete-sweep"
-              size={28}
-              color="#FFF"
-            />
-          </TouchableOpacity>
-
-        </View>
-
         <Text style={styles.subTitle}>
           Últimas notificações
         </Text>

@@ -30,6 +30,7 @@ export default StyleSheet.create({
   },
 
   card: {
+    marginTop: 10,
     backgroundColor: "#11151D",
     marginHorizontal: 18,
     marginBottom: 20,

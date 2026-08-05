@@ -16,20 +16,6 @@ export default function CentralAjuda() {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
 
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Icon name="arrow-back" size={28} color="#FFF" />
-          </TouchableOpacity>
-
-          <Text style={styles.title}>Central de ajuda</Text>
-
-          <View style={{ width: 28 }} />
-        </View>
-
-        <Text style={styles.subtitle}>
-          Encontre respostas rápidas e soluções para suas dúvidas.
-        </Text>
-
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Perguntas frequentes</Text>
 
