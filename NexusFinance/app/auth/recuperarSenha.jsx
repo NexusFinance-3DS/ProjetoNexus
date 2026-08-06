@@ -14,13 +14,13 @@ export default function RecuperarSenha() {
   const [codigo, setCodigo] = useState("");
 
   const enviarCodigo = () => {
-    
+
     alert("Código enviado para o e-mail!");
   };
 
   const verificarCodigo = () => {
-  router.push("/auth/novaSenha");
-    };
+    router.push("/auth/novaSenha");
+  };
 
   return (
     <SafeAreaView style={styles.container}>

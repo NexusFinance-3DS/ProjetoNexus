@@ -8,7 +8,6 @@ export default StyleSheet.create({
     marginLeft: -10,
     marginRight: -10,
     paddingHorizontal: 10,
-    paddingBottom: 100,
   },
 
   title: {
@@ -22,13 +21,13 @@ export default StyleSheet.create({
 
   filtroContainer: {
     flexDirection: "row",
-    backgroundColor: "#17171c",
+    backgroundColor: "#1c1c1c",
     borderRadius: 30,
     padding: 3,
     marginTop: 10,
     marginHorizontal: 20,
     borderWidth: 1,
-    borderColor: "#1f2a3d",
+    borderColor: "#201f2c",
   },
 
   botaoFiltro: {
@@ -61,7 +60,7 @@ export default StyleSheet.create({
 
   resumoCard: {
     flex: 1,
-    backgroundColor: "#17171c",
+    backgroundColor: "#1c1c1c",
     borderRadius: 16,
     padding: 14,
     minWidth: 100,
@@ -85,7 +84,7 @@ export default StyleSheet.create({
 
   dados: {
     marginTop: 20,
-    backgroundColor: "#17171c",
+    backgroundColor: "#1c1c1c",
     borderRadius: 18,
     padding: 16,
     marginHorizontal: 20,

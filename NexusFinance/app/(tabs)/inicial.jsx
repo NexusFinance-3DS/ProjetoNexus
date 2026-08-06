@@ -4,7 +4,6 @@ import { View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from '../styles/inicio';
-import navStyles from '../styles/barraNavegacao';
 import barraNavegacao from '../styles/barraNavegacao';
 
 export default function inicial() {
@@ -249,7 +248,7 @@ export default function inicial() {
           activeOpacity={0.8}
         >
           <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
+          <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

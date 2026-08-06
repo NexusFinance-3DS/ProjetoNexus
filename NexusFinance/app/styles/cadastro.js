@@ -5,12 +5,15 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0f0f0f",
+    justifyContent: "center",
+    paddingHorizontal: 24,
   },
 
   content: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 25,
+    color: "#aaa",
+    fontSize: 14,
+    marginTop: 12,
+    marginBottom: 4,
   },
 
   title: {
@@ -41,8 +44,8 @@ export default StyleSheet.create({
   },
 
   buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "bold",
   },
 

@@ -35,16 +35,16 @@ const styles = StyleSheet.create({
   button: {
     width: "100%",
     height: 45,
-    backgroundColor: "#6C3EF4",
-    borderRadius: 12,
+    backgroundColor: "#635bff",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
   },
 
   buttonText: {
-    color: "#FFF",
-    fontSize: 18,
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "bold",
   },
   

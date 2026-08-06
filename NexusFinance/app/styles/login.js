@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
-  tela: {
+  container: {
     flex: 1,
     backgroundColor: "#0f0f0f",
     justifyContent: "center",

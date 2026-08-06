@@ -3,8 +3,8 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10,
-    backgroundColor: "#05070D",
+    backgroundColor: "#0f0f0f",
+    alignItems: "stretch",
     marginLeft: -10,
     marginRight: -10,
     paddingHorizontal: 10,
@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
+    marginTop: 10,
     marginBottom: 30,
   },
 
@@ -67,12 +68,12 @@ const styles = StyleSheet.create({
   },
 
   resumoCard: {
-    backgroundColor: "#11151D",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 15,
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#242B3D",
+    borderColor: "#303030",
     marginBottom: 25,
   },
 
@@ -109,12 +110,12 @@ const styles = StyleSheet.create({
   },
 
   menuCard: {
-    backgroundColor: "#11151D",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 15,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#242B3D",
-    marginBottom: 120,
+    borderColor: "#303030",
+    marginBottom: 20,
     overflow: "hidden",
   },
 
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#1F2431",
+    borderBottomColor: "#303030",
   },
 
   itemLeft: {
@@ -148,7 +149,7 @@ const styles = StyleSheet.create({
 
 modal: {
   width: "85%",
-  backgroundColor: "#161B22",
+  backgroundColor: "#1c1c1c",
   borderRadius: 25,
   padding: 25,
   alignItems: "center",
@@ -204,7 +205,7 @@ sair: {
   width: "47%",
   height: 50,
   borderRadius: 15,
-  backgroundColor: "#5145FF",
+  backgroundColor: "#635bff",
   justifyContent: "center",
   alignItems: "center",
 },

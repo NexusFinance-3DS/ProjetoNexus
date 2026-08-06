@@ -3,21 +3,19 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#05070D",
+    backgroundColor: "#0f0f0f",
+    alignItems: "stretch",
+    marginLeft: -10,
+    marginRight: -10,
+    paddingHorizontal: 10,
   },
 
   header: {
-    marginTop: 15,
+    marginTop: 1,
     marginHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-
-  title: {
-    color: "#FFF",
-    fontSize: 30,
-    fontWeight: "bold",
   },
 
   subTitle: {
@@ -29,7 +27,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#141923",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     marginBottom: 15,
     borderRadius: 20,
@@ -37,12 +35,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#232C40",
+    borderColor: "#303030",
   },
 
   cardNova: {
     borderLeftWidth: 5,
-    borderLeftColor: "#5145FF",
+    borderLeftColor: "#4b3df2",
   },
 
   iconContainer: {
@@ -88,7 +86,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#5145FF",
+    backgroundColor: "#4b3df2",
     marginLeft: 10,
     alignSelf: "flex-start",
     marginTop: 8,

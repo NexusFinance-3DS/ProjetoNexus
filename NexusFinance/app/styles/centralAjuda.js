@@ -3,7 +3,11 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#05070D",
+    backgroundColor: "#0f0f0f",
+    alignItems: "stretch",
+    marginLeft: -10,
+    marginRight: -10,
+    paddingHorizontal: 10,
   },
 
   header: {
@@ -30,12 +34,13 @@ export default StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#11151D",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
+    marginTop: 20,
     marginBottom: 20,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#242B3D",
+    borderColor: "#303030",
     paddingVertical: 12,
     overflow: "hidden",
   },
@@ -71,16 +76,16 @@ export default StyleSheet.create({
 
   divider: {
     height: 1,
-    backgroundColor: "#1F2431",
+    backgroundColor: "#3b3b3b",
     marginHorizontal: 18,
   },
 
   cardInfo: {
-    backgroundColor: "#11151D",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#242B3D",
+    borderColor: "#303030",
     padding: 18,
     marginBottom: 20,
   },
@@ -99,7 +104,7 @@ export default StyleSheet.create({
   },
 
   contactButton: {
-    backgroundColor: "#5145FF",
+    backgroundColor: "#635bff",
     marginHorizontal: 18,
     height: 56,
     borderRadius: 16,
