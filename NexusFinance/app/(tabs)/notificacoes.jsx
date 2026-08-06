@@ -62,20 +62,9 @@ export default function Notificacoes() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        <View style={styles.header}>
-          <Text style={styles.subTitle}>
-            Últimas notificações
-          </Text>
-          <TouchableOpacity>
-            <Icon
-              name="delete-sweep"
-              size={28}
-              color="#FFF"
-            />
-          </TouchableOpacity>
-        </View>
-
-
+        <Text style={styles.subTitle}>
+          Últimas notificações
+        </Text>
 
         {notificacoes.map((item) => (
 
