@@ -60,7 +60,7 @@ export default function Metas() {
           <Icon
             name="track-changes"
             size={32}
-            color="#6C3EF4"
+            color="#5145FF"
           />
 
           <Text style={styles.nomeMeta}>
@@ -199,7 +199,7 @@ export default function Metas() {
             <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
             <Icon name="receipt" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>
@@ -238,7 +238,7 @@ export default function Metas() {
           activeOpacity={0.8}
         >
           <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
+          <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -262,7 +262,7 @@ export default function Metas() {
         </TouchableOpacity>
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push('/auth/login')}
+          onPress={() => router.push('/dashboard')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />

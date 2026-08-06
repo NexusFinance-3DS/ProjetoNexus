@@ -21,18 +21,18 @@ export default function novaReceita() {
             <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
                 <View style={styles.addValor}>
                     <Text style={styles.titulo}>Adicione o valor:</Text>
-                        <TextInput
-                            style={[styles.InputValor, {textAlign: 'right'}]}
-                            value={valor}
-                            onChangeText={(texto) => setValor(texto)}
-                            keyboardType="numeric"
-                            placeholder="R$ 0,00"
-                            placeholderTextColor="#3f3f3f"
-                        />
-                    
+                    <TextInput
+                        style={[styles.InputValor, { textAlign: 'right' }]}
+                        value={valor}
+                        onChangeText={(texto) => setValor(texto)}
+                        keyboardType="numeric"
+                        placeholder="R$ 0,00"
+                        placeholderTextColor="#3f3f3f"
+                    />
+
                 </View>
                 <View style={styles.inputFull}>
-                    <Text style={{color:"#fff", marginLeft:10,marginBottom:5, fontSize:16,}}>Descrição</Text>
+                    <Text style={{ color: "#fff", marginLeft: 10, marginBottom: 5, fontSize: 16, }}>Descrição</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Descrição:"
@@ -44,8 +44,8 @@ export default function novaReceita() {
                 </View>
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
-                    <View style={styles.iconBox}><Icon name="event" size={20} color="#fff"/></View>
-                    <View style={{flex:1}}>
+                    <View style={styles.iconBox}><Icon name="event" size={20} color="#fff" /></View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.listItemText}>Data</Text>
                         <Text style={styles.listItemSub}>{data || 'Selecione a data'}</Text>
                     </View>
@@ -53,8 +53,8 @@ export default function novaReceita() {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
-                    <View style={styles.iconBox}><Icon name="label" size={20} color="#fff"/></View>
-                    <View style={{flex:1}}>
+                    <View style={styles.iconBox}><Icon name="label" size={20} color="#fff" /></View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.listItemText}>Categoria</Text>
                         <Text style={styles.listItemSub}>{categoria}</Text>
                     </View>
@@ -62,8 +62,8 @@ export default function novaReceita() {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
-                    <View style={styles.iconBox}><Icon name="account-balance" size={20} color="#fff"/></View>
-                    <View style={{flex:1}}>
+                    <View style={styles.iconBox}><Icon name="account-balance" size={20} color="#fff" /></View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.listItemText}>Conta</Text>
                         <Text style={styles.listItemSub}>{conta}</Text>
                     </View>
@@ -72,8 +72,8 @@ export default function novaReceita() {
 
                 <View style={styles.listItem}
                 >
-                    <View style={styles.iconBox}><Icon name="gavel" size={20} color="#fff"/></View>
-                    <View style={{flex:1}}>
+                    <View style={styles.iconBox}><Icon name="gavel" size={20} color="#fff" /></View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.listItemText}>Receita fixa</Text>
                         <Text style={styles.listItemSub}>Receita recorrente mensal</Text>
                     </View>
@@ -81,9 +81,9 @@ export default function novaReceita() {
                 </View>
 
                 <View style={styles.inputFull}>
-                    <Text style={{color:"#fff", marginLeft:10,marginBottom:5, fontSize:16,}}>Observação (opcional)</Text>
+                    <Text style={{ color: "#fff", marginLeft: 10, marginBottom: 5, fontSize: 16, }}>Observação (opcional)</Text>
                     <TextInput
-                        style={[styles.input, {height: 90}]}
+                        style={[styles.input, { height: 90 }]}
                         placeholder="Observação"
                         placeholderTextColor="#999"
                         multiline
@@ -93,8 +93,8 @@ export default function novaReceita() {
                 </View>
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8} onPress={() => Alert.alert('Anexar', 'Funcionalidade de anexar ainda não implementada')}>
-                    <View style={styles.iconBox}><Icon name="attach-file" size={20} color="#fff"/></View>
-                    <View style={{flex:1}}>
+                    <View style={styles.iconBox}><Icon name="attach-file" size={20} color="#fff" /></View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.listItemText}>Anexar</Text>
                         <Text style={styles.listItemSub}>{anexo || 'Nenhum arquivo'}</Text>
                     </View>
@@ -113,34 +113,34 @@ export default function novaReceita() {
             </ScrollView>
 
             {/* Menu expandido */}
-                  {menuAberto && (
-                    <View style={barraNavegacao.menuExpandido}>
-                      <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
+            {menuAberto && (
+                <View style={barraNavegacao.menuExpandido}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
                         <Icon name="attach-money" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Receitas</Text>
-                      </TouchableOpacity>
-            
-                      <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
                         <Icon name="receipt" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Despesas</Text>
-                      </TouchableOpacity>
-            
-                      <TouchableOpacity style={barraNavegacao.itemMenu}>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={barraNavegacao.itemMenu}>
                         <Icon name="swap-horiz" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Transações</Text>
-                      </TouchableOpacity>
-            
-                      <TouchableOpacity style={barraNavegacao.itemMenu}>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={barraNavegacao.itemMenu}>
                         <Icon name="category" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Categoria</Text>
-                      </TouchableOpacity>
-            
-                      <TouchableOpacity style={barraNavegacao.itemMenu}>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={barraNavegacao.itemMenu}>
                         <Icon name="flag" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Metas</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                    </TouchableOpacity>
+                </View>
+            )}
 
             {/* Barra de navegação inferior */}
             <View style={barraNavegacao.tabBar}>
@@ -159,7 +159,7 @@ export default function novaReceita() {
                     activeOpacity={0.8}
                 >
                     <Icon name="swap-horiz" size={32} color="#ffffff" />
-                    <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
+                    <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -183,7 +183,7 @@ export default function novaReceita() {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={barraNavegacao.tabItem}
-                    onPress={() => router.push('/auth/login')}
+                    onPress={() => router.push('/dashboard')}
                     activeOpacity={0.8}
                 >
                     <Icon name="menu" size={32} color="#ffffff" />

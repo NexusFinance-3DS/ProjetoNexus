@@ -2,12 +2,12 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
-  flex: 1,
-  backgroundColor: "#000",
-  alignItems: "stretch",
-  
-  paddingTop: 10,
-  paddingBottom: 80,
+    flex: 1,
+    backgroundColor: "#0f0f0f",
+    alignItems: "stretch",
+    marginLeft: -10,
+    marginRight: -10,
+    paddingHorizontal: 10,
   },
 
   title: {
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#6C3EF4",
+    backgroundColor: "#5145FF",
     borderRadius: 50,
   },
 
@@ -60,12 +60,12 @@ const styles = StyleSheet.create({
   },
 
   valor: {
-    color: "#CFCFCF",
+    color: "#BFC4D2",
     fontSize: 15,
   },
 
   porcentagem: {
-    color: "#6C3EF4",
+    color: "#5145FF",
     fontWeight: "bold",
     fontSize: 20,
     marginTop: 12,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#6C3EF4",
+    backgroundColor: "#635bff",
     paddingHorizontal: 25,
     height: 55,
     borderRadius: 30,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   salvar: {
     width: "47%",
     height: 50,
-    backgroundColor: "#6C3EF4",
+    backgroundColor: "#635bff",
     borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",

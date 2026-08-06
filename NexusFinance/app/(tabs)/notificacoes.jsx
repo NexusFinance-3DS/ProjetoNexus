@@ -16,7 +16,7 @@ export default function Notificacoes() {
       descricao: "Você economizou R$ 250,00 para sua meta.",
       hora: "Agora",
       icone: "flag",
-      cor: "#5145FF",
+      cor: "#4b3df2",
       lida: false,
     },
     {
@@ -189,7 +189,7 @@ export default function Notificacoes() {
           activeOpacity={0.8}
         >
           <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Fluxo Financeiro</Text>
+          <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -197,25 +197,27 @@ export default function Notificacoes() {
           onPress={() => setMenuAberto(!menuAberto)}
           activeOpacity={0.8}
         >
-          <Icon name={menuAberto ? "close" : "add-circle"} size={56} color="#FFF" />
+          <Icon
+            name={menuAberto ? "close" : "add-circle"}
+            size={56}
+            color="#fff"
+          />
         </TouchableOpacity>
-
         <TouchableOpacity
           style={barraNavegacao.tabItem}
           onPress={() => router.push('/metas')}
           activeOpacity={0.8}
         >
-          <Icon name="track-changes" size={32} color="#ffffff" />
+          <Icon name="radar" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Metas</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push('/perfil')}
+          onPress={() => router.push('/dashboard')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Mais</Text>
+          <Text style={barraNavegacao.tabLabel}>mais</Text>
         </TouchableOpacity>
       </View>
 

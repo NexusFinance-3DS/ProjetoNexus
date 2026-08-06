@@ -3,7 +3,11 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#05070D",
+    backgroundColor: "#0f0f0f",
+    alignItems: "stretch",
+    marginLeft: -10,
+    marginRight: -10,
+    paddingHorizontal: 10,
   },
 
   header: {
@@ -22,7 +26,7 @@ export default StyleSheet.create({
   },
 
   mainCard: {
-    backgroundColor: "#0F141A",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     marginTop: 10,
     borderRadius: 16,
@@ -31,7 +35,7 @@ export default StyleSheet.create({
     alignItems: "center",
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: "#232C40",
+    borderColor: "#303030",
   },
 
   appName: {
@@ -41,11 +45,11 @@ export default StyleSheet.create({
   },
 
   featuresCard: {
-    backgroundColor: "#11151D",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#242B3D",
+    borderColor: "#303030",
     padding: 16,
     marginBottom: 18,
   },
@@ -89,13 +93,13 @@ export default StyleSheet.create({
   },
 
   infoCard: {
-    backgroundColor: "#0E121A",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     borderRadius: 14,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#232C40",
+    borderColor: "#303030",
   },
 
   infoTitle: {
@@ -117,13 +121,13 @@ export default StyleSheet.create({
   },
 
   contactCard: {
-    backgroundColor: "#0E121A",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     borderRadius: 14,
     padding: 14,
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: "#232C40",
+    borderColor: "#303030",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

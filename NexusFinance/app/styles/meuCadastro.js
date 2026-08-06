@@ -3,7 +3,11 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#05070D",
+    backgroundColor: "#0f0f0f",
+    alignItems: "stretch",
+    marginLeft: -10,
+    marginRight: -10,
+    paddingHorizontal: 10,
   },
 
   header: {
@@ -23,11 +27,11 @@ const styles = StyleSheet.create({
 
   card: {
     marginTop: 20,
-    backgroundColor: "#11151D",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#242B3D",
+    borderColor: "#303030",
     padding: 18,
   },
 
@@ -81,14 +85,14 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     height: 55,
-    backgroundColor: "#0E121A",
+    backgroundColor: "#111010",
     color: "#FFF",
     fontSize: 16,
     borderRadius: 14,
     paddingHorizontal: 16,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#242B3D",
+    borderColor: "#3c3c3c",
   },
 
   itemButton: {
@@ -97,7 +101,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 16,
     paddingHorizontal: 12,
-    backgroundColor: "#0B0F16",
+    backgroundColor: "#111010",
     borderRadius: 14,
   },
 
@@ -113,7 +117,9 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    backgroundColor: "#5145FF",
+    backgroundColor: "#635bff",
+    borderRadius: 10,
+    padding: 14,
     marginHorizontal: 18,
     marginTop: 10,
     height: 56,
@@ -123,8 +129,8 @@ const styles = StyleSheet.create({
   },
 
   saveButtonText: {
-    color: "#FFF",
-    fontSize: 17,
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "bold",
   },
 });

@@ -27,7 +27,7 @@ export default function Login() {
 
   return (
 
-    <View style={styles.tela}>
+    <View style={styles.container}>
       <Image
         source={require("../../assets/images/foto.png")}
         style={{

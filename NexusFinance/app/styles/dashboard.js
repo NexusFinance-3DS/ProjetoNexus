@@ -8,49 +8,38 @@ const styles = StyleSheet.create({
     marginLeft: -10,
     marginRight: -10,
     paddingHorizontal: 10,
-    paddingBottom: 80,
-  },
-
-  back: {
-    marginTop: 30,
-    marginLeft: 15,
-    marginBottom: 10,
-  },
-
-  title: {
-    color: "#FFF",
-    fontSize: 34,
-    fontWeight: "bold",
-    marginLeft: 18,
-    marginBottom: 18,
   },
 
   card: {
-    backgroundColor: "#11151D",
-    marginHorizontal: 15,
-    marginBottom: 18,
-    borderRadius: 25,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: "#232B3C",
+    backgroundColor: "#1c1c1c",
+    marginHorizontal: 18,
+    marginTop: 18,
+    borderRadius: 22,
+    borderWidth: 2,
+    borderColor: "#222",
+    paddingVertical: 5,
+    overflow: "hidden",
   },
 
   cardTitle: {
     color: "#FFF",
     fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 15,
+    fontWeight: "bold",
+    marginHorizontal: 18,
+    marginTop: 18,
+    marginBottom: 12,
   },
 
   resumoItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 22,
+    marginBottom: 12,
+    marginLeft: 18,
   },
 
   iconGreen: {
-    width: 55,
-    height: 55,
+    width: 45,
+    height: 45,
     borderRadius: 16,
     backgroundColor: "#1D2638",
     justifyContent: "center",
@@ -59,8 +48,8 @@ const styles = StyleSheet.create({
   },
 
   iconRed: {
-    width: 55,
-    height: 55,
+    width: 45,
+    height: 45,
     borderRadius: 16,
     backgroundColor: "#1D2638",
     justifyContent: "center",
@@ -82,7 +71,7 @@ const styles = StyleSheet.create({
   },
 
   progress: {
-    width: "100%",
+    width: "90%",
     height: 8,
     backgroundColor: "#222B3A",
     borderRadius: 10,
@@ -99,13 +88,13 @@ const styles = StyleSheet.create({
     color: "#BFC4D2",
     fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 10,
+    marginRight: 30,
   },
 
   // ---------- PIE CHART ----------
 
   legendaContainer: {
-    marginTop: 15,
+    marginTop: 10,
   },
 
   legendaItem: {
@@ -135,8 +124,26 @@ const styles = StyleSheet.create({
   // ---------- LINHA ----------
 
   graficoContainer: {
+    flexDirection: "row",
     alignItems: "center",
+    marginLeft: 10,
+    marginTop: 1,
+    paddingHorizontal: 10,
+  },
+
+  pieWrapper: {
+    width: 200,
+    height: 120,
+    borderRadius: 100, 
+    overflow: "hidden",
     justifyContent: "center",
+    alignItems: "center",
+    marginRight: -20,
+  },
+
+  pieChart: {
+    borderRadius: 100,
+    overflow: "hidden",
   },
 
   // ---------- RESUMO ----------
@@ -154,17 +161,10 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  graficoContainer: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: 15,
-},
-
-legenda: {
-  flex: 1,
-  marginLeft: 10,
-},
+  legenda: {
+    flex: 1,
+    marginLeft: 10,
+  },
 
 itemLegenda: {
   flexDirection: "row",

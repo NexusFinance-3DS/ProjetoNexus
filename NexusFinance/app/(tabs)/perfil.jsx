@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {View, Text, TouchableOpacity, ScrollView, Modal} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Modal } from "react-native";
 import { router } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import styles from "../styles/perfil";
@@ -209,63 +209,63 @@ export default function Perfil() {
           </TouchableOpacity>
 
         </View>
-              </ScrollView>
+      </ScrollView>
 
       {/* Modal de confirmação */}
 
       <Modal
-  visible={modalSair}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setModalSair(false)}
->
-  <View style={styles.modalBackground}>
-    <View style={styles.modal}>
+        visible={modalSair}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalSair(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modal}>
 
-      <View style={styles.modalIcon}>
-        <Icon
-          name="logout"
-          size={40}
-          color="#fff"
-        />
-      </View>
+            <View style={styles.modalIcon}>
+              <Icon
+                name="logout"
+                size={40}
+                color="#fff"
+              />
+            </View>
 
-      <Text style={styles.modalTitulo}>
-        Encerrar sessão
-      </Text>
+            <Text style={styles.modalTitulo}>
+              Encerrar sessão
+            </Text>
 
-      <Text style={styles.modalTexto}>
-        Tem certeza que deseja sair da sua conta?
-      </Text>
+            <Text style={styles.modalTexto}>
+              Tem certeza que deseja sair da sua conta?
+            </Text>
 
-      <View style={styles.modalButtons}>
+            <View style={styles.modalButtons}>
 
-        <TouchableOpacity
-          style={styles.cancelar}
-          onPress={() => setModalSair(false)}
-        >
-          <Text style={styles.cancelarTexto}>
-            Cancelar
-          </Text>
-        </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelar}
+                onPress={() => setModalSair(false)}
+              >
+                <Text style={styles.cancelarTexto}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.sair}
-          onPress={() => {
-            setModalSair(false);
-            router.replace("/auth/login");
-          }}
-        >
-          <Text style={styles.sairTexto}>
-            Sair
-          </Text>
-        </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.sair}
+                onPress={() => {
+                  setModalSair(false);
+                  router.replace("/auth/login");
+                }}
+              >
+                <Text style={styles.sairTexto}>
+                  Sair
+                </Text>
+              </TouchableOpacity>
 
-      </View>
+            </View>
 
-    </View>
-  </View>
-</Modal>
+          </View>
+        </View>
+      </Modal>
 
       {/* Menu expandido */}
       {menuAberto && (
@@ -275,7 +275,7 @@ export default function Perfil() {
             <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
             <Icon name="receipt" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>
@@ -301,19 +301,19 @@ export default function Perfil() {
       <View style={barraNavegacao.tabBar}>
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push("/inicial")}
+          onPress={() => router.push('/inicial')}
           activeOpacity={0.8}
         >
-          <Icon name="home" size={32} color="#FFF" />
+          <Icon name="home" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Início</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push("/fluxoFinanceiro")}
+          onPress={() => router.push('/fluxoFinanceiro')}
           activeOpacity={0.8}
         >
-          <Icon name="swap-horiz" size={32} color="#FFF" />
+          <Icon name="swap-horiz" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
         </TouchableOpacity>
 
@@ -322,25 +322,27 @@ export default function Perfil() {
           onPress={() => setMenuAberto(!menuAberto)}
           activeOpacity={0.8}
         >
-          <Icon name={menuAberto ? "close" : "add-circle"} size={56} color="#FFF" />
+          <Icon
+            name={menuAberto ? "close" : "add-circle"}
+            size={56}
+            color="#fff"
+          />
         </TouchableOpacity>
-
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push("/metas")}
+          onPress={() => router.push('/metas')}
           activeOpacity={0.8}
         >
-          <Icon name="track-changes" size={32} color="#FFF" />
+          <Icon name="radar" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Metas</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push("/perfil")}
+          onPress={() => router.push('/dashboard')}
           activeOpacity={0.8}
         >
-          <Icon name="menu" size={32} color="#FFF" />
-          <Text style={barraNavegacao.tabLabel}>Mais</Text>
+          <Icon name="menu" size={32} color="#ffffff" />
+          <Text style={barraNavegacao.tabLabel}>mais</Text>
         </TouchableOpacity>
       </View>
 

@@ -6,7 +6,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { PieChart, LineChart } from "react-native-chart-kit";
 
 import styles from "../styles/dashboard";
-import navStyles from "../styles/barraNavegacao";
+import barraNavegacao from '../styles/barraNavegacao';
 
 export default function Dashboard() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -65,21 +65,6 @@ export default function Dashboard() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.back}
-        >
-          <Icon
-            name="arrow-back"
-            size={28}
-            color="#FFF"
-          />
-        </TouchableOpacity>
-
-        <Text style={styles.title}>
-          Dashboard
-        </Text>
-
         <View style={styles.card}>
 
           <Text style={styles.cardTitle}>
@@ -88,40 +73,43 @@ export default function Dashboard() {
 
           <View style={styles.graficoContainer}>
 
-  <PieChart
-    data={pieData}
-    width={180}
-    height={180}
-    accessor="population"
-    backgroundColor="transparent"
-    hasLegend={false}
-    chartConfig={{
-      color: () => "#FFF",
-    }}
-  />
+            <View style={styles.pieWrapper}>
+              <PieChart
+                data={pieData}
+                width={200}
+                height={120}
+                accessor="population"
+                backgroundColor="transparent"
+                hasLegend={false}
+                chartConfig={{
+                  color: () => "#FFF",
+                }}
+                style={styles.pieChart}
+              />
+            </View>
 
-  <View style={styles.legenda}>
+            <View style={styles.legenda}>
 
-    {pieData.map((item, index) => (
-      <View key={index} style={styles.itemLegenda}>
+              {pieData.map((item, index) => (
+                <View key={index} style={styles.itemLegenda}>
 
-        <View
-          style={[
-            styles.corLegenda,
-            { backgroundColor: item.color },
-          ]}
-        />
+                  <View
+                    style={[
+                      styles.corLegenda,
+                      { backgroundColor: item.color },
+                    ]}
+                  />
 
-        <Text style={styles.textoLegenda}>
-          {item.name}
-        </Text>
+                  <Text style={styles.textoLegenda}>
+                    {item.name}
+                  </Text>
 
-      </View>
-    ))}
+                </View>
+              ))}
 
-  </View>
+            </View>
 
-</View>
+          </View>
 
         </View>
 
@@ -133,7 +121,7 @@ export default function Dashboard() {
 
           <LineChart
             data={lineData}
-            width={screenWidth -40}
+            width={screenWidth - 40}
             height={190}
             withDots={false}
             withShadow={false}
@@ -149,6 +137,10 @@ export default function Dashboard() {
             }}
             style={{
               borderRadius: 15,
+              marginTop: 10,
+              marginBottom: 10,
+              marginLeft: 10,
+              marginRight: -25,
             }}
           />
 
@@ -239,63 +231,63 @@ export default function Dashboard() {
           </View>
 
         </View>
-    
+
         <View style={{ height: 100 }} />
 
       </ScrollView>
 
       {/* Menu expandido */}
       {menuAberto && (
-        <View style={navStyles.menuExpandido}>
-          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/receita/novaReceita")}>
+        <View style={barraNavegacao.menuExpandido}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
             <Icon name="attach-money" size={30} color="#fff" />
-            <Text style={navStyles.tabLabel}>Receitas</Text>
+            <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/despesa/novaDespesa")}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
             <Icon name="receipt" size={30} color="#fff" />
-            <Text style={navStyles.tabLabel}>Despesas</Text>
+            <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/fluxoFinanceiro")}>
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
             <Icon name="swap-horiz" size={30} color="#fff" />
-            <Text style={navStyles.tabLabel}>Transações</Text>
+            <Text style={barraNavegacao.tabLabel}>Transações</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={navStyles.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
             <Icon name="category" size={30} color="#fff" />
-            <Text style={navStyles.tabLabel}>Categoria</Text>
+            <Text style={barraNavegacao.tabLabel}>Categoria</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={navStyles.itemMenu} onPress={() => router.push("/metas")}>
+          <TouchableOpacity style={barraNavegacao.itemMenu}>
             <Icon name="flag" size={30} color="#fff" />
-            <Text style={navStyles.tabLabel}>Metas</Text>
+            <Text style={barraNavegacao.tabLabel}>Metas</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Barra de navegação */}
-      <View style={navStyles.tabBar}>
+      {/* Barra de navegação inferior */}
+      <View style={barraNavegacao.tabBar}>
         <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push("/inicial")}
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/inicial')}
           activeOpacity={0.8}
         >
           <Icon name="home" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Início</Text>
+          <Text style={barraNavegacao.tabLabel}>Início</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push("/fluxoFinanceiro")}
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/fluxoFinanceiro')}
           activeOpacity={0.8}
         >
           <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Fluxo Financeiro</Text>
+          <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={navStyles.tabItem}
+          style={barraNavegacao.tabItem}
           onPress={() => setMenuAberto(!menuAberto)}
           activeOpacity={0.8}
         >
@@ -306,20 +298,20 @@ export default function Dashboard() {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push("/metas")}
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/metas')}
           activeOpacity={0.8}
         >
           <Icon name="radar" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>Metas</Text>
+          <Text style={barraNavegacao.tabLabel}>Metas</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={navStyles.tabItem}
-          onPress={() => router.push("/dashboard")}
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/dashboard')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />
-          <Text style={navStyles.tabLabel}>mais</Text>
+          <Text style={barraNavegacao.tabLabel}>mais</Text>
         </TouchableOpacity>
       </View>
     </View>

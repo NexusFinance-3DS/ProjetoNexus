@@ -8,7 +8,6 @@ export default StyleSheet.create({
     marginLeft: -10,
     marginRight: -10,
     paddingHorizontal: 10,
-    paddingBottom: 80,
   },
 
   profileContaine: {
