@@ -123,7 +123,7 @@ export default function inicial() {
                     <View style={{ marginLeft: 20, marginTop: 50, width: 200, height: 6, backgroundColor: '#222', borderRadius: 10 }}>
                       <View style={{ width: `${porcentagem}%`, height: 6, backgroundColor: '#5145FF', borderRadius: 10 }} />
                     </View>
-                    <Text style={{ color: '#fff', fontSize: 15, marginLeft: '25%', marginTop: '3%' }}>{formatBRL(valorMeta)} / {formatBRL(valorTotalMeta)}</Text>
+                    <Text style={{ color: '#fff', fontSize: 15, marginLeft: '15%', marginTop: '3%' }}>{formatBRL(valorMeta)} / {formatBRL(valorTotalMeta)}</Text>
                   </View>
                 </View>
               </View>
