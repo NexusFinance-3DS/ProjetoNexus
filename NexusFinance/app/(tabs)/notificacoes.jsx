@@ -5,6 +5,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 import styles from "../styles/notificacoes";
 import barraNavegacao from "../styles/barraNavegacao";
+import { formatBRL } from '../data/financeData';
 
 export default function Notificacoes() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -13,7 +14,7 @@ export default function Notificacoes() {
     {
       id: 1,
       titulo: "Meta atualizada",
-      descricao: "Você economizou R$ 250,00 para sua meta.",
+      descricao: `Você economizou ${formatBRL(250)} para sua meta.`,
       hora: "Agora",
       icone: "flag",
       cor: "#4b3df2",
@@ -22,7 +23,7 @@ export default function Notificacoes() {
     {
       id: 2,
       titulo: "Nova receita",
-      descricao: "Salário de R$ 2.500,00 foi registrado.",
+      descricao: `Salário de ${formatBRL(4500)} foi registrado.`,
       hora: "10 min",
       icone: "trending-up",
       cor: "#00E676",
@@ -31,7 +32,7 @@ export default function Notificacoes() {
     {
       id: 3,
       titulo: "Despesa adicionada",
-      descricao: "Pagamento de R$ 120,00 em Alimentação.",
+      descricao: `Pagamento de ${formatBRL(120.2)} em Alimentação.`,
       hora: "35 min",
       icone: "trending-down",
       cor: "#FF3B30",

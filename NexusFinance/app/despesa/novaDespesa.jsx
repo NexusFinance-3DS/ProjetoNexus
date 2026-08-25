@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch, TouchableWithoutFeedback } from 'react-native';
 import { router } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from '../styles/novaDespesa';
 import barraNavegacao from '../styles/barraNavegacao';
 
 export default function novaDespesa() {
-    const [menuAberto, setMenuAberto] = useState(false);
+    const [menuAberto, setMenuAberto] = useState(null);
     const [valor, setValor] = useState("");
     const [descricao, setdescricao] = useState("");
     const [data, setData] = useState('');
@@ -124,31 +124,52 @@ export default function novaDespesa() {
             </ScrollView>
 
             {/* Menu expandido */}
-            {menuAberto && (
+            {menuAberto != null && (
+                <TouchableWithoutFeedback onPress={() => setMenuAberto(null)}>
+                    <View style={barraNavegacao.overlay} />
+                </TouchableWithoutFeedback>
+            )}
+
+            {menuAberto === 'add' && (
                 <View style={barraNavegacao.menuExpandido}>
-                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/receita/novaReceita'); }}>
                         <Icon name="attach-money" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Receitas</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/despesa/novaDespesa'); }}>
                         <Icon name="receipt" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Despesas</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
                         <Icon name="swap-horiz" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Transações</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/categoria'); }}>
                         <Icon name="category" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Categoria</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={barraNavegacao.itemMenu}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
                         <Icon name="flag" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Metas</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {menuAberto === 'more' && (
+                <View style={barraNavegacao.menuExpandido}>
+                    <TouchableOpacity
+                        style={barraNavegacao.itemMenu}
+                        onPress={() => {
+                            setMenuAberto(null);
+                            router.push('/dashboard');
+                        }}
+                    >
+                        <Icon name="menu" size={30} color="#fff" />
+                        <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
                     </TouchableOpacity>
                 </View>
             )}
@@ -175,11 +196,11 @@ export default function novaDespesa() {
 
                 <TouchableOpacity
                     style={barraNavegacao.tabItem}
-                    onPress={() => setMenuAberto(!menuAberto)}
+                    onPress={() => setMenuAberto(menuAberto === 'add' ? null : 'add')}
                     activeOpacity={0.8}
                 >
                     <Icon
-                        name={menuAberto ? "close" : "add-circle"}
+                        name={menuAberto != null ? "close" : "add-circle"}
                         size={56}
                         color="#fff"
                     />
@@ -194,7 +215,7 @@ export default function novaDespesa() {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={barraNavegacao.tabItem}
-                    onPress={() => router.push('/dashboard')}
+                    onPress={() => setMenuAberto(menuAberto === 'more' ? null : 'more')}
                     activeOpacity={0.8}
                 >
                     <Icon name="menu" size={32} color="#ffffff" />

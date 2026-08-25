@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { BarChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
@@ -8,12 +8,13 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 import styles from "../styles/relatorios";
 import barraNavegacao from '../styles/barraNavegacao';
+import { getTotals, formatBRL } from '../data/financeData';
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function Relatorios() {
   const [periodo, setPeriodo] = useState("Mês");
-  const [menuAberto, setMenuAberto] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(null);
 
   const dadosGrafico = {
     labels: ["Jan", "Fev", "Mar", "Abr", "Mai"],
@@ -115,7 +116,7 @@ export default function Relatorios() {
               </Text>
 
               <Text style={styles.valor}>
-                R$ 8.100,00
+                {formatBRL(getTotals().totalReceitas)}
               </Text>
             </View>
 
@@ -135,7 +136,7 @@ export default function Relatorios() {
               </Text>
 
               <Text style={styles.valor}>
-                R$ 3.270,00
+                {formatBRL(getTotals().totalDespesas)}
               </Text>
             </View>
 
@@ -155,7 +156,7 @@ export default function Relatorios() {
               </Text>
 
               <Text style={styles.valor}>
-                R$ 4.830,00
+                {formatBRL(getTotals().totalReceitas - getTotals().totalDespesas)}
               </Text>
             </View>
 
@@ -207,31 +208,52 @@ export default function Relatorios() {
       </ScrollView>
 
       {/* Menu expandido */}
-      {menuAberto && (
+      {menuAberto != null && (
+        <TouchableWithoutFeedback onPress={() => setMenuAberto(null)}>
+          <View style={barraNavegacao.overlay} />
+        </TouchableWithoutFeedback>
+      )}
+
+      {menuAberto === 'add' && (
         <View style={barraNavegacao.menuExpandido}>
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/receita/novaReceita'); }}>
             <Icon name="attach-money" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/despesa/novaDespesa'); }}>
             <Icon name="receipt" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
             <Icon name="swap-horiz" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Transações</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/categoria'); }}>
             <Icon name="category" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Categoria</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
             <Icon name="flag" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Metas</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {menuAberto === 'more' && (
+        <View style={barraNavegacao.menuExpandido}>
+          <TouchableOpacity
+            style={barraNavegacao.itemMenu}
+            onPress={() => {
+              setMenuAberto(null);
+              router.push('/dashboard');
+            }}
+          >
+            <Icon name="menu" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -258,11 +280,11 @@ export default function Relatorios() {
 
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => setMenuAberto(!menuAberto)}
+          onPress={() => setMenuAberto(menuAberto === 'add' ? null : 'add')}
           activeOpacity={0.8}
         >
           <Icon
-            name={menuAberto ? "close" : "add-circle"}
+            name={menuAberto != null ? "close" : "add-circle"}
             size={56}
             color="#fff"
           />
@@ -277,14 +299,13 @@ export default function Relatorios() {
         </TouchableOpacity>
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push('/dashboard')}
+          onPress={() => setMenuAberto(menuAberto === 'more' ? null : 'more')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>mais</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 }
