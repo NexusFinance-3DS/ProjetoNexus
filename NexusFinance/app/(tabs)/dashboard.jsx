@@ -230,7 +230,7 @@ export default function Dashboard() {
             </View>
 
             <Text style={styles.percent}>
-              32%
+              22%
             </Text>
 
           </View>
