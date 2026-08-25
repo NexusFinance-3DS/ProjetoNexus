@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -7,9 +7,10 @@ import { PieChart, LineChart } from "react-native-chart-kit";
 
 import styles from "../styles/dashboard";
 import barraNavegacao from '../styles/barraNavegacao';
+import { getTotals, formatBRL } from '../data/financeData';
 
 export default function Dashboard() {
-  const [menuAberto, setMenuAberto] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(null);
 
   const screenWidth = 340;
 
@@ -59,6 +60,10 @@ export default function Dashboard() {
       },
     ],
   };
+
+  const totals = getTotals();
+  const receitasPercent = Math.round((totals.totalReceitas / (totals.totalReceitas + totals.totalDespesas)) * 100);
+  const despesasPercent = 100 - receitasPercent;
 
   return (
     <View style={styles.container}>
@@ -169,7 +174,7 @@ export default function Dashboard() {
               </Text>
 
               <Text style={styles.resumoValor}>
-                R$ 8.100,00
+                {formatBRL(totals.totalReceitas)}
               </Text>
 
               <View style={styles.progress}>
@@ -177,7 +182,7 @@ export default function Dashboard() {
                   style={[
                     styles.progressFill,
                     {
-                      width: "78%",
+                      width: `${receitasPercent}%`,
                     },
                   ]}
                 />
@@ -208,7 +213,7 @@ export default function Dashboard() {
               </Text>
 
               <Text style={styles.resumoValor}>
-                R$ 3.270,00
+                {formatBRL(totals.totalDespesas)}
               </Text>
 
               <View style={styles.progress}>
@@ -216,7 +221,7 @@ export default function Dashboard() {
                   style={[
                     styles.progressFill,
                     {
-                      width: "32%",
+                      width: `${despesasPercent}%`,
                     },
                   ]}
                 />
@@ -237,31 +242,52 @@ export default function Dashboard() {
       </ScrollView>
 
       {/* Menu expandido */}
-      {menuAberto && (
+      {menuAberto != null && (
+        <TouchableWithoutFeedback onPress={() => setMenuAberto(null)}>
+          <View style={barraNavegacao.overlay} />
+        </TouchableWithoutFeedback>
+      )}
+
+      {menuAberto === 'add' && (
         <View style={barraNavegacao.menuExpandido}>
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/receita/novaReceita')}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/receita/novaReceita'); }}>
             <Icon name="attach-money" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Receitas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => router.push('/despesa/novaDespesa')}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/despesa/novaDespesa'); }}>
             <Icon name="receipt" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
             <Icon name="swap-horiz" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Transações</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/categoria'); }}>
             <Icon name="category" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Categoria</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={barraNavegacao.itemMenu}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
             <Icon name="flag" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Metas</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {menuAberto === 'more' && (
+        <View style={barraNavegacao.menuExpandido}>
+          <TouchableOpacity
+            style={barraNavegacao.itemMenu}
+            onPress={() => {
+              setMenuAberto(null);
+              router.push('/dashboard');
+            }}
+          >
+            <Icon name="menu" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -288,11 +314,11 @@ export default function Dashboard() {
 
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => setMenuAberto(!menuAberto)}
+          onPress={() => setMenuAberto(menuAberto === 'add' ? null : 'add')}
           activeOpacity={0.8}
         >
           <Icon
-            name={menuAberto ? "close" : "add-circle"}
+            name={menuAberto != null ? "close" : "add-circle"}
             size={56}
             color="#fff"
           />
@@ -307,7 +333,7 @@ export default function Dashboard() {
         </TouchableOpacity>
         <TouchableOpacity
           style={barraNavegacao.tabItem}
-          onPress={() => router.push('/dashboard')}
+          onPress={() => setMenuAberto(menuAberto === 'more' ? null : 'more')}
           activeOpacity={0.8}
         >
           <Icon name="menu" size={32} color="#ffffff" />
