@@ -58,7 +58,7 @@ export default function inicial() {
         <TouchableOpacity onPress={() => router.push('/perfil')}>
           <View style={styles.profileContaine}>
             <View style={styles.profileCircle}>
-              <Icon name="person-outline" size={60} color="#FFF" />
+              <Icon name="person-outline" size={35} color="#FFF" />
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.nome}>Cesar Serra</Text>
@@ -109,7 +109,7 @@ export default function inicial() {
             <View style={styles.metaCard}>
               <View style={styles.cardTitle}>
                 <Text style={{ color: '#ffffff', borderRadius: 20, width: '60%', fontSize: 20 }}>Metas em andamento</Text>
-                <Text style={{ color: '#ffffff', backgroundColor: '#4800fff9', borderRadius: 20, width: '30%', marginLeft: '10%', textAlign: 'center', fontSize: 12, fontWeight: '600', paddingTop: 5 }} onPress={() => router.push('/metas')}>Ver metas</Text>
+                <Text style={{ color: '#ffffff', backgroundColor: '#4800fff9', borderRadius: 20, width: '20%', marginLeft: '20%', textAlign: 'center', fontSize: 12, fontWeight: '600', paddingTop: 5 }} onPress={() => router.push('/metas')}>Ver metas</Text>
               </View>
               <View style={styles.metaValue}>
                 <View style={styles.graficos}>
@@ -133,7 +133,7 @@ export default function inicial() {
           <View style={styles.metasContainer}>
             <View style={styles.metaCard}>
               <View style={styles.distribuicaoHeader}>
-                <Text style={styles.distribuicaoTitle}>Distribuição da renda (mês anterior)</Text>
+                <Text style={styles.distribuicaoTitle}>Distribuição da renda (50, 30, 20)</Text>
               </View>
 
               <View style={styles.distribuicaoLista}>
@@ -179,6 +179,15 @@ export default function inicial() {
             <Text style={barraNavegacao.tabLabel}>Despesas</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push({ pathname: '/metas', params: { openAdd: 'true' } }); }}>
+            <Icon name="flag" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Metas</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {menuAberto === 'more' && (
+        <View style={barraNavegacao.menuExpandido}>
           <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
             <Icon name="swap-horiz" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Transações</Text>
@@ -188,16 +197,6 @@ export default function inicial() {
             <Icon name="category" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Categoria</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
-            <Icon name="flag" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Metas</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {menuAberto === 'more' && (
-        <View style={barraNavegacao.menuExpandido}>
           <TouchableOpacity
             style={barraNavegacao.itemMenu}
             onPress={() => {
@@ -205,7 +204,7 @@ export default function inicial() {
               router.push('/dashboard');
             }}
           >
-            <Icon name="menu" size={30} color="#fff" />
+            <Icon name="bar-chart" size={40} color="#fff" style={{marginBottom: -10}} />
             <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
           </TouchableOpacity>
         </View>
