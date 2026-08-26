@@ -126,19 +126,26 @@ export default function Dashboard() {
 
           <LineChart
             data={lineData}
-            width={screenWidth - 30}
-            height={200}
+            width={screenWidth - 40}
+            height={190}
             withDots={false}
             withShadow={false}
             withInnerLines={true}
             withOuterLines={false}
             bezier
             chartConfig={{
-              backgroundGradientFrom: "#1c1c1c",
-              backgroundGradientTo: "#1c1c1c",
+              backgroundGradientFrom: "#11151D",
+              backgroundGradientTo: "#11151D",
               decimalPlaces: 0,
-              color: () => "#ffffff",
+              color: () => "#5145FF",
               labelColor: () => "#AAA",
+            }}
+            style={{
+              borderRadius: 15,
+              marginTop: 10,
+              marginBottom: 10,
+              marginLeft: 10,
+              marginRight: -25,
             }}
           />
 
@@ -243,6 +250,16 @@ export default function Dashboard() {
 
       {menuAberto === 'add' && (
         <View style={barraNavegacao.menuExpandido}>
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/receita/novaReceita'); }}>
+            <Icon name="attach-money" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Receitas</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/despesa/novaDespesa'); }}>
+            <Icon name="receipt" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Despesas</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
             <Icon name="swap-horiz" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Transações</Text>
@@ -252,15 +269,10 @@ export default function Dashboard() {
             <Icon name="category" size={30} color="#fff" />
             <Text style={barraNavegacao.tabLabel}>Categoria</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={barraNavegacao.itemMenu}
-            onPress={() => {
-              setMenuAberto(null);
-              router.push('/dashboard');
-            }}
-          >
-            <Icon name="bar-chart" size={40} color="#fff" style={{marginBottom: -10}} />
-            <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
+
+          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
+            <Icon name="flag" size={30} color="#fff" />
+            <Text style={barraNavegacao.tabLabel}>Metas</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -280,27 +292,50 @@ export default function Dashboard() {
         </View>
       )}
 
+      {/* Barra de navegação inferior */}
       <View style={barraNavegacao.tabBar}>
-        <TouchableOpacity style={barraNavegacao.tabItem} onPress={() => router.push('/inicial')} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/inicial')}
+          activeOpacity={0.8}
+        >
           <Icon name="home" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Início</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={barraNavegacao.tabItem} onPress={() => router.push('/fluxoFinanceiro')} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/fluxoFinanceiro')}
+          activeOpacity={0.8}
+        >
           <Icon name="swap-horiz" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={barraNavegacao.tabItem} onPress={() => setMenuAberto(menuAberto === 'add' ? null : 'add')} activeOpacity={0.8}>
-          <Icon name={menuAberto != null ? "close" : "add-circle"} size={56} color="#fff" />
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => setMenuAberto(menuAberto === 'add' ? null : 'add')}
+          activeOpacity={0.8}
+        >
+          <Icon
+            name={menuAberto != null ? "close" : "add-circle"}
+            size={56}
+            color="#fff"
+          />
         </TouchableOpacity>
-
-        <TouchableOpacity style={barraNavegacao.tabItem} onPress={() => router.push('/metas')} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => router.push('/metas')}
+          activeOpacity={0.8}
+        >
           <Icon name="radar" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>Metas</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={barraNavegacao.tabItem} onPress={() => setMenuAberto(menuAberto === 'more' ? null : 'more')} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={barraNavegacao.tabItem}
+          onPress={() => setMenuAberto(menuAberto === 'more' ? null : 'more')}
+          activeOpacity={0.8}
+        >
           <Icon name="menu" size={32} color="#ffffff" />
           <Text style={barraNavegacao.tabLabel}>mais</Text>
         </TouchableOpacity>

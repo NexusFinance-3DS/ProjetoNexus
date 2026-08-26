@@ -132,6 +132,8 @@ const styles = StyleSheet.create({
   },
 
   pieWrapper: {
+    width: 200,
+    height: 120,
     borderRadius: 100, 
     overflow: "hidden",
     justifyContent: "center",
