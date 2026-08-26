@@ -17,27 +17,17 @@ export default StyleSheet.create({
     marginBottom: 10,
     marginTop: 15,
   },
-  profileCircle: {
-    width: 85,
-    height: 85,
-    borderRadius: 50,
-    borderWidth: 4,
-    borderColor: "#FFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   profileInfo: {
-    marginLeft: 18,
+    marginLeft: 10,
   },
   nome: {
     color: "#FFF",
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
   },
   email: {
     color: "#A5A5A5",
     fontSize: 15,
-    marginTop: 4,
   },
 
   // Saldo geral
@@ -46,7 +36,7 @@ export default StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     padding: 12,
-    backgroundColor: "#1809e0",
+    backgroundColor: "#4800fff9",
     height: 150,
     width: "95%",
     borderRadius: 25,
@@ -231,10 +221,10 @@ export default StyleSheet.create({
   },
 
   profileCircle: {
-    width: 82,
-    height: 82,
+    width: 62,
+    height: 62,
     borderRadius: 41,
-    borderWidth: 4,
+    borderWidth: 2,
     borderColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",
