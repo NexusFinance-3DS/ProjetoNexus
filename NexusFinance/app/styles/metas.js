@@ -23,8 +23,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 18,
     marginBottom: 18,
-    marginLeft: '5%',
-    marginRight: '5%',
   },
 
   cardHeader: {

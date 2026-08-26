@@ -118,9 +118,7 @@ export default function novaDespesa() {
                         activeOpacity={0.8}
 
                     >
-                        <Text style={styles.saveButtonText} onPress={() => { router.push('/inicial'); }}>
-                            Salvar despesa
-                        </Text>
+                        <Text style={styles.saveButtonText}>Salvar despesa</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -134,6 +132,16 @@ export default function novaDespesa() {
 
             {menuAberto === 'add' && (
                 <View style={barraNavegacao.menuExpandido}>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/receita/novaReceita'); }}>
+                        <Icon name="attach-money" size={30} color="#fff" />
+                        <Text style={barraNavegacao.tabLabel}>Receitas</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/despesa/novaDespesa'); }}>
+                        <Icon name="receipt" size={30} color="#fff" />
+                        <Text style={barraNavegacao.tabLabel}>Despesas</Text>
+                    </TouchableOpacity>
+
                     <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
                         <Icon name="swap-horiz" size={30} color="#fff" />
                         <Text style={barraNavegacao.tabLabel}>Transações</Text>
@@ -144,15 +152,9 @@ export default function novaDespesa() {
                         <Text style={barraNavegacao.tabLabel}>Categoria</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={barraNavegacao.itemMenu}
-                        onPress={() => {
-                            setMenuAberto(null);
-                            router.push('/dashboard');
-                        }}
-                    >
-                        <Icon name="bar-chart" size={40} color="#fff" style={{marginBottom: -10}} />
-                        <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
+                    <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
+                        <Icon name="flag" size={30} color="#fff" />
+                        <Text style={barraNavegacao.tabLabel}>Metas</Text>
                     </TouchableOpacity>
                 </View>
             )}

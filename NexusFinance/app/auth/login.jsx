@@ -16,6 +16,15 @@ export default function Login() {
     router.push("/auth/recuperarSenha");
   }
 
+  function entrar() {
+    if (!email || !senha) {
+      setErro("Preencha email e senha.");
+      return;
+    }
+    setErro("");
+    router.push("/inicial");
+  }
+
   return (
 
     <View style={styles.container}>
@@ -59,7 +68,7 @@ export default function Login() {
 
       {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
-      <TouchableOpacity style={styles.botao} onPress={() => {router.push("/(tabs)/inicial")}} >
+      <TouchableOpacity style={styles.botao} onPress={entrar}>
         <Text style={styles.textoBotao}>Entrar</Text>
       </TouchableOpacity>
 
