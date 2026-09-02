@@ -1,12 +1,8 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import styles from "../styles/recuperarSenha";
 
 export default function RecuperarSenha() {
@@ -23,15 +19,17 @@ export default function RecuperarSenha() {
   };
 
   return (
+    <AnimatedScreen style={styles.container} delay={60}>
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Recuperar senha</Text>
 
         <Text style={styles.descricao}>
           Digite seu e-mail para receber um código de recuperação.
         </Text>
-
+        <View style={styles.inputContainer1}>
         <TextInput
+
           style={styles.input}
           placeholder="Digite seu e-mail"
           placeholderTextColor="#999"
@@ -47,10 +45,7 @@ export default function RecuperarSenha() {
         >
           <Text style={styles.buttonText}>Enviar código</Text>
         </TouchableOpacity>
-
-        <Text style={styles.label}>
-          Código enviado por e-mail
-        </Text>
+        </View>
 
         <TextInput
           style={styles.input}
@@ -74,7 +69,8 @@ export default function RecuperarSenha() {
             Voltar para o login
           </Text>
         </TouchableOpacity>
-      </View>
+      </AnimatedCard>
     </SafeAreaView>
+    </AnimatedScreen>
   );
 }

@@ -3,14 +3,13 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: -90,
-    backgroundColor: "#000",
+    backgroundColor: "#0f0f0f",
     justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 24,
   },
 
   content: {
-    width: "85%",
+    width: "100%",
     alignItems: "center",
   },
 
@@ -18,7 +17,20 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 40,
+    marginBottom: 15,
+  },
+
+  descricao: {
+    color: "#B0B0B0",
+    fontSize: 15,
+    textAlign: "center",
+    marginBottom: 30,
+    lineHeight: 22,
+  },
+
+  inputContainer1: {
+    width: "100%",
+    marginBottom: 20,
   },
 
   input: {
@@ -29,7 +41,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontSize: 16,
     color: "#000",
-    marginBottom: 20,
+    marginTop: 25,
   },
 
   button: {
@@ -47,7 +59,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
   },
-  
 
   voltar: {
     color: "#FFF",
@@ -56,37 +67,11 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 
-  descricao: {
-    color: "#B0B0B0",
-    fontSize: 15,
-    textAlign: "center",
-    marginBottom: 30,
-    lineHeight: 22,
+  erro: {
+    color: "#ff6b6b",
+    fontSize: 13,
+    marginTop: 8,
   },
-  label: {
-  width: "100%",
-  color: "#FFF",
-  fontSize: 15,
-  fontWeight: "600",
-  marginTop: 30,
-  marginBottom: 10,
-},
-
-descricao: {
-  color: "#B0B0B0",
-  fontSize: 15,
-  textAlign: "center",
-  marginBottom: 30,
-  lineHeight: 22,
-},
-
-voltar: {
-  color: "#aaa",
-  fontSize: 16,
-  marginTop: 25,
-  textDecorationLine: "underline",
-},
-
 });
 
 export default styles;

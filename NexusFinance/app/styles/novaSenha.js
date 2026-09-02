@@ -3,14 +3,13 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: -90,
-    backgroundColor: "#000",
+    backgroundColor: "#0f0f0f",
     justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 24,
   },
 
   content: {
-    width: "85%",
+    width: "100%",
     alignItems: "center",
   },
 
@@ -25,7 +24,7 @@ const styles = StyleSheet.create({
     color: "#B0B0B0",
     fontSize: 15,
     textAlign: "center",
-    marginBottom: 35,
+    marginBottom: 30,
     lineHeight: 22,
   },
 
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
     width: "100%",
     color: "#FFF",
     fontSize: 15,
-    marginBottom: 8,
+    marginTop: 11,
     fontWeight: "600",
   },
 
@@ -45,25 +44,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontSize: 16,
     color: "#000",
-    marginBottom: 20,
+    marginTop: 15,
   },
 
   button: {
     width: "100%",
+    height: 45,
     backgroundColor: "#635bff",
     borderRadius: 10,
-    padding: 14,
-    marginTop: 20,
-    alignItems: "center",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 15,
+    marginTop: 10,
   },
 
   buttonText: {
-    color: "#FFF",
-    fontSize: 18,
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "bold",
+  },
+
+  voltar: {
+    color: "#FFF",
+    fontSize: 16,
+    marginTop: 20,
+    textDecorationLine: "underline",
+  },
+
+  erro: {
+    color: "#ff6b6b",
+    fontSize: 13,
+    marginTop: 8,
   },
 });
 

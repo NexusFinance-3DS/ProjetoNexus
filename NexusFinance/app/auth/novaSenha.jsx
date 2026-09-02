@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import styles from "../styles/novaSenha";
 
 export default function NovaSenha() {
@@ -20,8 +21,9 @@ export default function NovaSenha() {
   };
 
   return (
+    <AnimatedScreen style={styles.container} delay={60}>
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Nova senha</Text>
 
         <Text style={styles.descricao}>
@@ -56,7 +58,8 @@ export default function NovaSenha() {
         >
           <Text style={styles.buttonText}>Salvar senha</Text>
         </TouchableOpacity>
-      </View>
+      </AnimatedCard>
     </SafeAreaView>
+    </AnimatedScreen>
   );
 }
