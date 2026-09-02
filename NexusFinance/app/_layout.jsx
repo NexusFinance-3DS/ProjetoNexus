@@ -38,7 +38,7 @@ export default function RootLayout() {
       <Stack.Screen name="(tabs)/configuracoes" options={{ title: "Configurações" }} />
       <Stack.Screen name="(tabs)/dashboard" options={{ title: "Dashboard" }} />
       <Stack.Screen name="(tabs)/fluxoFinanceiro" options={{ title: "Fluxo financeiro" }} />
-      <Stack.Screen name="(tabs)/inicial" options={{ title: "OI" }} />
+      <Stack.Screen name="(tabs)/inicial" options={{ title: "Inicio" }} />
       <Stack.Screen name="(tabs)/metas" options={{ title: "Metas" }} />
       <Stack.Screen name="(tabs)/notificacoes" options={{ title: "Notificações" }} />
       <Stack.Screen name="(tabs)/perfil" options={{ title: "Perfil" }} />
