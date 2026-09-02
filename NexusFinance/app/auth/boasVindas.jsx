@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import styles from "../styles/boasVindas";
 
 export default function boasVindas() {
@@ -10,7 +11,7 @@ export default function boasVindas() {
     }
 
     return (
-        <View style={styles.tela}>
+        <AnimatedScreen style={styles.tela} delay={60}>
             <Image
                 source={require("../../assets/images/moedas.png")}
                 style={{
@@ -20,7 +21,7 @@ export default function boasVindas() {
                     marginBottom: 60,
                 }}
             />
-            <View style={{backgroundColor: "#171717a5", borderRadius: 20, alignItems: "center",}}>
+            <AnimatedCard style={{backgroundColor: "#171717a5", borderRadius: 20, alignItems: "center",}} delay={80}>
             <Text style={styles.titulo}>Organize seus gastos de uma maneira mais eficiente!</Text>
             <Text style={styles.subtitulo}>Controle seu orçamento e alcance suas metas financeiras com facilidade.</Text>
 
@@ -31,7 +32,7 @@ export default function boasVindas() {
             <TouchableOpacity onPress={() => router.push("/auth/login")}>
                 <Text style={styles.link}>Já tenho uma conta</Text>
             </TouchableOpacity>
-            </View>
-        </View>
+            </AnimatedCard>
+        </AnimatedScreen>
     );
 }

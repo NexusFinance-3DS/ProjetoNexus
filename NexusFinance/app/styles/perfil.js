@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   valorResumo: {
     color: "#FFF",
     fontWeight: "bold",
-    fontSize: 15,
+    fontSize: 13,
     textAlign: "center",
   },
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import styles from "../styles/criarSenha";
 
 const CriarSenha = () => {
@@ -13,8 +14,9 @@ const CriarSenha = () => {
   };
 
   return (
+    <AnimatedScreen style={styles.container} delay={60}>
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Crie sua senha</Text>
 
         <Text style={styles.label}>Senha</Text>
@@ -43,8 +45,9 @@ const CriarSenha = () => {
         >
           <Text style={styles.buttonText}>Continuar</Text>
         </TouchableOpacity>
-      </View>
+      </AnimatedCard>
     </SafeAreaView>
+    </AnimatedScreen>
   );
 };
 

@@ -1,21 +1,21 @@
 import React, { useState } from "react";
+import BarraNavegacao from '../components/BarraNavegacao';
+import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import styles from "../styles/perfil";
-import barraNavegacao from "../styles/barraNavegacao";
 import { getTotals, formatBRL } from '../data/financeData';
 
 export default function Perfil() {
   const [modalSair, setModalSair] = useState(false);
-  const [menuAberto, setMenuAberto] = useState(null);
 
   return (
-    <View style={styles.container}>
+    <AnimatedScreen style={styles.container} delay={60}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
         {/* Perfil */}
-        <View style={styles.profileContainer}>
+        <AnimatedCard style={styles.profileContainer} delay={40}>
 
           <View style={styles.profileCircle}>
             <Icon
@@ -42,11 +42,11 @@ export default function Perfil() {
             <Icon name="settings" size={24} color="#FFF" />
           </TouchableOpacity>
 
-        </View>
+        </AnimatedCard>
 
         {/* Resumo */}
 
-        <View style={styles.resumoCard}>
+        <AnimatedCard style={styles.resumoCard} delay={120}>
 
           <Text style={styles.resumoTitulo}>
             Resumo da conta
@@ -84,11 +84,11 @@ export default function Perfil() {
             })()}
           </View>
 
-        </View>
+        </AnimatedCard>
 
         {/* Menu */}
 
-        <View style={styles.menuCard}>
+        <AnimatedCard style={styles.menuCard} delay={180}>
 
           <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/meuCadastro")}>
             <View style={styles.itemLeft}>
@@ -152,7 +152,7 @@ export default function Perfil() {
 
           </TouchableOpacity>
 
-        </View>
+        </AnimatedCard>
       </ScrollView>
 
       {/* Modal de confirmação */}
@@ -211,106 +211,7 @@ export default function Perfil() {
         </View>
       </Modal>
 
-      {/* Menu expandido */}
-      {menuAberto != null && (
-        <TouchableWithoutFeedback onPress={() => setMenuAberto(null)}>
-          <View style={barraNavegacao.overlay} />
-        </TouchableWithoutFeedback>
-      )}
-
-      {menuAberto === 'add' && (
-        <View style={barraNavegacao.menuExpandido}>
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/receita/novaReceita'); }}>
-            <Icon name="attach-money" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Receitas</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/despesa/novaDespesa'); }}>
-            <Icon name="receipt" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Despesas</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/transacoes'); }}>
-            <Icon name="swap-horiz" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Transações</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/categoria'); }}>
-            <Icon name="category" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Categoria</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={barraNavegacao.itemMenu} onPress={() => { setMenuAberto(null); router.push('/metas'); }}>
-            <Icon name="flag" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Metas</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {menuAberto === 'more' && (
-        <View style={barraNavegacao.menuExpandido}>
-          <TouchableOpacity
-            style={barraNavegacao.itemMenu}
-            onPress={() => {
-              setMenuAberto(null);
-              router.push('/dashboard');
-            }}
-          >
-            <Icon name="menu" size={30} color="#fff" />
-            <Text style={barraNavegacao.tabLabel}>Dashboard</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Barra de navegação inferior */}
-      <View style={barraNavegacao.tabBar}>
-        <TouchableOpacity
-          style={barraNavegacao.tabItem}
-          onPress={() => router.push('/inicial')}
-          activeOpacity={0.8}
-        >
-          <Icon name="home" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Início</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={barraNavegacao.tabItem}
-          onPress={() => router.push('/fluxoFinanceiro')}
-          activeOpacity={0.8}
-        >
-          <Icon name="swap-horiz" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Fluxo</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={barraNavegacao.tabItem}
-          onPress={() => setMenuAberto(menuAberto === 'add' ? null : 'add')}
-          activeOpacity={0.8}
-        >
-          <Icon
-            name={menuAberto != null ? "close" : "add-circle"}
-            size={56}
-            color="#fff"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={barraNavegacao.tabItem}
-          onPress={() => router.push('/metas')}
-          activeOpacity={0.8}
-        >
-          <Icon name="radar" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>Metas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={barraNavegacao.tabItem}
-          onPress={() => setMenuAberto(menuAberto === 'more' ? null : 'more')}
-          activeOpacity={0.8}
-        >
-          <Icon name="menu" size={32} color="#ffffff" />
-          <Text style={barraNavegacao.tabLabel}>mais</Text>
-        </TouchableOpacity>
-      </View>
-
-    </View>
+      <BarraNavegacao />
+    </AnimatedScreen>
   );
 }

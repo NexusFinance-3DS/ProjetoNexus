@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
 
   card: {
     marginTop: 10,
-    backgroundColor: "#151922",
+    backgroundColor: "#1c1c1c",
     marginHorizontal: 18,
     marginBottom: 5,
     marginTop: 20,

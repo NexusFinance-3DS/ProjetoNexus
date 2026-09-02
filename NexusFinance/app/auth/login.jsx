@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { router } from "expo-router";
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, } from "react-native";
+import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import styles from "../styles/login";
 
 export default function Login() {
@@ -27,7 +28,7 @@ export default function Login() {
 
   return (
 
-    <View style={styles.container}>
+    <AnimatedScreen style={styles.container} delay={60}>
       <Image
         source={require("../../assets/images/foto.png")}
         style={{
@@ -37,6 +38,7 @@ export default function Login() {
           marginBottom: 60,
         }}
       />
+      <AnimatedCard delay={80}>
       <Text style={styles.titulo}>Entrar</Text>
 
       <Text style={styles.label}>Email</Text>
@@ -77,6 +79,7 @@ export default function Login() {
           Ainda não tenho conta
         </Text>
       </TouchableOpacity>
-    </View>
+      </AnimatedCard>
+    </AnimatedScreen>
   );
 }

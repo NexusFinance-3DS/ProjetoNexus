@@ -3,14 +3,13 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: -200,
-    backgroundColor: "#000",
+    backgroundColor: "#0f0f0f",
     justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 24,
   },
 
   content: {
-    width: "85%",
+    width: "100%",
     alignItems: "center",
   },
 
@@ -18,15 +17,23 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 40,
+    marginBottom: 15,
+  },
+
+  descricao: {
+    color: "#B0B0B0",
+    fontSize: 15,
+    textAlign: "center",
+    marginBottom: 30,
+    lineHeight: 22,
   },
 
   label: {
     width: "100%",
     color: "#FFF",
     fontSize: 15,
-    marginBottom: 8,
-    marginTop: 10,
+    marginTop: 11,
+    fontWeight: "600",
   },
 
   input: {
@@ -36,30 +43,37 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
-    marginBottom: 15,
+    color: "#000",
+    marginTop: 15,
   },
 
   button: {
     width: "100%",
-    height: 55,
-    backgroundColor: "#6C3EF4",
-    borderRadius: 12,
+    height: 45,
+    backgroundColor: "#635bff",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 25,
+    marginTop: 10,
   },
 
   buttonText: {
-    color: "#FFF",
-    fontSize: 18,
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "bold",
   },
 
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 10,
+  voltar: {
+    color: "#FFF",
+    fontSize: 16,
+    marginTop: 20,
+    textDecorationLine: "underline",
+  },
+
+  erro: {
+    color: "#ff6b6b",
+    fontSize: 13,
+    marginTop: 8,
   },
 });
 
