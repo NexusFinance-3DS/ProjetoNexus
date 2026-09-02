@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/images.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.projetonexus.nexusfinance"
     },
     "web": {
       "output": "static",
@@ -46,6 +47,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3d663afb-5ca3-4ee9-8e0d-5f41089f0d47"
+      }
     }
   }
 }
