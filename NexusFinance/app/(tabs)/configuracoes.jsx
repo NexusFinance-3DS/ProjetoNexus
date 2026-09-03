@@ -3,9 +3,9 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, Switch, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
-import styles from "../styles/configuracoes";
+import { configuracoesStyles as styles, sharedStyles } from "../styles/styles";
 
 export default function Configuracoes() {
   const [notificacoes, setNotificacoes] = useState(true);
@@ -13,7 +13,7 @@ export default function Configuracoes() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom10}>
         <AnimatedCard style={styles.card} delay={40}>
           <Text style={styles.cardTitle}>Preferências</Text>
 
@@ -122,7 +122,7 @@ export default function Configuracoes() {
           </TouchableOpacity>
         </AnimatedCard>
 
-        <View style={{ height: 100 }} />
+        <View style={sharedStyles.bottomSpacer} />
       </ScrollView>
 
       <BarraNavegacao />

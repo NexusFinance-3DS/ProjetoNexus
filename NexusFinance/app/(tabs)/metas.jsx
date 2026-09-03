@@ -1,10 +1,20 @@
 import React, { useState } from "react";
 import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, Modal, TextInput, FlatList, TouchableWithoutFeedback } from "react-native";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import styles from "../styles/metas";
+import Icon from "@expo/vector-icons/MaterialIcons";
+import { keyboardStyles, metasStyles as styles, sharedStyles } from "../styles/styles";
 
 export default function Metas() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -63,7 +73,7 @@ export default function Metas() {
 
       <FlatList
         data={metas}
-        contentContainerStyle={{ paddingBottom: 150 }}
+        contentContainerStyle={sharedStyles.paddingBottom150}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
@@ -75,7 +85,14 @@ export default function Metas() {
       </TouchableOpacity>
 
       <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalBackground}>
+        <KeyboardAvoidingView
+          style={keyboardStyles.avoidingView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+        <ScrollView
+          contentContainerStyle={[styles.modalBackground, keyboardStyles.modalScrollContent]}
+          keyboardShouldPersistTaps="handled"
+        >
           <AnimatedCard style={styles.modal} delay={30}>
             <Text style={styles.modalTitulo}>Nova Meta</Text>
 
@@ -93,7 +110,8 @@ export default function Metas() {
               </TouchableOpacity>
             </View>
           </AnimatedCard>
-        </View>
+        </ScrollView>
+        </KeyboardAvoidingView>
       </Modal>
 
       <BarraNavegacao />

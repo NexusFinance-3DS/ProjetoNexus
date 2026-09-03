@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import BarraNavegacao from '../components/BarraNavegacao';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, TouchableWithoutFeedback } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
-import styles from "../styles/meuCadastro";
+import { keyboardStyles, meuCadastroStyles as styles } from "../styles/styles";
 
 export default function MeuCadastro() {
   const [nome, setNome] = useState("Cesar Serra");
@@ -19,10 +27,14 @@ export default function MeuCadastro() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={keyboardStyles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.card}>
           <View style={styles.profileRow}>
@@ -124,6 +136,6 @@ export default function MeuCadastro() {
       </ScrollView>
 
       <BarraNavegacao />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

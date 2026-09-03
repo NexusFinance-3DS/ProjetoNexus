@@ -3,11 +3,11 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import styles from '../styles/fluxoFinanceiro';
+import Icon from '@expo/vector-icons/MaterialIcons';
+import { fluxoFinanceiroStyles as styles, sharedStyles } from '../styles/styles';
 import { transacoes } from '../data/financeData';
 
-export default function fluxoFinanceiro() {
+export default function FluxoFinanceiro() {
   const { aba } = useLocalSearchParams();
   const [abaSelecionada, setAbaSelecionada] = useState(aba || 'Geral');
 
@@ -31,7 +31,7 @@ export default function fluxoFinanceiro() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom120}>
         <AnimatedCard style={styles.filtroContainer} delay={40}>
           {['Geral', 'Receitas', 'Despesas'].map(option => (
             <TouchableOpacity

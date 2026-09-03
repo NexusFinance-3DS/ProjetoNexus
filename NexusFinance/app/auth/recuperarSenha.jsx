@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity,} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import styles from "../styles/recuperarSenha";
+import { keyboardStyles, recuperarSenhaStyles as styles } from "../styles/styles";
 
 export default function RecuperarSenha() {
   const [email, setEmail] = useState("");
@@ -20,7 +27,15 @@ export default function RecuperarSenha() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-    <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView
+      style={keyboardStyles.avoidingView}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+    <ScrollView
+      contentContainerStyle={keyboardStyles.centeredScrollContent}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
       <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Recuperar senha</Text>
 
@@ -70,7 +85,8 @@ export default function RecuperarSenha() {
           </Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </SafeAreaView>
+    </ScrollView>
+    </KeyboardAvoidingView>
     </AnimatedScreen>
   );
 }

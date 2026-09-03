@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Switch, TouchableWithoutFeedback } from 'react-native';
+import {
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { router } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import styles from '../styles/novaDespesa';
+import Icon from '@expo/vector-icons/MaterialIcons';
+import { keyboardStyles, novaDespesaStyles as styles, sharedStyles } from '../styles/styles';
 
-export default function novaDespesa() {
+export default function NovaDespesa() {
     const [valor, setValor] = useState("");
     const [descricao, setdescricao] = useState("");
     const [data, setData] = useState('');
@@ -19,11 +28,18 @@ export default function novaDespesa() {
 
     return (
         <AnimatedScreen style={styles.container} delay={60}>
-            <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+            <KeyboardAvoidingView
+                style={keyboardStyles.avoidingView}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+            <ScrollView
+                contentContainerStyle={keyboardStyles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+            >
                 <View style={styles.addValor}>
                     <Text style={styles.titulo}>Adicione o valor:</Text>
                     <TextInput
-                        style={[styles.InputValor, { textAlign: 'right' }]}
+                        style={[styles.InputValor, sharedStyles.textAlignRight]}
                         value={valor}
                         onChangeText={(texto) => setValor(texto)}
                         keyboardType="numeric"
@@ -34,7 +50,7 @@ export default function novaDespesa() {
                 </View>
                 <View style={styles.inputFull}>
 
-                    <Text style={{ color: "#fff", marginLeft: 10, marginBottom: 5, fontSize: 16, }}>Descrição</Text>
+                    <Text style={sharedStyles.formLabel}>Descrição</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Descrição:"
@@ -47,7 +63,7 @@ export default function novaDespesa() {
                 <View style={styles.listItem}
                 >
                     <View style={styles.iconBox}><Icon name="gavel" size={20} color="#fff" /></View>
-                    <View style={{ flex: 1 }}>
+                    <View style={sharedStyles.flex}>
                         <Text style={styles.listItemText}>Status</Text>
                         <Text style={styles.listItemSub}>Não pago</Text>
                     </View>
@@ -56,7 +72,7 @@ export default function novaDespesa() {
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
                     <View style={styles.iconBox}><Icon name="event" size={20} color="#fff" /></View>
-                    <View style={{ flex: 1 }}>
+                    <View style={sharedStyles.flex}>
                         <Text style={styles.listItemText}>Data</Text>
                         <Text style={styles.listItemSub}>{data || 'Selecione a data'}</Text>
                     </View>
@@ -65,7 +81,7 @@ export default function novaDespesa() {
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
                     <View style={styles.iconBox}><Icon name="label" size={20} color="#fff" /></View>
-                    <View style={{ flex: 1 }}>
+                    <View style={sharedStyles.flex}>
                         <Text style={styles.listItemText}>Categoria</Text>
                         <Text style={styles.listItemSub}>{categoria}</Text>
                     </View>
@@ -74,7 +90,7 @@ export default function novaDespesa() {
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
                     <View style={styles.iconBox}><Icon name="account-balance" size={20} color="#fff" /></View>
-                    <View style={{ flex: 1 }}>
+                    <View style={sharedStyles.flex}>
                         <Text style={styles.listItemText}>Conta</Text>
                         <Text style={styles.listItemSub}>{conta}</Text>
                     </View>
@@ -84,7 +100,7 @@ export default function novaDespesa() {
                 <View style={styles.listItem}
                 >
                     <View style={styles.iconBox}><Icon name="gavel" size={20} color="#fff" /></View>
-                    <View style={{ flex: 1 }}>
+                    <View style={sharedStyles.flex}>
                         <Text style={styles.listItemText}>Despesa fixa</Text>
                         <Text style={styles.listItemSub}>Despesa recorrente mensal</Text>
                     </View>
@@ -92,9 +108,9 @@ export default function novaDespesa() {
                 </View>
 
                 <View style={styles.inputFull}>
-                    <Text style={{ color: "#fff", marginLeft: 10, marginBottom: 5, fontSize: 16, }}>Observação (opcional)</Text>
+                    <Text style={sharedStyles.formLabel}>Observação (opcional)</Text>
                     <TextInput
-                        style={[styles.input, { height: 90 }]}
+                        style={[styles.input, sharedStyles.multilineInput]}
                         placeholder="Observação"
                         placeholderTextColor="#999"
                         multiline
@@ -105,7 +121,7 @@ export default function novaDespesa() {
 
                 <TouchableOpacity style={styles.listItem} activeOpacity={0.8}>
                     <View style={styles.iconBox}><Icon name="attach-file" size={20} color="#fff" /></View>
-                    <View style={{ flex: 1 }}>
+                    <View style={sharedStyles.flex}>
                         <Text style={styles.listItemText}>Anexar</Text>
                         <Text style={styles.listItemSub}>{anexo || 'Nenhum arquivo'}</Text>
                     </View>
@@ -122,6 +138,7 @@ export default function novaDespesa() {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+            </KeyboardAvoidingView>
 
       <BarraNavegacao />
         </AnimatedScreen>

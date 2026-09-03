@@ -1,9 +1,15 @@
 import { useState } from "react";
-import {View, Text, TextInput, TouchableOpacity} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import styles from "../styles/cadastro";
+import { cadastroStyles as styles, keyboardStyles } from "../styles/styles";
 
 export default function Cadastro() {
   const [email, setEmail] = useState("");
@@ -17,7 +23,15 @@ export default function Cadastro() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={keyboardStyles.avoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+      <ScrollView
+        contentContainerStyle={keyboardStyles.centeredScrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
       <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Crie sua conta</Text>
 
@@ -63,7 +77,8 @@ export default function Cadastro() {
           <Text style={styles.buttonText}>Continuar</Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </SafeAreaView>
+      </ScrollView>
+      </KeyboardAvoidingView>
     </AnimatedScreen>
   );
 }

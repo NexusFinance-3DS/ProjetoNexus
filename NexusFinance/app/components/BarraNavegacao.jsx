@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, TouchableWithoutFeedback } from "react-native";
 import { router, usePathname } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
@@ -11,7 +11,7 @@ import Animated, {
   FadeOut,
 } from "react-native-reanimated";
 
-import { colors, radii, shadow } from "../styles/theme";
+import { barraNavegacaoStyles as styles, colors } from "../styles/styles";
 
 const TABS = [
   { key: "inicial", route: "/inicial", label: "Início", icon: "home" },
@@ -50,33 +50,18 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
   };
 
   if (tab.key === "add") {
-    const fabStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }],
-    }));
-
     return (
       <Pressable
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={onPress}
         hitSlop={10}
-        style={{ alignItems: "center", justifyContent: "center", flex: 1 }}
+        style={styles.fabPressable}
       >
         <Animated.View
           style={[
-            fabStyle,
-            {
-              width: 70,
-              height: 70,
-              borderRadius: 35,
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: -30,
-              backgroundColor: colors.primary,
-              borderWidth: 4,
-              borderColor: colors.backgroundAlt,
-              ...shadow.soft,
-            },
+            style,
+            styles.fab,
           ]}
         >
           <Icon name="add" size={37} color={colors.textLink} />
@@ -91,16 +76,14 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
       onPressOut={handlePressOut}
       onPress={onPress}
       hitSlop={8}
-      style={{ flex: 1, alignItems: "center", justifyContent: "center", minHeight: 58 }}
+      style={styles.tabPressable}
     >
-      <Animated.View style={[style, { alignItems: "center" }]}>
+      <Animated.View style={[style, styles.tabAnimatedContent]}>
         <View
-          style={{
-            paddingHorizontal: 14,
-            paddingVertical: 4,
-            borderRadius: radii.pill,
-            backgroundColor: isActive || isOpen ? colors.primarySoft : "transparent",
-          }}
+          style={[
+            styles.tabPill,
+            { backgroundColor: isActive || isOpen ? colors.primarySoft : "transparent" },
+          ]}
         >
           <Icon
             name={tab.key === "more" && isOpen ? "close" : tab.icon}
@@ -109,25 +92,18 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
           />
         </View>
         <Text
-          style={{
-            fontSize: 10,
-            marginTop: 3,
-            fontWeight: isActive ? "700" : "500",
-            color: isActive || isOpen ? colors.primary : colors.textSecondary,
-          }}
+          style={[
+            styles.tabText,
+            {
+              fontWeight: isActive ? "700" : "500",
+              color: isActive || isOpen ? colors.primary : colors.textSecondary,
+            },
+          ]}
         >
           {tab.label}
         </Text>
         {isActive && (
-          <View
-            style={{
-              width: 4,
-              height: 4,
-              borderRadius: 2,
-              backgroundColor: colors.primary,
-              marginTop: 3,
-            }}
-          />
+          <View style={styles.activeDot} />
         )}
       </Animated.View>
     </Pressable>
@@ -149,53 +125,22 @@ function MenuExpandido({ items, onSelect }) {
     <Animated.View
       style={[
         animStyle,
-        {
-          position: "absolute",
-          bottom: 92,
-          width: "94%",
-          maxWidth: 420,
-          alignSelf: "center",
-          paddingHorizontal: 8,
-          backgroundColor: colors.surfaceAlt,
-          borderRadius: radii.lg,
-          flexDirection: "row",
-          flexWrap: "wrap",
-          justifyContent: "space-around",
-          zIndex: 9,
-          borderWidth: 1,
-          borderColor: colors.border,
-          ...shadow.soft,
-        },
+        styles.expandedMenu,
       ]}
     >
       {items.map((item) => (
         <Pressable
           key={item.label}
           onPress={() => onSelect(item.route)}
-          style={({ pressed }) => ({
-            alignItems: "center",
-            justifyContent: "center",
-            width: "22%",
-            paddingVertical: 10,
-            marginVertical: 4,
-            borderRadius: radii.md,
-            backgroundColor: pressed ? colors.primarySoft : "transparent",
-          })}
+          style={({ pressed }) => [
+            styles.expandedMenuItem,
+            { backgroundColor: pressed ? colors.primarySoft : "transparent" },
+          ]}
         >
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              backgroundColor: colors.primarySoft,
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 6,
-            }}
-          >
+          <View style={styles.expandedMenuIcon}>
             <Icon name={item.icon} size={22} color={colors.primary} />
           </View>
-          <Text style={{ color: colors.textPrimary, fontSize: 11, fontWeight: "600", textAlign: "center" }}>
+          <Text style={styles.expandedMenuLabel}>
             {item.label}
           </Text>
         </Pressable>
@@ -231,15 +176,7 @@ export default function BarraNavegacao() {
           <Animated.View
             entering={FadeIn.duration(150)}
             exiting={FadeOut.duration(150)}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: colors.overlay,
-              zIndex: 8,
-            }}
+            style={styles.currentOverlay}
           />
         </TouchableWithoutFeedback>
       )}
@@ -247,25 +184,7 @@ export default function BarraNavegacao() {
       {menuAberto === "add" && <MenuExpandido items={ADD_ACTIONS} onSelect={irPara} />}
       {menuAberto === "more" && <MenuExpandido items={MORE_ACTIONS} onSelect={irPara} />}
 
-      <View
-        style={{
-          position: "absolute",
-          bottom: 8,
-          alignSelf: "center",
-          width: "94%",
-          maxWidth: 420,
-          zIndex: 10,
-          flexDirection: "row",
-          height: 76,
-          borderRadius: radii.xl,
-          borderWidth: 1,
-          borderColor: colors.border,
-          paddingHorizontal: 6,
-          alignItems: "center",
-          backgroundColor: colors.backgroundAlt,
-          ...shadow.soft,
-        }}
-      >
+      <View style={styles.currentTabBar}>
         {TABS.map((tab) => (
           <AnimatedTabButton
             key={tab.key}

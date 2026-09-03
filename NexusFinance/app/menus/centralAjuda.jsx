@@ -3,9 +3,9 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
-import styles from "../styles/centralAjuda";
+import { centralAjudaStyles as styles, sharedStyles } from "../styles/styles";
 
 export default function CentralAjuda() {
 
@@ -13,7 +13,7 @@ export default function CentralAjuda() {
     <AnimatedScreen style={styles.container} delay={60}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: -100 }}
+        contentContainerStyle={sharedStyles.paddingBottomNegative100}
       >
 
         <AnimatedCard style={styles.card} delay={40}>

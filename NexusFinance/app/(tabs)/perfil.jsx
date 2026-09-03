@@ -3,8 +3,8 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import styles from "../styles/perfil";
+import Icon from "@expo/vector-icons/MaterialIcons";
+import { perfilStyles as styles, sharedStyles } from "../styles/styles";
 import { getTotals, formatBRL } from '../data/financeData';
 
 export default function Perfil() {
@@ -12,7 +12,7 @@ export default function Perfil() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom120}>
 
         {/* Perfil */}
         <AnimatedCard style={styles.profileContainer} delay={40}>
@@ -65,13 +65,13 @@ export default function Perfil() {
                   <View style={styles.itemResumo}>
                     <Icon name="trending-up" size={35} color="#2ED573" />
                     <Text style={styles.labelResumo}>Receitas</Text>
-                    <Text style={[styles.valorResumo, { color: "#2ED573" }]}>{formatBRL(totals.totalReceitas)}</Text>
+                    <Text style={[styles.valorResumo, sharedStyles.positiveText]}>{formatBRL(totals.totalReceitas)}</Text>
                   </View>
 
                   <View style={styles.itemResumo}>
                     <Icon name="trending-down" size={35} color="#FF4D4D" />
                     <Text style={styles.labelResumo}>Despesas</Text>
-                    <Text style={[styles.valorResumo, { color: "#FF4D4D" }]}>{formatBRL(totals.totalDespesas)}</Text>
+                    <Text style={[styles.valorResumo, sharedStyles.negativeText]}>{formatBRL(totals.totalDespesas)}</Text>
                   </View>
 
                   <View style={styles.itemResumo}>

@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import { router } from "expo-router";
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert, } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import styles from "../styles/login";
+import { keyboardStyles, loginStyles as styles, sharedStyles } from "../styles/styles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,14 +37,18 @@ export default function Login() {
   return (
 
     <AnimatedScreen style={styles.container} delay={60}>
+      <KeyboardAvoidingView
+        style={keyboardStyles.avoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={keyboardStyles.centeredScrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
       <Image
         source={require("../../assets/images/foto.png")}
-        style={{
-          alignSelf: "center",
-          width: 150,
-          height: 150,
-          marginBottom: 60,
-        }}
+        style={sharedStyles.loginLogo}
       />
       <AnimatedCard delay={80}>
       <Text style={styles.titulo}>Entrar</Text>
@@ -80,6 +92,8 @@ export default function Login() {
         </Text>
       </TouchableOpacity>
       </AnimatedCard>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AnimatedScreen>
   );
 }

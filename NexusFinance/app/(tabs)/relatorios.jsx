@@ -6,9 +6,9 @@ import { Picker } from "@react-native-picker/picker";
 import { BarChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
-import styles from "../styles/relatorios";
+import { relatoriosStyles as styles, sharedStyles } from "../styles/styles";
 import { getTotals, formatBRL } from '../data/financeData';
 
 const screenWidth = Dimensions.get("window").width;
@@ -33,7 +33,7 @@ export default function Relatorios() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: -100 }}
+        contentContainerStyle={sharedStyles.paddingBottomNegative100}
       >
 
         {/* Período */}
@@ -85,11 +85,7 @@ export default function Relatorios() {
                 stroke: "#303030",
               },
             }}
-            style={{
-              borderRadius: 15,
-              marginTop: 10,
-              marginBottom: 5,
-            }}
+            style={sharedStyles.reportChart}
           />
 
         </AnimatedCard>
@@ -182,7 +178,7 @@ export default function Relatorios() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, { marginTop: 15 }]}
+            style={[styles.button, sharedStyles.marginTop15]}
             activeOpacity={0.8}
             onPress={() => {
               console.log("Compartilhar");
@@ -203,7 +199,7 @@ export default function Relatorios() {
 
         {/* Espaço para a barra inferior */}
 
-        <View style={{ height: 100 }} />
+        <View style={sharedStyles.bottomSpacer} />
 
       </ScrollView>
 

@@ -1,20 +1,10 @@
 ﻿import { Stack } from "expo-router";
+import { navigationScreenOptions } from "./styles/styles";
 
 export default function RootLayout() {
   return (
     <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: "#141414",
-        },
-        headerTintColor: "#fff",
-        headerTitleStyle: {
-          fontWeight: "600",
-        },
-        contentStyle: {
-          backgroundColor: "#000",
-        },
-      }}
+      screenOptions={navigationScreenOptions}
     >
       <Stack.Screen name="auth/boasVindas" options={{ title: "Bem-vindo" }} />
       <Stack.Screen name="auth/login" options={{ title: "Entrar" }} />

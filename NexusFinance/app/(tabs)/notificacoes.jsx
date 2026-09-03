@@ -3,9 +3,9 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
-import styles from "../styles/notificacoes";
+import { notificacoesStyles as styles, sharedStyles } from "../styles/styles";
 import { formatBRL } from '../data/financeData';
 
 export default function Notificacoes() {
@@ -24,7 +24,7 @@ export default function Notificacoes() {
 
         {notificacoes.map((item, index) => (
           <AnimatedCard key={item.id} style={[styles.card, !item.lida && styles.cardNova]} delay={80 + index * 60}>
-            <TouchableOpacity activeOpacity={0.8} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity activeOpacity={0.8} style={sharedStyles.rowCentered}>
               <View style={[styles.iconContainer, { backgroundColor: item.cor }]}>
                 <Icon name={item.icone} size={28} color="#FFF" />
               </View>
@@ -51,7 +51,7 @@ export default function Notificacoes() {
           </View>
         )}
 
-        <View style={{ height: 100 }} />
+        <View style={sharedStyles.bottomSpacer} />
       </ScrollView>
 
       <BarraNavegacao />

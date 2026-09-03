@@ -3,11 +3,11 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
 import { PieChart, LineChart } from "react-native-chart-kit";
 
-import styles from "../styles/dashboard";
+import { dashboardStyles as styles, sharedStyles } from "../styles/styles";
 import { getTotals, formatBRL } from '../data/financeData';
 
 export default function Dashboard() {
@@ -32,7 +32,7 @@ export default function Dashboard() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom120}>
         <AnimatedCard style={styles.card} delay={40}>
           <Text style={styles.cardTitle}>Gastos por categoria</Text>
 
@@ -80,13 +80,7 @@ export default function Dashboard() {
               color: () => "#5145FF",
               labelColor: () => "#AAA",
             }}
-            style={{
-              borderRadius: 15,
-              marginTop: 10,
-              marginBottom: 10,
-              marginLeft: 10,
-              marginRight: -25,
-            }}
+            style={sharedStyles.dashboardChart}
           />
         </AnimatedCard>
 
@@ -98,7 +92,7 @@ export default function Dashboard() {
               <Icon name="arrow-upward" size={34} color="#00FF66" />
             </View>
 
-            <View style={{ flex: 1 }}>
+            <View style={sharedStyles.flex}>
               <Text style={styles.resumoTitulo}>Receitas</Text>
               <Text style={styles.resumoValor}>{formatBRL(totals.totalReceitas)}</Text>
 
@@ -115,7 +109,7 @@ export default function Dashboard() {
               <Icon name="arrow-downward" size={34} color="#FF3030" />
             </View>
 
-            <View style={{ flex: 1 }}>
+            <View style={sharedStyles.flex}>
               <Text style={styles.resumoTitulo}>Despesas</Text>
               <Text style={styles.resumoValor}>{formatBRL(totals.totalDespesas)}</Text>
 
@@ -128,7 +122,7 @@ export default function Dashboard() {
           </View>
         </AnimatedCard>
 
-        <View style={{ height: 100 }} />
+        <View style={sharedStyles.bottomSpacer} />
       </ScrollView>
 
       <BarraNavegacao />

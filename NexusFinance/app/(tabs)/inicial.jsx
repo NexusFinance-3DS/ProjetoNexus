@@ -3,11 +3,10 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from '@expo/vector-icons/MaterialIcons';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
-import styles from '../styles/inicio';
-import { colors, gradients } from '../styles/theme';
+import { inicioStyles as styles, colors, gradients, sharedStyles } from '../styles/styles';
 import BarraNavegacao from '../components/BarraNavegacao';
 import { getTotals, formatBRL, getPreviousTotals, getEconomiaComparison } from '../data/financeData';
 
@@ -42,7 +41,7 @@ function QuickCard({ icon, iconColor, iconBg, title, value, delta, deltaColor, o
   );
 }
 
-export default function inicial() {
+export default function Inicial() {
   const [saldoVisivel, setSaldoVisivel] = useState(true);
 
   const valorMeta = 30000.0;
@@ -88,10 +87,10 @@ export default function inicial() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom130}>
 
         <View style={styles.header}>
-          <Animated.View entering={FadeInUp.duration(400)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Animated.View entering={FadeInUp.duration(400)} style={sharedStyles.screenHeaderRow}>
             <Pressable onPress={() => router.push('/perfil')} style={styles.profileContaine}>
               <View style={styles.profileCircle}>
                 <Icon name="person-outline" size={36} color={colors.primary} />
@@ -140,7 +139,7 @@ export default function inicial() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingRight: 16 }}
+            contentContainerStyle={sharedStyles.paddingRight16}
           >
             <QuickCard
               delay={0}
@@ -189,7 +188,7 @@ export default function inicial() {
                 lineCap="round"
               >
                 {() => (
-                  <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: 'bold' }}>
+                  <Text style={sharedStyles.progressPercent}>
                     {Math.round(porcentagem)}%
                   </Text>
                 )}
@@ -207,7 +206,7 @@ export default function inicial() {
           <Animated.View entering={FadeInDown.delay(280).duration(400)} style={styles.sectionCard}>
             <View style={styles.distribuicaoHeader}>
               <Text style={styles.distribuicaoTitle}>Distribuição da renda</Text>
-              <Text style={{ color: colors.textMuted, fontSize: 12 }}>mês anterior</Text>
+              <Text style={sharedStyles.mutedCaption}>mês anterior</Text>
             </View>
 
             <View style={styles.distribuicaoLista}>

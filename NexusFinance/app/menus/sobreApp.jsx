@@ -3,15 +3,15 @@ import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import Icon from "@expo/vector-icons/MaterialIcons";
 
-import styles from "../styles/sobreApp";
+import { sharedStyles, sobreAppStyles as styles } from "../styles/styles";
 
 export default function SobreApp() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom120}>
 
         <AnimatedCard style={styles.mainCard} delay={40}>
           <Text style={styles.appName}>Nexus Finance</Text>
@@ -21,7 +21,7 @@ export default function SobreApp() {
           <Text style={styles.featuresTitle}>Sua Gestão Financeira, Descomplicada</Text>
 
           <View style={styles.featureRow}>
-            <View style={[styles.featureIcon, { backgroundColor: "#4C4CF0" }]}>
+            <View style={[styles.featureIcon, sharedStyles.featurePurple]}>
               <Icon name="wallet-travel" size={22} color="#FFF" />
             </View>
             <View style={styles.featureTexts}>
@@ -31,7 +31,7 @@ export default function SobreApp() {
           </View>
 
           <View style={styles.featureRow}>
-            <View style={[styles.featureIcon, { backgroundColor: "#2EA6FF" }]}>
+            <View style={[styles.featureIcon, sharedStyles.featureBlue]}>
               <Icon name="flag" size={22} color="#FFF" />
             </View>
             <View style={styles.featureTexts}>
@@ -41,7 +41,7 @@ export default function SobreApp() {
           </View>
 
           <View style={styles.featureRow}>
-            <View style={[styles.featureIcon, { backgroundColor: "#7B61FF" }]}>
+            <View style={[styles.featureIcon, sharedStyles.featureViolet]}>
               <Icon name="insert-chart" size={22} color="#FFF" />
             </View>
             <View style={styles.featureTexts}>
@@ -51,7 +51,7 @@ export default function SobreApp() {
           </View>
 
           <View style={styles.featureRow}>
-            <View style={[styles.featureIcon, { backgroundColor: "#FF6B6B" }]}>
+            <View style={[styles.featureIcon, sharedStyles.featureRed]}>
               <Icon name="sync-alt" size={22} color="#FFF" />
             </View>
             <View style={styles.featureTexts}>

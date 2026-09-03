@@ -4,11 +4,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import styles from "../styles/novaSenha";
+import { keyboardStyles, novaSenhaStyles as styles } from "../styles/styles";
 
 export default function NovaSenha() {
   const [senha, setSenha] = useState("");
@@ -22,7 +24,15 @@ export default function NovaSenha() {
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-    <SafeAreaView style={styles.container}>
+    <KeyboardAvoidingView
+      style={keyboardStyles.avoidingView}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+    <ScrollView
+      contentContainerStyle={keyboardStyles.centeredScrollContent}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
       <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Nova senha</Text>
 
@@ -59,7 +69,8 @@ export default function NovaSenha() {
           <Text style={styles.buttonText}>Salvar senha</Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </SafeAreaView>
+    </ScrollView>
+    </KeyboardAvoidingView>
     </AnimatedScreen>
   );
 }
