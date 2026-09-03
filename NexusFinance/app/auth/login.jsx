@@ -1,78 +1,49 @@
-import React, { useState } from "react";
+import { useSession } from '../../src/data/Session';
+import { apiStyles, keyboardStyles, loginLogoStyle, loginStyles as styles } from '../../src/styles';
+import KeyboardForm from '../../src/components/KeyboardForm';
+import { useState } from "react";
 import { router } from "expo-router";
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { keyboardStyles, loginStyles as styles, sharedStyles } from "../styles/styles";
-
+import { Text, Image, TextInput, TouchableOpacity } from "react-native";
+import { AnimatedCard, AnimatedScreen } from '../../src/components/AnimatedScreen';
 export default function Login() {
+  const session = useSession();
+  const [busy, setBusy] = useState(false);
+  const [message] = useState('');
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
-
   function criarConta() {
     router.push("/auth/cadastro");
   }
-
   function recuperarSenha() {
     router.push("/auth/recuperarSenha");
   }
-
-  function entrar() {
-    if (!email || !senha) {
-      setErro("Preencha email e senha.");
-      return;
+  async function entrar() {
+    if (busy) return;
+    setBusy(true);
+    setErro('');
+    try {
+      await session.login({
+        email,
+        senha
+      });
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setBusy(false);
     }
-    setErro("");
-    router.push("/inicial");
   }
-
-  return (
-
-    <AnimatedScreen style={styles.container} delay={60}>
-      <KeyboardAvoidingView
-        style={keyboardStyles.avoidingView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
-          contentContainerStyle={keyboardStyles.centeredScrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-      <Image
-        source={require("../../assets/images/foto.png")}
-        style={sharedStyles.loginLogo}
-      />
+  return <AnimatedScreen style={keyboardStyles.screen} delay={60}>
+      <KeyboardForm contentContainerStyle={styles.container}>
+      <Image source={require("../../assets/images/foto.png")} style={loginLogoStyle} />
       <AnimatedCard delay={80}>
       <Text style={styles.titulo}>Entrar</Text>
 
       <Text style={styles.label}>Email</Text>
-      <TextInput
-        style={styles.input}
-        value={email}
-        placeholder="Digite seu email"
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        placeholderTextColor="#666"
-      />
+      <TextInput style={styles.input} value={email} placeholder="Digite seu email" onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholderTextColor="#666" />
 
       <Text style={styles.label}>Senha</Text>
-      <TextInput
-        style={styles.input}
-        value={senha}
-        placeholder="Digite sua senha"
-        onChangeText={setSenha}
-        secureTextEntry
-        placeholderTextColor="#666"
-      />
+      <TextInput style={styles.input} value={senha} placeholder="Digite sua senha" onChangeText={setSenha} secureTextEntry placeholderTextColor="#666" />
 
       <TouchableOpacity>
         <Text style={styles.link2} onPress={recuperarSenha}>
@@ -82,7 +53,7 @@ export default function Login() {
 
       {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
-      <TouchableOpacity style={styles.botao} onPress={entrar}>
+      <TouchableOpacity style={styles.botao} disabled={busy} onPress={entrar}>
         <Text style={styles.textoBotao}>Entrar</Text>
       </TouchableOpacity>
 
@@ -92,8 +63,8 @@ export default function Login() {
         </Text>
       </TouchableOpacity>
       </AnimatedCard>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </AnimatedScreen>
-  );
+    {!!message && <Text style={apiStyles.error}>{message}</Text>}
+      {busy && <Text style={apiStyles.message}>Aguarde...</Text>}
+    </KeyboardForm>
+    </AnimatedScreen>;
 }

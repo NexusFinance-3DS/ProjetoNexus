@@ -1,20 +1,11 @@
-import React, { useState } from "react";
-import BarraNavegacao from '../components/BarraNavegacao';
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
-import { router } from "expo-router";
+import { reportContentStyle, centralAjudaStyles as styles } from '../../src/styles';
+import BarraNavegacao from '../../src/components/BarraNavegacao';
+import { AnimatedCard, AnimatedScreen } from '../../src/components/AnimatedScreen';
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import Icon from "@expo/vector-icons/MaterialIcons";
-
-import { centralAjudaStyles as styles, sharedStyles } from "../styles/styles";
-
 export default function CentralAjuda() {
-
-  return (
-    <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={sharedStyles.paddingBottomNegative100}
-      >
+  return <AnimatedScreen style={styles.container} delay={60}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={reportContentStyle}>
 
         <AnimatedCard style={styles.card} delay={40}>
           <Text style={styles.cardTitle}>Perguntas frequentes</Text>
@@ -65,11 +56,7 @@ export default function CentralAjuda() {
           </Text>
         </AnimatedCard>
 
-        <TouchableOpacity
-          style={styles.contactButton}
-          activeOpacity={0.8}
-          onPress={() => console.log("Contato com suporte")}
-        >
+        <TouchableOpacity style={styles.contactButton} activeOpacity={0.8} onPress={() => console.log("Contato com suporte")}>
           <Icon name="chat-bubble-outline" size={24} color="#FFF" />
           <Text style={styles.contactText}>Fale com o suporte</Text>
         </TouchableOpacity>
@@ -77,6 +64,5 @@ export default function CentralAjuda() {
       </ScrollView>
 
       <BarraNavegacao />
-    </AnimatedScreen>
-  );
+    </AnimatedScreen>;
 }

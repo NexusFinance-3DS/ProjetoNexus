@@ -1,62 +1,51 @@
-import React, { useState } from "react";
-import BarraNavegacao from '../components/BarraNavegacao';
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
-import { router } from "expo-router";
+import { chartPalette, navigationContentStyle, pieChartConfig, legendColorStyle, balanceChartConfig, dashboardChartStyle, flexFillStyle, incomeProgressStyle, expenseProgressStyle, bottomSpacerStyle, dashboardStyles as styles } from '../../src/styles';
+import { useFinance } from '../../src/data/Finance';
+import DataStatus from '../../src/components/DataStatus';
+import BarraNavegacao from '../../src/components/BarraNavegacao';
+import { AnimatedCard, AnimatedScreen } from '../../src/components/AnimatedScreen';
+import { View, Text, ScrollView } from "react-native";
 import Icon from "@expo/vector-icons/MaterialIcons";
-
 import { PieChart, LineChart } from "react-native-chart-kit";
-
-import { dashboardStyles as styles, sharedStyles } from "../styles/styles";
-import { getTotals, formatBRL } from '../data/financeData';
-
+import { formatBRL } from '../../src/data/format';
 export default function Dashboard() {
+  const finance = useFinance();
+  const {
+    getTotals
+  } = finance;
   const screenWidth = 340;
-
-  const pieData = [
-    { name: "Alimentação", population: 981, color: "#6C63FF", legendFontColor: "#FFF", legendFontSize: 13 },
-    { name: "Transporte", population: 654, color: "#5145FF", legendFontColor: "#FFF", legendFontSize: 13 },
-    { name: "Lazer", population: 490, color: "#7C6BFF", legendFontColor: "#FFF", legendFontSize: 13 },
-    { name: "Moradia", population: 817, color: "#291CFF", legendFontColor: "#FFF", legendFontSize: 13 },
-    { name: "Outros", population: 328, color: "#666", legendFontColor: "#FFF", legendFontSize: 13 },
-  ];
-
+  const pieData = (finance.resumo.categorias || []).map((x, index) => ({
+    name: x.nome,
+    population: Number(x.valor),
+    color: chartPalette[index % chartPalette.length],
+    legendFontColor: '#FFF',
+    legendFontSize: 13
+  }));
+  const history = finance.historico.evolucao || [];
   const lineData = {
-    labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
-    datasets: [{ data: [1200, 2500, 3200, 2400, 3000, 4200, 5000] }],
+    labels: history.length ? history.map(x => x.mes.slice(5)) : ['Sem dados'],
+    datasets: [{
+      data: history.length ? history.map(x => Number(x.receitas) - Number(x.despesas)) : [0]
+    }]
   };
-
   const totals = getTotals();
-  const receitasPercent = Math.round((totals.totalReceitas / (totals.totalReceitas + totals.totalDespesas)) * 100);
-  const despesasPercent = 100 - receitasPercent;
-
-  return (
-    <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom120}>
+  const receitasPercent = Math.round(totals.totalReceitas / (totals.totalReceitas + totals.totalDespesas || 1) * 100);
+  const despesasPercent = Math.round(totals.totalDespesas / (totals.totalReceitas + totals.totalDespesas || 1) * 100);
+  return <AnimatedScreen style={styles.container} delay={60}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={navigationContentStyle}>
+        <DataStatus />
         <AnimatedCard style={styles.card} delay={40}>
           <Text style={styles.cardTitle}>Gastos por categoria</Text>
 
           <View style={styles.graficoContainer}>
             <View style={styles.pieWrapper}>
-              <PieChart
-                data={pieData}
-                width={200}
-                height={120}
-                accessor="population"
-                backgroundColor="transparent"
-                hasLegend={false}
-                chartConfig={{ color: () => "#FFF" }}
-                style={styles.pieChart}
-              />
+              <PieChart data={pieData} width={200} height={120} accessor="population" backgroundColor="transparent" hasLegend={false} chartConfig={pieChartConfig} style={styles.pieChart} />
             </View>
 
             <View style={styles.legenda}>
-              {pieData.map((item, index) => (
-                <View key={index} style={styles.itemLegenda}>
-                  <View style={[styles.corLegenda, { backgroundColor: item.color }]} />
+              {pieData.map((item, index) => <View key={index} style={styles.itemLegenda}>
+                  <View style={[styles.corLegenda, legendColorStyle(item)]} />
                   <Text style={styles.textoLegenda}>{item.name}</Text>
-                </View>
-              ))}
+                </View>)}
             </View>
           </View>
         </AnimatedCard>
@@ -64,24 +53,7 @@ export default function Dashboard() {
         <AnimatedCard style={styles.card} delay={120}>
           <Text style={styles.cardTitle}>Evolução de saldo</Text>
 
-          <LineChart
-            data={lineData}
-            width={screenWidth - 40}
-            height={190}
-            withDots={false}
-            withShadow={false}
-            withInnerLines={true}
-            withOuterLines={false}
-            bezier
-            chartConfig={{
-              backgroundGradientFrom: "#1c1c1c",
-              backgroundGradientTo: "#1c1c1c",
-              decimalPlaces: 0,
-              color: () => "#5145FF",
-              labelColor: () => "#AAA",
-            }}
-            style={sharedStyles.dashboardChart}
-          />
+          <LineChart data={lineData} width={screenWidth - 40} height={190} withDots={false} withShadow={false} withInnerLines={true} withOuterLines={false} bezier chartConfig={balanceChartConfig} style={dashboardChartStyle} />
         </AnimatedCard>
 
         <AnimatedCard style={styles.card} delay={180}>
@@ -92,16 +64,16 @@ export default function Dashboard() {
               <Icon name="arrow-upward" size={34} color="#00FF66" />
             </View>
 
-            <View style={sharedStyles.flex}>
+            <View style={flexFillStyle}>
               <Text style={styles.resumoTitulo}>Receitas</Text>
               <Text style={styles.resumoValor}>{formatBRL(totals.totalReceitas)}</Text>
 
               <View style={styles.progress}>
-                <View style={[styles.progressFill, { width: `${receitasPercent}%` }]} />
+                <View style={[styles.progressFill, incomeProgressStyle(receitasPercent)]} />
               </View>
             </View>
 
-            <Text style={styles.percent}>78%</Text>
+            <Text style={styles.percent}>{receitasPercent}%</Text>
           </View>
 
           <View style={styles.resumoItem}>
@@ -109,23 +81,22 @@ export default function Dashboard() {
               <Icon name="arrow-downward" size={34} color="#FF3030" />
             </View>
 
-            <View style={sharedStyles.flex}>
+            <View style={flexFillStyle}>
               <Text style={styles.resumoTitulo}>Despesas</Text>
               <Text style={styles.resumoValor}>{formatBRL(totals.totalDespesas)}</Text>
 
               <View style={styles.progress}>
-                <View style={[styles.progressFill, { width: `${despesasPercent}%` }]} />
+                <View style={[styles.progressFill, expenseProgressStyle(despesasPercent)]} />
               </View>
             </View>
 
-            <Text style={styles.percent}>22%</Text>
+            <Text style={styles.percent}>{despesasPercent}%</Text>
           </View>
         </AnimatedCard>
 
-        <View style={sharedStyles.bottomSpacer} />
+        <View style={bottomSpacerStyle} />
       </ScrollView>
 
       <BarraNavegacao />
-    </AnimatedScreen>
-  );
+    </AnimatedScreen>;
 }

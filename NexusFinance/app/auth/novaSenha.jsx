@@ -1,38 +1,43 @@
+import { useSession } from '../../src/data/Session';
+import { api } from '../../src/api/client';
+import { apiStyles, keyboardStyles, novaSenhaStyles as styles } from '../../src/styles';
+import KeyboardForm from '../../src/components/KeyboardForm';
 import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { Text, TextInput, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { keyboardStyles, novaSenhaStyles as styles } from "../styles/styles";
-
+import { AnimatedCard, AnimatedScreen } from '../../src/components/AnimatedScreen';
 export default function NovaSenha() {
+  const session = useSession();
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-
-  const alterarSenha = () => {
-    // Aqui será feita a alteração da senha
-    alert("Senha alterada com sucesso!");
-    router.replace("/auth/login");
+  const alterarSenha = async () => {
+    if (busy) return;
+    setBusy(true);
+    setMessage('');
+    try {
+      if (!session.recovery) throw new Error('Solicite um código de recuperação antes de continuar.');
+      if (senha !== confirmarSenha) throw new Error('As senhas não conferem.');
+      await api('/auth/redefinir-senha', {
+        method: 'POST',
+        body: {
+          ...session.recovery,
+          senha
+        }
+      });
+      session.setRecovery(null);
+      router.replace('/auth/login');
+    } catch (e) {
+      setMessage(e.message);
+    } finally {
+      setBusy(false);
+    }
   };
-
-  return (
-    <AnimatedScreen style={styles.container} delay={60}>
-    <KeyboardAvoidingView
-      style={keyboardStyles.avoidingView}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-    <ScrollView
-      contentContainerStyle={keyboardStyles.centeredScrollContent}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
+  return <AnimatedScreen style={keyboardStyles.screen} delay={60}>
+      <KeyboardForm contentContainerStyle={styles.container}>
+    <SafeAreaView style={[styles.container, keyboardStyles.content]}>
       <AnimatedCard style={styles.content} delay={80}>
         <Text style={styles.title}>Nova senha</Text>
 
@@ -42,35 +47,19 @@ export default function NovaSenha() {
 
         <Text style={styles.label}>Nova senha</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua nova senha"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-        />
+        <TextInput style={styles.input} placeholder="Digite sua nova senha" placeholderTextColor="#999" secureTextEntry value={senha} onChangeText={setSenha} />
 
         <Text style={styles.label}>Confirmar senha</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Confirme sua nova senha"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={confirmarSenha}
-          onChangeText={setConfirmarSenha}
-        />
+        <TextInput style={styles.input} placeholder="Confirme sua nova senha" placeholderTextColor="#999" secureTextEntry value={confirmarSenha} onChangeText={setConfirmarSenha} />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={alterarSenha}
-        >
+        <TouchableOpacity style={styles.button} disabled={busy} onPress={alterarSenha}>
           <Text style={styles.buttonText}>Salvar senha</Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </ScrollView>
-    </KeyboardAvoidingView>
-    </AnimatedScreen>
-  );
+    </SafeAreaView>
+    {!!message && <Text style={apiStyles.error}>{message}</Text>}
+      {busy && <Text style={apiStyles.message}>Aguarde...</Text>}
+    </KeyboardForm>
+    </AnimatedScreen>;
 }

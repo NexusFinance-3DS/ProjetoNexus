@@ -1,0 +1,52 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: nexus_finance
+      MYSQL_USER: nexus
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  migrate:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+pymysql://nexus:${MYSQL_PASSWORD}@db:3306/nexus_finance?charset=utf8mb4
+    command: ["python", "-m", "nexus.cli", "init-db"]
+    depends_on:
+      db:
+        condition: service_healthy
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+pymysql://nexus:${MYSQL_PASSWORD}@db:3306/nexus_finance?charset=utf8mb4
+    ports:
+      - "8000:8000"
+    volumes:
+      - files:/app/storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  worker:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: mysql+pymysql://nexus:${MYSQL_PASSWORD}@db:3306/nexus_finance?charset=utf8mb4
+    command: ["python", "-m", "nexus.cli", "worker"]
+    volumes:
+      - files:/app/storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+volumes:
+  mysql_data:
+  files:

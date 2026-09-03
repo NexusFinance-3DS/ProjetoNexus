@@ -1,5 +1,8 @@
 import { Redirect } from 'expo-router';
-
+import { useSession } from '../src/data/Session';
 export default function Index() {
-  return <Redirect href="/auth/boasVindas" />;
+  const {
+    user
+  } = useSession();
+  return <Redirect href={user ? '/inicial' : '/auth/boasVindas'} />;
 }
