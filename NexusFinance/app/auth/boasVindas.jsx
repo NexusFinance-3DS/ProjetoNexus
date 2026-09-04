@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import React from "react";
+import { Text, Image, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { boasVindasStyles as styles } from "../styles/styles";

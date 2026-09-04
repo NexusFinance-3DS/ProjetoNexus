@@ -382,6 +382,12 @@ export const cadastroStyles = StyleSheet.create({
     fontWeight: "bold",
   },
 
+  erro: {
+    color: "#ff6b6b",
+    fontSize: 13,
+    marginTop: 4,
+  },
+
 });
 
 // centralAjuda
@@ -2620,6 +2626,8 @@ export const keyboardStyles = StyleSheet.create({
   centeredScrollContent: {
     flexGrow: 1,
     justifyContent: "center",
+    paddingVertical: 24,
+    paddingBottom: 48,
   },
   scrollContent: {
     flexGrow: 1,
@@ -2633,6 +2641,12 @@ export const keyboardStyles = StyleSheet.create({
 });
 
 export const sharedStyles = StyleSheet.create({
+  errorText: {
+    color: "#ff6b6b",
+    fontSize: 14,
+    marginVertical: 10,
+    textAlign: "center",
+  },
   flex: {
     flex: 1,
   },

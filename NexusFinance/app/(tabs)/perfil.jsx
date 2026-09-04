@@ -1,14 +1,30 @@
 import React, { useState } from "react";
 import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Modal } from "react-native";
 import { router } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { perfilStyles as styles, sharedStyles } from "../styles/styles";
-import { getTotals, formatBRL } from '../data/financeData';
+import { formatBRL, apiAutenticada } from "../../services/financeiro";
+import { useSession } from "../../contexts/SessionContext";
+import { useResumoFinanceiro } from "../../hooks/useResumoFinanceiro";
 
 export default function Perfil() {
   const [modalSair, setModalSair] = useState(false);
+  const { usuario, encerrarSessao } = useSession();
+  const { dados } = useResumoFinanceiro();
+  const totals = dados.atual;
+
+  async function sair() {
+    try {
+      await apiAutenticada("/auth/logout", { method: "POST" });
+    } catch {
+      // A sessão local deve ser encerrada mesmo se o servidor estiver indisponível.
+    }
+    await encerrarSessao();
+    setModalSair(false);
+    router.replace("/auth/login");
+  }
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
@@ -27,11 +43,11 @@ export default function Perfil() {
 
           <View style={styles.profileInfo}>
             <Text style={styles.nome}>
-              Cesar Serra
+              {usuario?.nome || "Usuário"}
             </Text>
 
             <Text style={styles.email}>
-              cesar.serra@gmail.com
+              {usuario?.email || ""}
             </Text>
           </View>
 
@@ -52,9 +68,6 @@ export default function Perfil() {
             Resumo da conta
           </Text>
           <View style={styles.resumoRow}>
-            {(() => {
-              const totals = getTotals();
-              return (
                 <>
                   <View style={styles.itemResumo}>
                     <Icon name="account-balance-wallet" size={35} color="#5145FF" />
@@ -80,8 +93,6 @@ export default function Perfil() {
                     <Text style={styles.valorResumo}>{formatBRL(totals.totalReceitas - totals.totalDespesas)}</Text>
                   </View>
                 </>
-              );
-            })()}
           </View>
 
         </AnimatedCard>
@@ -195,10 +206,7 @@ export default function Perfil() {
 
               <TouchableOpacity
                 style={styles.sair}
-                onPress={() => {
-                  setModalSair(false);
-                  router.replace("/auth/login");
-                }}
+                onPress={sair}
               >
                 <Text style={styles.sairTexto}>
                   Sair

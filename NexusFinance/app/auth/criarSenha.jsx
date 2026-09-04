@@ -9,25 +9,54 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
+import { apiRequest } from "../../services/api";
+import { limparCadastroPendente, obterCadastroPendente } from "../../services/authFlow";
+import { erroSenha } from "../../services/validations";
 import { criarSenhaStyles as styles, keyboardStyles } from "../styles/styles";
 
 const CriarSenha = () => {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
-  const Continuar = () => {
-    router.push("/auth/login");
+  const continuar = async () => {
+    const dadosCadastro = obterCadastroPendente();
+    if (!dadosCadastro) {
+      setErro("Os dados do cadastro não foram encontrados. Volte e preencha novamente.");
+      return;
+    }
+    const mensagemSenha = erroSenha(senha);
+    if (mensagemSenha) return setErro(mensagemSenha);
+    if (senha !== confirmarSenha) return setErro("As senhas não coincidem.");
+
+    setCarregando(true);
+    setErro("");
+    try {
+      await apiRequest("/auth/cadastro", {
+        method: "POST",
+        body: JSON.stringify({ ...dadosCadastro, senha, confirmarSenha }),
+      });
+      limparCadastroPendente();
+      alert("Cadastro realizado com sucesso!");
+      router.replace("/auth/login");
+    } catch (error) {
+      setErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
     <KeyboardAvoidingView
       style={keyboardStyles.avoidingView}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
     <ScrollView
       contentContainerStyle={keyboardStyles.centeredScrollContent}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
       showsVerticalScrollIndicator={false}
     >
       <AnimatedCard style={styles.content} delay={80}>
@@ -53,11 +82,14 @@ const CriarSenha = () => {
           onChangeText={setConfirmarSenha}
         />
 
+        {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+
         <TouchableOpacity
           style={styles.button}
-          onPress={Continuar}
+          onPress={continuar}
+          disabled={carregando}
         >
-          <Text style={styles.buttonText}>Continuar</Text>
+          <Text style={styles.buttonText}>{carregando ? "Salvando..." : "Criar conta"}</Text>
         </TouchableOpacity>
       </AnimatedCard>
     </ScrollView>

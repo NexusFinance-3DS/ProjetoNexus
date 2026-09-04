@@ -1,59 +1,61 @@
-import React, { useState } from "react";
-import BarraNavegacao from '../components/BarraNavegacao';
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { router } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useFocusEffect } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
-
+import BarraNavegacao from "../components/BarraNavegacao";
+import { AnimatedCard, AnimatedScreen } from "../components/AnimatedScreen";
 import { notificacoesStyles as styles, sharedStyles } from "../styles/styles";
-import { formatBRL } from '../data/financeData';
+import { apiAutenticada } from "../../services/financeiro";
+
+const VISUAL = {
+  Financeira: { icone: "account-balance-wallet", cor: "#00E676" },
+  Meta: { icone: "flag", cor: "#4b3df2" },
+  Sistema: { icone: "info", cor: "#5145FF" },
+  Lembrete: { icone: "notifications", cor: "#FF9800" },
+};
 
 export default function Notificacoes() {
-  const [notificacoes] = useState([
-    { id: 1, titulo: "Meta atualizada", descricao: `Você economizou ${formatBRL(250)} para sua meta.`, hora: "Agora", icone: "flag", cor: "#4b3df2", lida: false },
-    { id: 2, titulo: "Nova receita", descricao: `Salário de ${formatBRL(4500)} foi registrado.`, hora: "10 min", icone: "trending-up", cor: "#00E676", lida: false },
-    { id: 3, titulo: "Despesa adicionada", descricao: `Pagamento de ${formatBRL(120.2)} em Alimentação.`, hora: "35 min", icone: "trending-down", cor: "#FF3B30", lida: true },
-    { id: 4, titulo: "Lembrete", descricao: "Sua conta de internet vence amanhã.", hora: "Hoje", icone: "notifications", cor: "#FF9800", lida: true },
-    { id: 5, titulo: "Parabéns!", descricao: "Você economizou mais que no mês passado.", hora: "Ontem", icone: "emoji-events", cor: "#FFD700", lida: true },
-  ]);
+  const [notificacoes, setNotificacoes] = useState([]);
+  const [erro, setErro] = useState("");
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    apiAutenticada("/notificacoes")
+      .then((response) => active && setNotificacoes(response.notificacoes))
+      .catch((error) => active && setErro(error.message));
+    return () => { active = false; };
+  }, []));
+
+  async function marcarComoLida(item) {
+    if (item.lida) return;
+    await apiAutenticada(`/notificacoes/${item.id}/lida`, { method: "PATCH" });
+    setNotificacoes((current) => current.map((notification) => notification.id === item.id ? { ...notification, lida: true } : notification));
+  }
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom120}>
         <Text style={styles.subTitle}>Últimas notificações</Text>
-
-        {notificacoes.map((item, index) => (
-          <AnimatedCard key={item.id} style={[styles.card, !item.lida && styles.cardNova]} delay={80 + index * 60}>
-            <TouchableOpacity activeOpacity={0.8} style={sharedStyles.rowCentered}>
-              <View style={[styles.iconContainer, { backgroundColor: item.cor }]}>
-                <Icon name={item.icone} size={28} color="#FFF" />
-              </View>
-
-              <View style={styles.textContainer}>
-                <View style={styles.row}>
-                  <Text style={styles.cardTitle}>{item.titulo}</Text>
-                  <Text style={styles.hora}>{item.hora}</Text>
+        {erro ? <Text style={sharedStyles.errorText}>{erro}</Text> : null}
+        {notificacoes.map((item, index) => {
+          const visual = VISUAL[item.tipo] || VISUAL.Sistema;
+          return (
+            <AnimatedCard key={item.id} style={[styles.card, !item.lida && styles.cardNova]} delay={80 + index * 40}>
+              <TouchableOpacity activeOpacity={0.8} style={sharedStyles.rowCentered} onPress={() => marcarComoLida(item)}>
+                <View style={[styles.iconContainer, { backgroundColor: visual.cor }]}><Icon name={visual.icone} size={28} color="#FFF" /></View>
+                <View style={styles.textContainer}>
+                  <View style={styles.row}><Text style={styles.cardTitle}>{item.titulo}</Text><Text style={styles.hora}>{new Date(item.criado_em).toLocaleDateString("pt-BR")}</Text></View>
+                  <Text style={styles.descricao}>{item.descricao}</Text>
                 </View>
-
-                <Text style={styles.descricao}>{item.descricao}</Text>
-              </View>
-
-              {!item.lida && <View style={styles.bolinha} />}
-            </TouchableOpacity>
-          </AnimatedCard>
-        ))}
-
-        {notificacoes.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Icon name="notifications-off" size={80} color="#666" />
-            <Text style={styles.emptyTitle}>Nenhuma notificação</Text>
-            <Text style={styles.emptyText}>Quando houver novidades elas aparecerão aqui.</Text>
-          </View>
-        )}
-
-        <View style={sharedStyles.bottomSpacer} />
+                {!item.lida && <View style={styles.bolinha} />}
+              </TouchableOpacity>
+            </AnimatedCard>
+          );
+        })}
+        {!erro && notificacoes.length === 0 ? (
+          <View style={styles.emptyContainer}><Icon name="notifications-off" size={80} color="#666" /><Text style={styles.emptyTitle}>Nenhuma notificação</Text><Text style={styles.emptyText}>Quando houver novidades elas aparecerão aqui.</Text></View>
+        ) : null}
       </ScrollView>
-
       <BarraNavegacao />
     </AnimatedScreen>
   );

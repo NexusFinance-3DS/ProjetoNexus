@@ -8,7 +8,9 @@ import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withS
 
 import { inicioStyles as styles, colors, gradients, sharedStyles } from '../styles/styles';
 import BarraNavegacao from '../components/BarraNavegacao';
-import { getTotals, formatBRL, getPreviousTotals, getEconomiaComparison } from '../data/financeData';
+import { formatBRL } from '../../services/financeiro';
+import { useResumoFinanceiro } from '../../hooks/useResumoFinanceiro';
+import { useSession } from '../../contexts/SessionContext';
 
 function getSaudacao() {
   const hora = new Date().getHours();
@@ -43,46 +45,25 @@ function QuickCard({ icon, iconColor, iconBg, title, value, delta, deltaColor, o
 
 export default function Inicial() {
   const [saldoVisivel, setSaldoVisivel] = useState(true);
-
-  const valorMeta = 30000.0;
-  const valorTotalMeta = 100000;
-
-  const totals = getTotals();
-  const previousTotals = getPreviousTotals();
-  const economiaComp = getEconomiaComparison();
+  const { usuario } = useSession();
+  const { dados, erro } = useResumoFinanceiro();
+  const totals = dados.atual;
+  const economiaComp = { percent: dados.economia.percentual, diff: dados.economia.diferenca };
 
   const renda = totals.totalReceitas;
   const despesa = totals.totalDespesas;
-
-  const gastosNecessidades = 300.0;
-  const gastosDesejos = 100.0;
-  const gastosInvestimentos = 0.0;
-
-  const porcentagem = (valorMeta / valorTotalMeta) * 100;
-  const titleMeta = "Viagem para a Europa";
-
-  const distribuicao = [
-    {
-      label: "Necessidades",
-      valor: gastosNecessidades,
-      cor: colors.primary,
-      percentual: (gastosNecessidades / (previousTotals.totalReceitas || renda)) * 100,
-    },
-    {
-      label: "Desejos",
-      valor: gastosDesejos,
-      cor: colors.danger,
-      percentual: (gastosDesejos / (previousTotals.totalReceitas || renda)) * 100,
-    },
-    {
-      label: "Investimentos",
-      valor: gastosInvestimentos,
-      cor: colors.success,
-      percentual: (gastosInvestimentos / (previousTotals.totalReceitas || renda)) * 100,
-    },
-  ];
-
-  const totalDistribuido = gastosNecessidades + gastosDesejos + gastosInvestimentos;
+  const valorMeta = dados.meta?.atual || 0;
+  const valorTotalMeta = dados.meta?.objetivo || 0;
+  const porcentagem = valorTotalMeta > 0 ? Math.min((valorMeta / valorTotalMeta) * 100, 100) : 0;
+  const titleMeta = dados.meta?.nome || "Nenhuma meta cadastrada";
+  const categoryColors = [colors.primary, colors.danger, colors.success, "#FF9800", "#7C6BFF"];
+  const distribuicao = dados.categorias.map((item, index) => ({
+    label: item.nome,
+    valor: item.valor,
+    cor: categoryColors[index % categoryColors.length],
+    percentual: renda > 0 ? (item.valor / renda) * 100 : 0,
+  }));
+  const totalDistribuido = distribuicao.reduce((sum, item) => sum + item.valor, 0);
   const saldoAtual = renda - despesa;
 
   return (
@@ -97,7 +78,7 @@ export default function Inicial() {
               </View>
               <View style={styles.profileInfo}>
                 <Text style={styles.greetingLabel}>{getSaudacao()},</Text>
-                <Text style={styles.nome} numberOfLines={1}>Cesar Serra</Text>
+                <Text style={styles.nome} numberOfLines={1}>{usuario?.nome || "Usuário"}</Text>
               </View>
             </Pressable>
 
@@ -135,6 +116,7 @@ export default function Inicial() {
         </View>
 
         <View style={styles.content}>
+          {erro ? <Text style={sharedStyles.errorText}>{erro}</Text> : null}
           <Text style={styles.title}>Visão Rápida</Text>
           <ScrollView
             horizontal
@@ -206,7 +188,7 @@ export default function Inicial() {
           <Animated.View entering={FadeInDown.delay(280).duration(400)} style={styles.sectionCard}>
             <View style={styles.distribuicaoHeader}>
               <Text style={styles.distribuicaoTitle}>Distribuição da renda</Text>
-              <Text style={sharedStyles.mutedCaption}>mês anterior</Text>
+              <Text style={sharedStyles.mutedCaption}>mês atual</Text>
             </View>
 
             <View style={styles.distribuicaoLista}>
@@ -227,7 +209,7 @@ export default function Inicial() {
 
             <View style={styles.distribuicaoFooter}>
               <Text style={styles.footerText}>
-                Restante (mês anterior): {formatBRL((previousTotals.totalReceitas || renda) - totalDistribuido)}
+                Restante no mês: {formatBRL(renda - totalDistribuido)}
               </Text>
             </View>
           </Animated.View>

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView, Switch, TouchableWithoutFeedback } from "react-native";
-import { router } from "expo-router";
+import { View, Text, TouchableOpacity, ScrollView, Switch } from "react-native";
 import Icon from "@expo/vector-icons/MaterialIcons";
 
 import { configuracoesStyles as styles, sharedStyles } from "../styles/styles";

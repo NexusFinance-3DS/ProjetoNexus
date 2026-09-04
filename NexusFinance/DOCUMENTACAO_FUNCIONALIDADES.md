@@ -27,12 +27,9 @@ Documento rápido explicando, de forma básica, cada funcionalidade e onde ela f
 - `NexusFinance/app/(tabs)/configuracoes.jsx` — Configurações do aplicativo.
 
 **Dados e utilitários**
-- `NexusFinance/app/data/financeData.js` — Fonte de exemplo para transações e utilitários:
-  - `transacoes`: lista de lançamentos de exemplo;
-  - `getTotals()`: soma receitas/despesas e retorna saldo;
-  - `getPreviousTotals()`: helper simples para simular mês anterior (pode ser substituído por histórico real);
-  - `getEconomiaComparison()`: calcula diferença e % entre economia atual e anterior;
-  - `formatBRL()`: formata valores em real (pt-BR).
+- `NexusFinance/services/financeiro.js` — comunicação autenticada com o backend e formatação de valores/datas.
+- `NexusFinance/hooks/useResumoFinanceiro.js` — carrega do MySQL os totais, categorias, histórico e meta do usuário.
+- Os dados financeiros não são mais definidos dentro do aplicativo.
 
 **Layout / Navegação**
 - `_layout.jsx` e `index.jsx` (na raiz `app/`) configuram a navegação e o ponto de entrada do app.
@@ -41,11 +38,9 @@ Documento rápido explicando, de forma básica, cada funcionalidade e onde ela f
 - `NexusFinance/app/styles/` — Contém arquivos de estilo por tela (ex.: `inicio.js`, `barraNavegacao.js`, `fluxoFinanceiro.js`, etc.). A `barraNavegacao.js` contém estilos para a barra inferior, overlay e menu expandido.
 
 **Comportamentos importantes**
-- **Unificação de valores**: várias telas agora usam `app/data/financeData.js` para garantir que totais (receitas, despesas, saldo) sejam coerentes entre telas.
+- **Unificação de valores**: as telas usam os mesmos endpoints do backend para manter receitas, despesas, saldo, metas e gráficos coerentes.
 - **Menu expandido**: a barra de navegação inferior possui um menu central (`+`) para criar lançamentos e um botão `mais` que abre o botão Dashboard; ambos usam overlay que fecha ao tocar fora.
 - **Economia comparativa**: o card de Economia exibe não só o valor guardado no mês atual, mas também a variação (valor e %) em relação ao mês anterior.
 
 **Sugestões / próximos passos**
-- Derivar o mês anterior a partir das datas das transações reais em `transacoes` ao invés da heurística atual em `getPreviousTotals()`.
 - Extrair strings fixas e textos para um arquivo de i18n se quiser suporte a múltiplos idiomas.
-- Mover `transacoes` de dados de exemplo para um backend/local storage para persistência.
