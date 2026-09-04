@@ -10,12 +10,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
+import { apiRequest } from "../../services/api";
+import { useSession } from "../../contexts/SessionContext";
 import { keyboardStyles, loginStyles as styles, sharedStyles } from "../styles/styles";
 
 export default function Login() {
+  const { iniciarSessao } = useSession();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
   function criarConta() {
     router.push("/auth/cadastro");
@@ -25,13 +29,26 @@ export default function Login() {
     router.push("/auth/recuperarSenha");
   }
 
-  function entrar() {
+  async function entrar() {
     if (!email || !senha) {
       setErro("Preencha email e senha.");
       return;
     }
+
+    setCarregando(true);
     setErro("");
-    router.push("/inicial");
+    try {
+      const resposta = await apiRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, senha }),
+      });
+      await iniciarSessao(resposta.token, resposta.usuario);
+      router.replace("/inicial");
+    } catch (error) {
+      setErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
@@ -39,11 +56,12 @@ export default function Login() {
     <AnimatedScreen style={styles.container} delay={60}>
       <KeyboardAvoidingView
         style={keyboardStyles.avoidingView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
           contentContainerStyle={keyboardStyles.centeredScrollContent}
           keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
           showsVerticalScrollIndicator={false}
         >
       <Image
@@ -82,8 +100,8 @@ export default function Login() {
 
       {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
-      <TouchableOpacity style={styles.botao} onPress={entrar}>
-        <Text style={styles.textoBotao}>Entrar</Text>
+      <TouchableOpacity style={styles.botao} onPress={entrar} disabled={carregando}>
+        <Text style={styles.textoBotao}>{carregando ? "Entrando..." : "Entrar"}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity>

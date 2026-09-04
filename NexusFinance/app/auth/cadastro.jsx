@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
+import { salvarCadastroPendente } from "../../services/authFlow";
+import { validarCpf, validarDataNascimento, validarEmail } from "../../services/validations";
 import { cadastroStyles as styles, keyboardStyles } from "../styles/styles";
 
 export default function Cadastro() {
@@ -16,8 +18,21 @@ export default function Cadastro() {
   const [cpf, setCpf] = useState("");
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
+  const [erro, setErro] = useState("");
 
   const continuar = () => {
+    if (nome.trim().length < 3) return setErro("Informe o nome completo.");
+    if (!validarEmail(email)) return setErro("Informe um e-mail válido.");
+    if (!validarCpf(cpf)) return setErro("Informe um CPF válido.");
+    if (!validarDataNascimento(dataNascimento)) return setErro("Use uma data válida no formato DD/MM/AAAA.");
+
+    setErro("");
+    salvarCadastroPendente({
+      nome: nome.trim(),
+      email: email.trim().toLowerCase(),
+      cpf,
+      dataNascimento,
+    });
     router.push("/auth/criarSenha");
   };
 
@@ -25,11 +40,12 @@ export default function Cadastro() {
     <AnimatedScreen style={styles.container} delay={60}>
       <KeyboardAvoidingView
         style={keyboardStyles.avoidingView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
       <ScrollView
         contentContainerStyle={keyboardStyles.centeredScrollContent}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
         showsVerticalScrollIndicator={false}
       >
       <AnimatedCard style={styles.content} delay={80}>
@@ -64,11 +80,13 @@ export default function Cadastro() {
 
         <TextInput
           style={styles.input}
-          placeholder="Data de nascimento"
+          placeholder="Data de nascimento (DD/MM/AAAA)"
           placeholderTextColor="#999"
           value={dataNascimento}
           onChangeText={setDataNascimento}
         />
+
+        {erro ? <Text style={styles.erro}>{erro}</Text> : null}
 
         <TouchableOpacity
           style={styles.button}
