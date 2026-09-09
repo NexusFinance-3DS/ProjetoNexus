@@ -1,8 +1,10 @@
 import { Stack } from "expo-router";
 import { SessionProvider, useSession } from "../contexts/SessionContext";
-import { navigationScreenOptions } from "./styles/styles";
+import { AppThemeProvider } from '../contexts/ThemeContext';
+import { useAppStyles } from "./styles/styles";
 
 function Routes() {
+  const { navigationScreenOptions } = useAppStyles();
   const { autenticado, carregando } = useSession();
   if (carregando) return null;
 
@@ -29,6 +31,7 @@ function Routes() {
         <Stack.Screen name="menus/meuCadastro" options={{ title: "Meu cadastro" }} />
         <Stack.Screen name="menus/sobreApp" options={{ title: "Sobre o app" }} />
         <Stack.Screen name="(tabs)/configuracoes" options={{ title: "Configurações" }} />
+        <Stack.Screen name="(tabs)/categoria" options={{ title: "Categorias" }} />
         <Stack.Screen name="(tabs)/dashboard" options={{ title: "Dashboard" }} />
         <Stack.Screen name="(tabs)/fluxoFinanceiro" options={{ title: "Fluxo financeiro" }} />
         <Stack.Screen name="(tabs)/inicial" options={{ title: "Inicio" }} />
@@ -44,7 +47,7 @@ function Routes() {
 export default function RootLayout() {
   return (
     <SessionProvider>
-      <Routes />
+      <AppThemeProvider><Routes /></AppThemeProvider>
     </SessionProvider>
   );
 }

@@ -1,56 +1,19 @@
 import { StyleSheet } from "react-native";
 
-// Tema central do NexusFinance
-// Reúne as cores já usadas no projeto em um único lugar, para manter
-// consistência visual entre a tela inicial, a barra de navegação e,
-// futuramente, as demais telas.
+import { useTheme } from '../../contexts/ThemeContext';
 
-export const colors = {
-  // Fundo
-  background: "#0f0f0f",
-  backgroundAlt: "#0f0f13",
-  surface: "#1c1c1c",
-  surfaceAlt: "#181820",
-  surfaceElevated: "#222226",
-
-  // Marca / destaque (indigo-violeta)
-  primary: "#5145FF",
-  primaryDark: "#1809e0",
-  primaryDeep: "#4800FF",
-  primarySoft: "rgba(81, 69, 255, 0.16)",
-
-  // Estados
-  success: "#2ED573",
-  successSoft: "rgba(46, 213, 115, 0.16)",
-  danger: "#FF6B6B",
-  dangerStrong: "#FF4D4D",
-  dangerSoft: "rgba(255, 107, 107, 0.16)",
-  warning: "#FFC542",
-
-  // Texto
-  textPrimary: "#FFFFFF",
-  textSecondary: "#A5A5A5",
-  textMuted: "#9fa8c3",
-  textLink: "#cfd8ff",
-
-  // Bordas / linhas
-  border: "#201f2c",
-  divider: "#2a2a32",
-
-  overlay: "rgba(0,0,0,0.55)",
-};
-
-export const gradients = {
+function createAppStyles(colors) {
+const gradients = {
   brand: ["#6C5CE7", "#5145FF", "#1809e0"],
-  brandSoft: ["#2A2470", "#1c1c2e"],
+  brandSoft: [colors.primarySoft, colors.surfaceAlt],
   success: ["#2ED573", "#17A863"],
   danger: ["#FF6B6B", "#E23E3E"],
-  navBar: ["rgba(24,24,32,0.97)", "rgba(12,12,16,0.99)"],
+  navBar: [colors.surfaceAlt, colors.backgroundAlt],
   fab: ["#7C6CFF", "#4800FF"],
-  header: ["#171433", "#0f0f0f"],
+  header: [colors.surfaceAlt, colors.background],
 };
 
-export const radii = {
+const radii = {
   sm: 10,
   md: 16,
   lg: 24,
@@ -58,16 +21,16 @@ export const radii = {
   pill: 999,
 };
 
-export const shadow = {
+const shadow = {
   soft: {
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 6,
   },
   glowPrimary: {
-    shadowColor: "#5145FF",
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.55,
     shadowRadius: 14,
@@ -76,15 +39,15 @@ export const shadow = {
 };
 
 // barraNavegacao
-export const barraNavegacaoStyles = StyleSheet.create({
+const barraNavegacaoStyles = StyleSheet.create({
   tabBar: {
     flexDirection: "row",
     width: "94%",
     maxWidth: 420,
     height: 76,
     borderWidth: 1,
-    borderColor: "#201f2c",
-    backgroundColor: "#0f0f13",
+    borderColor: colors.border,
+    backgroundColor: colors.backgroundAlt,
     borderRadius: 24,
     paddingHorizontal: 8,
     paddingVertical: 6,
@@ -107,7 +70,7 @@ export const barraNavegacaoStyles = StyleSheet.create({
 
   tabLabel: {
     fontSize: 10,
-    color: "#ffffff",
+    color: colors.textPrimary,
     fontWeight: "500",
     marginTop: 3,
     textAlign: "center",
@@ -122,7 +85,7 @@ export const barraNavegacaoStyles = StyleSheet.create({
     maxWidth: 420,
     paddingVertical: 12,
     paddingHorizontal: 10,
-    backgroundColor: "#101015",
+    backgroundColor: colors.surfaceAlt,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     borderBottomLeftRadius: 0,
@@ -132,7 +95,7 @@ export const barraNavegacaoStyles = StyleSheet.create({
     alignItems: "center",
     zIndex: 9,
     borderWidth: 1,
-    borderColor: "#201f2c",
+    borderColor: colors.border,
     alignSelf: "center",
   },
 
@@ -142,7 +105,7 @@ export const barraNavegacaoStyles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: colors.overlay,
     zIndex: 8,
   },
 
@@ -186,6 +149,7 @@ export const barraNavegacaoStyles = StyleSheet.create({
   tabText: {
     fontSize: 10,
     marginTop: 3,
+    textAlign: "center",
   },
   activeDot: {
     width: 4,
@@ -251,7 +215,7 @@ export const barraNavegacaoStyles = StyleSheet.create({
     maxWidth: 420,
     zIndex: 10,
     flexDirection: "row",
-    height: 76,
+    minHeight: 76, paddingVertical: 6,
     borderRadius: radii.xl,
     borderWidth: 1,
     borderColor: colors.border,
@@ -263,12 +227,12 @@ export const barraNavegacaoStyles = StyleSheet.create({
 });
 
 // boasVindas
-export const boasVindasStyles = StyleSheet.create({
+const boasVindasStyles = StyleSheet.create({
   tela: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "stretch",
     paddingHorizontal: 24,
   },
 
@@ -284,13 +248,14 @@ export const boasVindasStyles = StyleSheet.create({
     marginBottom: 60,
   },
   card: {
-    backgroundColor: "#171717a5",
+    width: "100%",
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 20,
     alignItems: "center",
   },
 
   titulo: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 22,
     fontWeight: "600",
     marginTop: 10,
@@ -298,7 +263,7 @@ export const boasVindasStyles = StyleSheet.create({
   },
 
   subtitulo: {
-    color: "#aaa",
+    color: colors.textSecondary,
     fontSize: 14,
     textAlign: "center",
     marginBottom: 20,
@@ -307,24 +272,25 @@ export const boasVindasStyles = StyleSheet.create({
   },
 
   botao: {
-    backgroundColor: "#635bff",
+    width: "100%", minHeight: 48,
+    backgroundColor: colors.primary,
     borderRadius: 10,
-    paddingLeft: "35%",
+    paddingLeft: 24,
     paddingBottom: 20,
     paddingTop: 20,
-    paddingRight:"35%",
+    paddingRight: 24,
     marginTop: 20,
     alignItems: "center",
   },
 
   textoBotao: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
 
   link: {
-    color: "#aaa",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 10,
     marginBottom: 15,
@@ -333,17 +299,17 @@ export const boasVindasStyles = StyleSheet.create({
 });
 
 // cadastro
-export const cadastroStyles = StyleSheet.create({
+const cadastroStyles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     justifyContent: "center",
     paddingHorizontal: 24,
   },
 
   content: {
-    color: "#aaa",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 12,
     marginBottom: 4,
@@ -352,16 +318,16 @@ export const cadastroStyles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: "bold",
-    color: "#fff",
+    color: colors.textPrimary,
     textAlign: "center",
-    marginBottom: 100,
+    marginBottom: 32,
   },
 
   input: {
     width: "100%",
-    height: 52,
-    backgroundColor: "#1c1c1c",
-    color: "#fff",
+    minHeight: 52,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
     fontSize: 16,
     borderRadius: 12,
     paddingHorizontal: 16,
@@ -369,7 +335,7 @@ export const cadastroStyles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 14,
     marginTop: 20,
@@ -377,13 +343,13 @@ export const cadastroStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
 
   erro: {
-    color: "#ff6b6b",
+    color: colors.danger,
     fontSize: 13,
     marginTop: 4,
   },
@@ -391,13 +357,11 @@ export const cadastroStyles = StyleSheet.create({
 });
 
 // centralAjuda
-export const centralAjudaStyles = StyleSheet.create({
+const centralAjudaStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
@@ -406,18 +370,18 @@ export const centralAjudaStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    marginTop: 55,
+    marginTop: 20,
     marginBottom: 20,
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 28,
     fontWeight: "bold",
   },
 
   subtitle: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 15,
     marginHorizontal: 20,
     marginBottom: 20,
@@ -425,19 +389,19 @@ export const centralAjudaStyles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#11151D",
+    backgroundColor: colors.surfaceAlt,
     marginHorizontal: 18,
     marginTop: 20,
     marginBottom: 20,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     paddingVertical: 12,
     overflow: "hidden",
   },
 
   cardTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
     marginHorizontal: 18,
@@ -454,12 +418,13 @@ export const centralAjudaStyles = StyleSheet.create({
   },
 
   itemLeft: {
+    flex: 1, minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
   },
 
   itemText: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     marginLeft: 15,
     flexShrink: 1,
@@ -467,35 +432,35 @@ export const centralAjudaStyles = StyleSheet.create({
 
   divider: {
     height: 1,
-    backgroundColor: "#3b3b3b",
+    backgroundColor: colors.divider,
     marginHorizontal: 18,
   },
 
   cardInfo: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     padding: 18,
     marginBottom: 20,
   },
 
   cardInfoTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
   },
 
   cardInfoText: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 15,
     lineHeight: 22,
   },
 
   contactButton: {
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     marginHorizontal: 18,
     height: 56,
     borderRadius: 16,
@@ -505,7 +470,7 @@ export const centralAjudaStyles = StyleSheet.create({
   },
 
   contactText: {
-    color: "#FFF",
+    color: colors.onPrimary,
     fontSize: 17,
     fontWeight: "bold",
     marginLeft: 10,
@@ -513,30 +478,28 @@ export const centralAjudaStyles = StyleSheet.create({
 });
 
 // configuracoes
-export const configuracoesStyles = StyleSheet.create({
+const configuracoesStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
 
   card: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     marginTop: 18,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: "#222",
+    borderColor: colors.border,
     paddingVertical: 5,
     overflow: "hidden",
   },
 
   cardTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
     marginHorizontal: 18,
@@ -552,12 +515,14 @@ export const configuracoesStyles = StyleSheet.create({
     paddingVertical: 18,
   },
   itemLeft: {
+    flex: 1, minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
   },
 
   itemText: {
-    color: "#FFF",
+    flexShrink: 1,
+    color: colors.textPrimary,
     fontSize: 17,
     marginLeft: 15,
     fontWeight: "500",
@@ -565,16 +530,16 @@ export const configuracoesStyles = StyleSheet.create({
 
   divider: {
     height: 1,
-    backgroundColor: "#383838",
+    backgroundColor: colors.divider,
   },
 
 });
 
 // criarSenha
-export const criarSenhaStyles = StyleSheet.create({
+const criarSenhaStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     justifyContent: "center",
     paddingHorizontal: 24,
   },
@@ -585,14 +550,14 @@ export const criarSenhaStyles = StyleSheet.create({
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 15,
   },
 
   descricao: {
-    color: "#B0B0B0",
+    color: colors.textSecondary,
     fontSize: 15,
     textAlign: "center",
     marginBottom: 30,
@@ -601,7 +566,7 @@ export const criarSenhaStyles = StyleSheet.create({
 
   label: {
     width: "100%",
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 15,
     marginTop: 11,
     fontWeight: "600",
@@ -609,19 +574,19 @@ export const criarSenhaStyles = StyleSheet.create({
 
   input: {
     width: "100%",
-    height: 55,
-    backgroundColor: "#1c1c1c",
+    minHeight: 55,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
-    color: "#000",
+    color: colors.textPrimary,
     marginTop: 15,
   },
 
   button: {
     width: "100%",
     height: 45,
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -629,49 +594,47 @@ export const criarSenhaStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
 
   voltar: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     marginTop: 20,
     textDecorationLine: "underline",
   },
 
   erro: {
-    color: "#ff6b6b",
+    color: colors.danger,
     fontSize: 13,
     marginTop: 8,
   },
 });
 
 // dashboard
-export const dashboardStyles = StyleSheet.create({
+const dashboardStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
   card: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     marginTop: 18,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: "#222",
+    borderColor: colors.border,
     paddingVertical: 5,
     overflow: "hidden",
   },
 
   cardTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
     marginHorizontal: 18,
@@ -690,7 +653,7 @@ export const dashboardStyles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 16,
-    backgroundColor: "#1D2638",
+    backgroundColor: colors.surfaceAlt,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 15,
@@ -700,19 +663,19 @@ export const dashboardStyles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 16,
-    backgroundColor: "#1D2638",
+    backgroundColor: colors.surfaceAlt,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 15,
   },
 
   resumoTitulo: {
-    color: "#BFC4D2",
+    color: colors.textSecondary,
     fontSize: 15,
   },
 
   resumoValor: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
     marginTop: 2,
@@ -722,22 +685,22 @@ export const dashboardStyles = StyleSheet.create({
   progress: {
     width: "90%",
     height: 8,
-    backgroundColor: "#222B3A",
+    backgroundColor: colors.surfaceElevated,
     borderRadius: 10,
     overflow: "hidden",
   },
 
   progressFill: {
     height: 8,
-    backgroundColor: "#5145FF",
+    backgroundColor: colors.primary,
     borderRadius: 10,
   },
 
   percent: {
-    color: "#BFC4D2",
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: "bold",
-    marginRight: 30,
+    marginRight: 12, marginLeft: 8,
   },
 
   // ---------- PIE CHART ----------
@@ -760,19 +723,20 @@ export const dashboardStyles = StyleSheet.create({
   },
 
   legendaTexto: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 15,
     flex: 1,
   },
 
   legendaValor: {
-    color: "#888",
+    color: colors.textSecondary,
     fontSize: 13,
   },
 
   // ---------- LINHA ----------
 
   graficoContainer: {
+    flexWrap: "wrap", gap: 12,
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 10,
@@ -787,7 +751,7 @@ export const dashboardStyles = StyleSheet.create({
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: -20,
+    marginRight: 0,
   },
 
   pieChart: {
@@ -804,13 +768,14 @@ export const dashboardStyles = StyleSheet.create({
   // ---------- GERAL ----------
 
   shadow: {
-    shadowColor: "#5145FF",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
   },
 
   legenda: {
+    minWidth: 140, paddingRight: 12,
     flex: 1,
     marginLeft: 10,
   },
@@ -829,27 +794,26 @@ corLegenda: {
 },
 
 textoLegenda: {
-  color: "#FFF",
+    flexShrink: 1,
+  color: colors.textPrimary,
   fontSize: 15,
 },
     
 });
 
 // fluxoFinanceiro
-export const fluxoFinanceiroStyles = StyleSheet.create({
+const fluxoFinanceiroStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.textPrimary,
     marginTop: 20,
     marginBottom: 12,
     marginLeft: 10,
@@ -857,13 +821,13 @@ export const fluxoFinanceiroStyles = StyleSheet.create({
 
   filtroContainer: {
     flexDirection: "row",
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     borderRadius: 30,
     padding: 3,
     marginTop: 10,
     marginHorizontal: 20,
     borderWidth: 1,
-    borderColor: "#201f2c",
+    borderColor: colors.border,
   },
 
   botaoFiltro: {
@@ -874,19 +838,21 @@ export const fluxoFinanceiroStyles = StyleSheet.create({
   },
 
   botaoAtivo: {
-    backgroundColor: "#4b3df2",
+    backgroundColor: colors.primary,
   },
 
   textoFiltro: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 14,
   },
 
   textoAtivo: {
+    color: colors.onPrimary,
     fontWeight: "bold",
   },
 
   resumoContainer: {
+    flexWrap: "wrap",
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 10,
@@ -895,32 +861,32 @@ export const fluxoFinanceiroStyles = StyleSheet.create({
   },
 
   resumoCard: {
-    flex: 1,
-    backgroundColor: "#1c1c1c",
+    flexGrow: 1, flexBasis: 160,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 14,
     minWidth: 100,
-    shadowColor: "#000",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
   },
 
   resumoLabel: {
-    color: "#9aa0b8",
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 8,
   },
 
   resumoValue: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: "700",
   },
 
   dados: {
     marginTop: 20,
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     borderRadius: 18,
     padding: 16,
     marginHorizontal: 20,
@@ -928,40 +894,42 @@ export const fluxoFinanceiroStyles = StyleSheet.create({
   },
 
   dadosTitulo: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 16,
   },
 
   dadosTexto: {
-    color: "#a0a0a0",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 12,
   },
 
   transacaoItem: {
+    flexWrap: "wrap", gap: 12,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.08)",
+    borderBottomColor: colors.border,
   },
 
   transacaoDescricao: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: "600",
   },
 
   transacaoCategoria: {
-    color: "#9aa0b8",
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 4,
   },
 
   transacaoDireita: {
+    flexGrow: 1, flexShrink: 1,
     alignItems: "flex-end",
   },
 
@@ -971,22 +939,22 @@ export const fluxoFinanceiroStyles = StyleSheet.create({
   },
 
   receita: {
-    color: "#2ed573",
+    color: colors.success,
   },
 
   despesa: {
-    color: "#ff6b6b",
+    color: colors.danger,
   },
 
   transacaoData: {
-    color: "#9aa0b8",
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 4,
   },
 });
 
 // inicio
-export const inicioStyles = StyleSheet.create({
+const inicioStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -1079,13 +1047,13 @@ export const inicioStyles = StyleSheet.create({
   titleSaldo: {
     fontSize: 15,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.85)",
+    color: colors.onPrimary,
   },
   valor: {
     marginTop: 10,
     fontSize: 36,
     fontWeight: "bold",
-    color: "#fff",
+    color: colors.onPrimary,
   },
   saldoFooterRow: {
     flexDirection: "row",
@@ -1093,7 +1061,8 @@ export const inicioStyles = StyleSheet.create({
     marginTop: 14,
   },
   saldoFooterText: {
-    color: "rgba(255,255,255,0.85)",
+    flexShrink: 1,
+    color: colors.onPrimary,
     fontSize: 12,
     marginLeft: 6,
   },
@@ -1116,7 +1085,7 @@ export const inicioStyles = StyleSheet.create({
     borderRadius: radii.lg,
     marginRight: 12,
     width: 160,
-    height: 150,
+    minHeight: 150,
     borderWidth: 1,
     borderColor: colors.border,
     justifyContent: 'flex-start',
@@ -1156,6 +1125,7 @@ export const inicioStyles = StyleSheet.create({
     borderColor: colors.border,
   },
   metaHeaderRow: {
+    flexWrap: "wrap", gap: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -1167,7 +1137,7 @@ export const inicioStyles = StyleSheet.create({
     fontWeight: "700",
   },
   verMetasBadge: {
-    color: "#fff",
+    color: colors.onPrimary,
     backgroundColor: colors.primaryDeep,
     borderRadius: radii.pill,
     paddingHorizontal: 12,
@@ -1212,6 +1182,7 @@ export const inicioStyles = StyleSheet.create({
 
   // Distribuição de renda
   distribuicaoHeader: {
+    flexWrap: "wrap", gap: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -1231,6 +1202,7 @@ export const inicioStyles = StyleSheet.create({
     padding: 12,
   },
   distribuicaoLabelRow: {
+    flexWrap: "wrap", rowGap: 8,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
@@ -1243,7 +1215,7 @@ export const inicioStyles = StyleSheet.create({
   },
   distribuicaoLabel: {
     flex: 1,
-    color: "#f2f2f2",
+    color: colors.textPrimary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -1281,95 +1253,93 @@ export const inicioStyles = StyleSheet.create({
 });
 
 // layout
-export const layoutStyles = StyleSheet.create({
+const layoutStyles = StyleSheet.create({
   header: {
-    backgroundColor: "#000",
+    backgroundColor: colors.background,
   },
 
   titulo: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: "600",
   },
 
   tela: {
-    backgroundColor: "#000",
+    backgroundColor: colors.background,
   },
 });
 
 // login
-export const loginStyles = StyleSheet.create({
+const loginStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   titulo: {
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 22,
     fontWeight: "600",
     marginBottom: 16,
   },
   label: {
-    color: "#aaa",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 12,
     marginBottom: 4,
   },
   input: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     borderRadius: 10,
     padding: 12,
-    color: "#fff",
+    color: colors.textPrimary,
     fontSize: 15,
   },
   botao: {
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 14,
     marginTop: 20,
     alignItems: "center",
   },
   textoBotao: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
   link: {
-    color: "#aaa",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 16,
     textAlign: "center",
   },
 
   link2: {
-    color: "#635bff",
+    color: colors.textLink,
     fontSize: 12,
     marginTop: 16,
     textAlign: "left",
   },
 
   erro: {
-    color: "#ff6b6b",
+    color: colors.danger,
     fontSize: 13,
     marginTop: 8,
   },
 });
 
 // metas
-export const metasStyles = StyleSheet.create({
+const metasStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 25,
@@ -1377,7 +1347,7 @@ export const metasStyles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#171717",
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 20,
     padding: 18,
     marginHorizontal: '5%',
@@ -1391,7 +1361,7 @@ export const metasStyles = StyleSheet.create({
   },
 
   nomeMeta: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
     marginLeft: 12,
@@ -1401,30 +1371,31 @@ export const metasStyles = StyleSheet.create({
   progressBackground: {
     width: "100%",
     height: 10,
-    backgroundColor: "#333",
+    backgroundColor: colors.surfaceElevated,
     borderRadius: 50,
     overflow: "hidden",
   },
 
   progressFill: {
     height: "100%",
-    backgroundColor: "#5145FF",
+    backgroundColor: colors.primary,
     borderRadius: 50,
   },
 
   infoLinha: {
+    flexWrap: "wrap", gap: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 12,
   },
 
   valor: {
-    color: "#BFC4D2",
+    color: colors.textSecondary,
     fontSize: 15,
   },
 
   porcentagem: {
-    color: "#5145FF",
+    color: colors.textLink,
     fontWeight: "bold",
     fontSize: 20,
     marginTop: 12,
@@ -1437,7 +1408,7 @@ export const metasStyles = StyleSheet.create({
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     paddingHorizontal: 25,
     height: 55,
     borderRadius: 30,
@@ -1445,29 +1416,30 @@ export const metasStyles = StyleSheet.create({
   },
 
   botaoTexto: {
-    color: "#FFF",
+    color: colors.onPrimary,
     fontSize: 17,
     fontWeight: "bold",
     marginLeft: 8,
   },
 
   modalBackground: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
+    flexGrow: 1,
+    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 25,
   },
 
   modal: {
+    maxWidth: 520,
     width: "100%",
-    backgroundColor: "#171717",
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 25,
     padding: 22,
   },
 
   modalTitulo: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
@@ -1476,11 +1448,11 @@ export const metasStyles = StyleSheet.create({
 
   input: {
     width: "100%",
-    height: 55,
-    backgroundColor: "#262626",
+    minHeight: 55,
+    backgroundColor: colors.input,
     borderRadius: 14,
     paddingHorizontal: 15,
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     marginBottom: 15,
   },
@@ -1493,44 +1465,42 @@ export const metasStyles = StyleSheet.create({
 
   cancelar: {
     width: "47%",
-    height: 50,
+    minHeight: 50, paddingVertical: 12, paddingHorizontal: 8,
     borderWidth: 1,
-    borderColor: "#6C3EF4",
+    borderColor: colors.primary,
     borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
   },
 
   cancelarTexto: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontWeight: "bold",
     fontSize: 16,
   },
 
   salvar: {
     width: "47%",
-    height: 50,
-    backgroundColor: "#635bff",
+    minHeight: 50, paddingVertical: 12, paddingHorizontal: 8,
+    backgroundColor: colors.primary,
     borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
   },
 
   salvarTexto: {
-    color: "#FFF",
+    color: colors.onPrimary,
     fontWeight: "bold",
     fontSize: 16,
   },
 });
 
 // meuCadastro
-export const meuCadastroStyles = StyleSheet.create({
+const meuCadastroStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
@@ -1539,23 +1509,23 @@ export const meuCadastroStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    marginTop: 55,
+    marginTop: 20,
     marginBottom: 20,
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 28,
     fontWeight: "bold",
   },
 
   card: {
     marginTop: 20,
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     padding: 18,
   },
 
@@ -1570,11 +1540,11 @@ export const meuCadastroStyles = StyleSheet.create({
     height: 68,
     borderRadius: 34,
     borderWidth: 2,
-    borderColor: "#5145FF",
+    borderColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
-    backgroundColor: "#0E1119",
+    backgroundColor: colors.surfaceAlt,
   },
 
   profileInfo: {
@@ -1582,25 +1552,25 @@ export const meuCadastroStyles = StyleSheet.create({
   },
 
   profileName: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
   },
 
   profileEmail: {
-    color: "#A5A5A5",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 4,
   },
 
   profileSubtitle: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
   },
 
   cardTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 18,
@@ -1608,15 +1578,15 @@ export const meuCadastroStyles = StyleSheet.create({
 
   input: {
     width: "100%",
-    height: 55,
-    backgroundColor: "#111010",
-    color: "#FFF",
+    minHeight: 55,
+    backgroundColor: colors.input,
+    color: colors.textPrimary,
     fontSize: 16,
     borderRadius: 14,
     paddingHorizontal: 16,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#3c3c3c",
+    borderColor: colors.border,
   },
 
   itemButton: {
@@ -1625,23 +1595,25 @@ export const meuCadastroStyles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 16,
     paddingHorizontal: 12,
-    backgroundColor: "#111010",
+    backgroundColor: colors.input,
     borderRadius: 14,
   },
 
   itemLeft: {
+    flex: 1, minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
   },
 
   itemText: {
-    color: "#FFF",
+    flexShrink: 1,
+    color: colors.textPrimary,
     fontSize: 16,
     marginLeft: 14,
   },
 
   saveButton: {
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     padding: 14,
     marginHorizontal: 18,
     marginTop: 10,
@@ -1652,20 +1624,18 @@ export const meuCadastroStyles = StyleSheet.create({
   },
 
   saveButtonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
 });
 
 // notificacoes
-export const notificacoesStyles = StyleSheet.create({
+const notificacoesStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
@@ -1678,7 +1648,7 @@ export const notificacoesStyles = StyleSheet.create({
   },
 
   subTitle: {
-    color: "#9AA4BF",
+    color: colors.textSecondary,
     fontSize: 16,
     marginHorizontal: 20,
     marginTop: 20,
@@ -1686,7 +1656,7 @@ export const notificacoesStyles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     marginBottom: 15,
     borderRadius: 20,
@@ -1694,12 +1664,12 @@ export const notificacoesStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
   },
 
   cardNova: {
     borderLeftWidth: 5,
-    borderLeftColor: "#4b3df2",
+    borderLeftColor: colors.primary,
   },
 
   iconContainer: {
@@ -1722,21 +1692,21 @@ export const notificacoesStyles = StyleSheet.create({
   },
 
   cardTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 17,
     fontWeight: "bold",
     flex: 1,
   },
 
   descricao: {
-    color: "#B5BDD2",
+    color: colors.textSecondary,
     fontSize: 14,
     marginTop: 6,
     lineHeight: 20,
   },
 
   hora: {
-    color: "#7B8193",
+    color: colors.textSecondary,
     fontSize: 13,
     marginLeft: 10,
   },
@@ -1745,7 +1715,7 @@ export const notificacoesStyles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#4b3df2",
+    backgroundColor: colors.primary,
     marginLeft: 10,
     alignSelf: "flex-start",
     marginTop: 8,
@@ -1760,14 +1730,14 @@ export const notificacoesStyles = StyleSheet.create({
   },
 
   emptyTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 22,
     fontWeight: "bold",
     marginTop: 20,
   },
 
   emptyText: {
-    color: "#8C93A8",
+    color: colors.textSecondary,
     fontSize: 15,
     textAlign: "center",
     marginTop: 10,
@@ -1776,24 +1746,24 @@ export const notificacoesStyles = StyleSheet.create({
 });
 
 // novaDespesa
-export const novaDespesaStyles = StyleSheet.create({
+const novaDespesaStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
   titulo:{
-    color: "#fff",
+    flexShrink: 1,
+    color: colors.textPrimary,
     marginLeft:10,
     fontSize: 19,
     fontWeight: "600",
   },
   addValor:{
+    flexWrap: "wrap", gap: 12,
     flexDirection: "row",
-    backgroundColor: "#161616",
+    backgroundColor: colors.surfaceMuted,
     padding: 12,
     margin: 16,
     borderRadius: 14,
@@ -1802,11 +1772,11 @@ export const novaDespesaStyles = StyleSheet.create({
   },
 
   InputValor:{
-    color: "#55ff00",
+    color: colors.danger,
     borderRadius: 10,
-    width: "50%",
-    backgroundColor: "#1b1b1b",
-    height: 46,
+    flexGrow: 1, flexBasis: 140, minWidth: 0,
+    backgroundColor: colors.input,
+    minHeight: 46,
     paddingHorizontal: 10,
     justifyContent: 'center',
     fontWeight: '600',
@@ -1820,16 +1790,16 @@ export const novaDespesaStyles = StyleSheet.create({
     marginLeft: 12,
   },
   currency: {
-    color: '#55ff00',
+    color: colors.danger,
     fontWeight: '700',
     marginRight: 8,
     fontSize: 18,
   },
   input: {
     width: "100%",
-    height: 46,
-    backgroundColor: "#1b1b1b",
-    color: "#fff",
+    minHeight: 46,
+    backgroundColor: colors.input,
+    color: colors.textPrimary,
     fontSize: 15,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -1842,7 +1812,7 @@ export const novaDespesaStyles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161616',
+    backgroundColor: colors.surfaceMuted,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginHorizontal: 16,
@@ -1853,58 +1823,59 @@ export const novaDespesaStyles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 8,
-    backgroundColor: '#1f1f1f',
+    backgroundColor: colors.surfaceElevated,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
   listItemText: {
-    color: '#fff',
+    flexShrink: 1,
+    color: colors.textPrimary,
     fontSize: 15,
     fontWeight: '600',
   },
   listItemSub: {
-    color: '#9b9b9b',
+    color: colors.textSecondary,
     fontSize: 13,
     marginTop: 4,
   },
   saveWrapper: {
     paddingHorizontal: 16,
     marginTop: 8,
-    marginBottom: 84,
+    marginBottom: 16,
   },
   saveButton: {
-    backgroundColor: '#5a39ff',
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
   },
   saveButtonText: {
-    color: '#fff',
+    color: colors.onPrimary,
     fontWeight: '600',
     fontSize: 15,
   },
 })
 
 // novaReceita
-export const novaReceitaStyles = StyleSheet.create({
+const novaReceitaStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
   titulo:{
-    color: "#fff",
+    flexShrink: 1,
+    color: colors.textPrimary,
     marginLeft:10,
     fontSize: 19,
     fontWeight: "600",
   },
   addValor:{
+    flexWrap: "wrap", gap: 12,
     flexDirection: "row",
-    backgroundColor: "#161616",
+    backgroundColor: colors.surfaceMuted,
     padding: 12,
     margin: 16,
     borderRadius: 14,
@@ -1913,11 +1884,11 @@ export const novaReceitaStyles = StyleSheet.create({
   },
 
   InputValor:{
-    color: "#55ff00",
+    color: colors.success,
     borderRadius: 10,
-    width: "50%",
-    backgroundColor: "#1b1b1b",
-    height: 46,
+    flexGrow: 1, flexBasis: 140, minWidth: 0,
+    backgroundColor: colors.input,
+    minHeight: 46,
     paddingHorizontal: 10,
     justifyContent: 'center',
     fontWeight: '600',
@@ -1931,16 +1902,16 @@ export const novaReceitaStyles = StyleSheet.create({
     marginLeft: 12,
   },
   currency: {
-    color: '#55ff00',
+    color: colors.success,
     fontWeight: '700',
     marginRight: 8,
     fontSize: 18,
   },
   input: {
     width: "100%",
-    height: 46,
-    backgroundColor: "#1b1b1b",
-    color: "#fff",
+    minHeight: 46,
+    backgroundColor: colors.input,
+    color: colors.textPrimary,
     fontSize: 15,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -1953,7 +1924,7 @@ export const novaReceitaStyles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161616',
+    backgroundColor: colors.surfaceMuted,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginHorizontal: 16,
@@ -1964,44 +1935,45 @@ export const novaReceitaStyles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 8,
-    backgroundColor: '#1f1f1f',
+    backgroundColor: colors.surfaceElevated,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
   listItemText: {
-    color: '#fff',
+    flexShrink: 1,
+    color: colors.textPrimary,
     fontSize: 15,
     fontWeight: '600',
   },
   listItemSub: {
-    color: '#9b9b9b',
+    color: colors.textSecondary,
     fontSize: 13,
     marginTop: 4,
   },
   saveWrapper: {
     paddingHorizontal: 16,
     marginTop: 8,
-    marginBottom: 84,
+    marginBottom: 16,
   },
   saveButton: {
-    backgroundColor: '#5a39ff',
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
   },
   saveButtonText: {
-    color: '#fff',
+    color: colors.onPrimary,
     fontWeight: '600',
     fontSize: 15,
   },
 })
 
 // novaSenha
-export const novaSenhaStyles = StyleSheet.create({
+const novaSenhaStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     justifyContent: "center",
     paddingHorizontal: 24,
   },
@@ -2012,14 +1984,14 @@ export const novaSenhaStyles = StyleSheet.create({
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 15,
   },
 
   descricao: {
-    color: "#B0B0B0",
+    color: colors.textSecondary,
     fontSize: 15,
     textAlign: "center",
     marginBottom: 30,
@@ -2028,7 +2000,7 @@ export const novaSenhaStyles = StyleSheet.create({
 
   label: {
     width: "100%",
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 15,
     marginTop: 11,
     fontWeight: "600",
@@ -2036,19 +2008,19 @@ export const novaSenhaStyles = StyleSheet.create({
 
   input: {
     width: "100%",
-    height: 55,
-    backgroundColor: "#1c1c1c",
+    minHeight: 55,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
-    color: "#000",
+    color: colors.textPrimary,
     marginTop: 15,
   },
 
   button: {
     width: "100%",
     height: 45,
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -2056,33 +2028,31 @@ export const novaSenhaStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
 
   voltar: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     marginTop: 20,
     textDecorationLine: "underline",
   },
 
   erro: {
-    color: "#ff6b6b",
+    color: colors.danger,
     fontSize: 13,
     marginTop: 8,
   },
 });
 
 // perfil
-export const perfilStyles = StyleSheet.create({
+const perfilStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
@@ -2096,7 +2066,7 @@ export const perfilStyles = StyleSheet.create({
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 24,
     fontWeight: "bold",
   },
@@ -2114,7 +2084,7 @@ export const perfilStyles = StyleSheet.create({
     height: 85,
     borderRadius: 50,
     borderWidth: 4,
-    borderColor: "#FFF",
+    borderColor: colors.border,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -2132,29 +2102,29 @@ export const perfilStyles = StyleSheet.create({
   },
 
   nome: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 24,
     fontWeight: "bold",
   },
 
   email: {
-    color: "#A5A5A5",
+    color: colors.textSecondary,
     fontSize: 15,
     marginTop: 4,
   },
 
   resumoCard: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 15,
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     marginBottom: 25,
   },
 
   resumoTitulo: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 20,
@@ -2171,7 +2141,7 @@ export const perfilStyles = StyleSheet.create({
   },
 
   labelResumo: {
-    color: "#8D96AA",
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 8,
     marginBottom: 5,
@@ -2179,18 +2149,18 @@ export const perfilStyles = StyleSheet.create({
   },
 
   valorResumo: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontWeight: "bold",
     fontSize: 13,
     textAlign: "center",
   },
 
   menuCard: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 15,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     marginBottom: 20,
     overflow: "hidden",
   },
@@ -2202,30 +2172,33 @@ export const perfilStyles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#303030",
+    borderBottomColor: colors.border,
   },
 
   itemLeft: {
+    flex: 1, minWidth: 0,
     flexDirection: "row",
     alignItems: "center",
   },
 
   itemTexto: {
-    color: "#FFF",
+    flexShrink: 1,
+    color: colors.textPrimary,
     fontSize: 16,
     marginLeft: 15,
   },
 
   modalBackground: {
   flex: 1,
-  backgroundColor: "rgba(0,0,0,0.65)",
+  backgroundColor: colors.overlay,
   justifyContent: "center",
   alignItems: "center",
 },
 
 modal: {
+    maxWidth: 520,
   width: "85%",
-  backgroundColor: "#1c1c1c",
+  backgroundColor: colors.surface,
   borderRadius: 25,
   padding: 25,
   alignItems: "center",
@@ -2235,20 +2208,20 @@ modalIcon: {
   width: 75,
   height: 75,
   borderRadius: 40,
-  backgroundColor: "#5145FF",
+  backgroundColor: colors.primary,
   justifyContent: "center",
   alignItems: "center",
   marginBottom: 20,
 },
 
 modalTitulo: {
-  color: "#FFF",
+  color: colors.textPrimary,
   fontSize: 24,
   fontWeight: "bold",
 },
 
 modalTexto: {
-  color: "#AAA",
+  color: colors.textSecondary,
   fontSize: 16,
   textAlign: "center",
   marginTop: 12,
@@ -2263,41 +2236,41 @@ modalButtons: {
 
 cancelar: {
   width: "47%",
-  height: 50,
+  minHeight: 50, paddingVertical: 12, paddingHorizontal: 8,
   borderRadius: 15,
   borderWidth: 1,
-  borderColor: "#5145FF",
+  borderColor: colors.primary,
   justifyContent: "center",
   alignItems: "center",
 },
 
 cancelarTexto: {
-  color: "#FFF",
+  color: colors.textPrimary,
   fontSize: 16,
   fontWeight: "bold",
 },
 
 sair: {
   width: "47%",
-  height: 50,
+  minHeight: 50, paddingVertical: 12, paddingHorizontal: 8,
   borderRadius: 15,
-  backgroundColor: "#635bff",
+  backgroundColor: colors.primary,
   justifyContent: "center",
   alignItems: "center",
 },
 
 sairTexto: {
-  color: "#FFF",
+  color: colors.onPrimary,
   fontSize: 16,
   fontWeight: "bold",
 },
 });
 
 // recuperarSenha
-export const recuperarSenhaStyles = StyleSheet.create({
+const recuperarSenhaStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     justifyContent: "center",
     paddingHorizontal: 24,
   },
@@ -2308,14 +2281,14 @@ export const recuperarSenhaStyles = StyleSheet.create({
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 15,
   },
 
   descricao: {
-    color: "#B0B0B0",
+    color: colors.textSecondary,
     fontSize: 15,
     textAlign: "center",
     marginBottom: 30,
@@ -2329,19 +2302,19 @@ export const recuperarSenhaStyles = StyleSheet.create({
 
   input: {
     width: "100%",
-    height: 55,
-    backgroundColor: "#1c1c1c",
+    minHeight: 55,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
-    color: "#000",
+    color: colors.textPrimary,
     marginTop: 25,
   },
 
   button: {
     width: "100%",
     height: 45,
-    backgroundColor: "#635bff",
+    backgroundColor: colors.primary,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -2349,64 +2322,62 @@ export const recuperarSenhaStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: "bold",
   },
 
   voltar: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     marginTop: 20,
     textDecorationLine: "underline",
   },
 
   erro: {
-    color: "#ff6b6b",
+    color: colors.danger,
     fontSize: 13,
     marginTop: 8,
   },
 });
 
 // relatorios
-export const relatoriosStyles = StyleSheet.create({
+const relatoriosStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
   card: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     marginBottom: 5,
     marginTop: 20,
     borderRadius: 22,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
   },
 
   cardTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 15,
   },
 
   pickerContainer: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     overflow: "hidden",
   },
 
   picker: {
-    color: "#FFF",
+    color: colors.textPrimary,
     height: 55,
   },
 
@@ -2416,7 +2387,7 @@ export const relatoriosStyles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#303030",
+    borderBottomColor: colors.border,
   },
 
   textos: {
@@ -2425,19 +2396,19 @@ export const relatoriosStyles = StyleSheet.create({
   },
 
   label: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 15,
     marginBottom: 3,
   },
 
   valor: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 20,
     fontWeight: "bold",
   },
 
   button: {
-     backgroundColor: "#635bff",
+     backgroundColor: colors.primary,
     padding: 14,
     marginHorizontal: 18,
     marginTop: 10,
@@ -2449,7 +2420,7 @@ export const relatoriosStyles = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#FFF",
+    color: colors.onPrimary,
     fontSize: 17,
     fontWeight: "bold",
     marginLeft: 10,
@@ -2457,13 +2428,11 @@ export const relatoriosStyles = StyleSheet.create({
 });
 
 // sobreApp
-export const sobreAppStyles = StyleSheet.create({
+const sobreAppStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f0f0f",
+    backgroundColor: colors.background,
     alignItems: "stretch",
-    marginLeft: -10,
-    marginRight: -10,
     paddingHorizontal: 10,
   },
 
@@ -2472,18 +2441,18 @@ export const sobreAppStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    marginTop: 55,
+    marginTop: 20,
     marginBottom: 20,
   },
 
   title: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 24,
     fontWeight: "bold",
   },
 
   mainCard: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     marginTop: 10,
     borderRadius: 16,
@@ -2492,27 +2461,27 @@ export const sobreAppStyles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
   },
 
   appName: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 28,
     fontWeight: "600",
   },
 
   featuresCard: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.featuresCard,
     marginHorizontal: 18,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     padding: 16,
     marginBottom: 18,
   },
 
   featuresTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
@@ -2538,65 +2507,67 @@ export const sobreAppStyles = StyleSheet.create({
   },
 
   featureTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 15,
     fontWeight: "700",
   },
 
   featureText: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 13,
     marginTop: 4,
   },
 
   infoCard: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     borderRadius: 14,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
   },
 
   infoTitle: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: "700",
     marginBottom: 6,
   },
 
   infoText: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 13,
   },
 
   link: {
-    color: "#4B6DFF",
+    color: colors.textLink,
     marginTop: 8,
     fontWeight: "700",
   },
 
   contactCard: {
-    backgroundColor: "#1c1c1c",
+    backgroundColor: colors.surface,
     marginHorizontal: 18,
     borderRadius: 14,
     padding: 14,
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: "#303030",
+    borderColor: colors.border,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
 
   contactLeft: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
   },
 
   contactText: {
-    color: "#FFF",
+    flexShrink: 1,
+    color: colors.textPrimary,
     fontSize: 15,
     marginLeft: 10,
   },
@@ -2608,18 +2579,28 @@ export const sobreAppStyles = StyleSheet.create({
   },
 
   footerApp: {
-    color: "#B8C0D4",
+    color: colors.textSecondary,
     fontSize: 14,
     marginBottom: 6,
   },
 
   footerCopy: {
-    color: "#7B8193",
+    color: colors.textSecondary,
     fontSize: 12,
   },
 });
 
-export const keyboardStyles = StyleSheet.create({
+const keyboardStyles = StyleSheet.create({
+  authScrollContent: {
+    flexGrow: 1,
+    justifyContent: "flex-start",
+    paddingTop: 24,
+    paddingBottom: 48,
+  },
+  authForm: {
+    width: "100%",
+    flexShrink: 0,
+  },
   avoidingView: {
     flex: 1,
   },
@@ -2640,14 +2621,15 @@ export const keyboardStyles = StyleSheet.create({
   },
 });
 
-export const sharedStyles = StyleSheet.create({
+const sharedStyles = StyleSheet.create({
   errorText: {
-    color: "#ff6b6b",
+    color: colors.danger,
     fontSize: 14,
     marginVertical: 10,
     textAlign: "center",
   },
   flex: {
+    minWidth: 0,
     flex: 1,
   },
   bottomSpacer: {
@@ -2681,23 +2663,22 @@ export const sharedStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   formLabel: {
-    color: "#fff",
+    color: colors.textPrimary,
     marginLeft: 10,
     marginBottom: 5,
     fontSize: 16,
   },
   loginLogo: {
+    flexShrink: 0,
     alignSelf: "center",
     width: 150,
     height: 150,
-    marginBottom: 60,
+    marginBottom: 24,
   },
   dashboardChart: {
     borderRadius: 15,
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: 10,
-    marginRight: -25,
   },
   reportChart: {
     borderRadius: 15,
@@ -2717,40 +2698,51 @@ export const sharedStyles = StyleSheet.create({
     textAlign: "right",
   },
   multilineInput: {
-    height: 90,
+    minHeight: 100, textAlignVertical: "top",
   },
   positiveText: {
-    color: "#2ED573",
+    color: colors.success,
   },
   negativeText: {
-    color: "#FF4D4D",
+    color: colors.danger,
   },
   marginTop15: {
     marginTop: 15,
   },
   featurePurple: {
-    backgroundColor: "#4C4CF0",
+    backgroundColor: colors.featurePurple,
   },
   featureBlue: {
-    backgroundColor: "#2EA6FF",
+    backgroundColor: colors.featureBlue,
   },
   featureViolet: {
-    backgroundColor: "#7B61FF",
+    backgroundColor: colors.featureViolet,
   },
   featureRed: {
-    backgroundColor: "#FF6B6B",
+    backgroundColor: colors.featureRed,
   },
 });
 
-export const navigationScreenOptions = {
+const navigationScreenOptions = {
+  headerShown: false,
   headerStyle: {
-    backgroundColor: "#141414",
+    backgroundColor: colors.background,
   },
-  headerTintColor: "#fff",
+  headerTintColor: colors.textPrimary,
   headerTitleStyle: {
     fontWeight: "600",
   },
   contentStyle: {
-    backgroundColor: "#000",
+    backgroundColor: colors.background,
   },
 };
+
+return { colors, gradients, radii, shadow, barraNavegacaoStyles, boasVindasStyles, cadastroStyles, centralAjudaStyles, configuracoesStyles, criarSenhaStyles, dashboardStyles, fluxoFinanceiroStyles, inicioStyles, layoutStyles, loginStyles, metasStyles, meuCadastroStyles, notificacoesStyles, novaDespesaStyles, novaReceitaStyles, novaSenhaStyles, perfilStyles, recuperarSenhaStyles, relatoriosStyles, sobreAppStyles, keyboardStyles, sharedStyles, navigationScreenOptions };
+}
+
+const cache = new WeakMap();
+export function useAppStyles() {
+  const { colors } = useTheme();
+  if (!cache.has(colors)) cache.set(colors, createAppStyles(colors));
+  return cache.get(colors);
+}

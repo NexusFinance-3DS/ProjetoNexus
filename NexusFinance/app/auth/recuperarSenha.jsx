@@ -1,10 +1,7 @@
+import { KeyboardArea, FormScrollView, FormInput } from "../../components/FormLayout";
 import { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -12,9 +9,10 @@ import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { apiRequest } from "../../services/api";
 import { salvarRecuperacaoPendente } from "../../services/authFlow";
-import { keyboardStyles, recuperarSenhaStyles as styles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 export default function RecuperarSenha() {
+  const { colors, keyboardStyles, recuperarSenhaStyles: styles } = useAppStyles();
   const [email, setEmail] = useState("");
   const [codigo, setCodigo] = useState("");
   const [erro, setErro] = useState("");
@@ -54,29 +52,26 @@ export default function RecuperarSenha() {
   };
 
   return (
-    <AnimatedScreen style={styles.container} delay={60}>
-    <KeyboardAvoidingView
+    <AnimatedScreen maxWidth={560} style={styles.container} delay={60}>
+    <KeyboardArea
       style={keyboardStyles.avoidingView}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-    <ScrollView
+    <FormScrollView
       contentContainerStyle={keyboardStyles.centeredScrollContent}
       keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
       showsVerticalScrollIndicator={false}
     >
       <AnimatedCard style={styles.content} delay={80}>
-        <Text style={styles.title}>Recuperar senha</Text>
 
         <Text style={styles.descricao}>
           Digite seu e-mail para receber um código de recuperação.
         </Text>
         <View style={styles.inputContainer1}>
-        <TextInput
+        <FormInput
 
           style={styles.input}
           placeholder="Digite seu e-mail"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
@@ -92,10 +87,10 @@ export default function RecuperarSenha() {
         </TouchableOpacity>
         </View>
 
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Digite o código"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           keyboardType="number-pad"
           value={codigo}
           onChangeText={setCodigo}
@@ -118,8 +113,8 @@ export default function RecuperarSenha() {
           </Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </ScrollView>
-    </KeyboardAvoidingView>
+    </FormScrollView>
+    </KeyboardArea>
     </AnimatedScreen>
   );
 }

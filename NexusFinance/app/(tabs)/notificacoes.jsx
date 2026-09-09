@@ -4,17 +4,17 @@ import { useFocusEffect } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import BarraNavegacao from "../components/BarraNavegacao";
 import { AnimatedCard, AnimatedScreen } from "../components/AnimatedScreen";
-import { notificacoesStyles as styles, sharedStyles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 import { apiAutenticada } from "../../services/financeiro";
 
-const VISUAL = {
-  Financeira: { icone: "account-balance-wallet", cor: "#00E676" },
-  Meta: { icone: "flag", cor: "#4b3df2" },
-  Sistema: { icone: "info", cor: "#5145FF" },
-  Lembrete: { icone: "notifications", cor: "#FF9800" },
-};
-
 export default function Notificacoes() {
+  const { colors, notificacoesStyles: styles, sharedStyles } = useAppStyles();
+  const VISUAL = {
+    Financeira: { icone: 'account-balance-wallet', cor: colors.successSoft, iconColor: colors.success },
+    Meta: { icone: 'flag', cor: colors.primarySoft, iconColor: colors.textLink },
+    Sistema: { icone: 'info', cor: colors.primarySoft, iconColor: colors.textLink },
+    Lembrete: { icone: 'notifications', cor: colors.surfaceElevated, iconColor: colors.warning },
+  };
   const [notificacoes, setNotificacoes] = useState([]);
   const [erro, setErro] = useState("");
 
@@ -42,7 +42,7 @@ export default function Notificacoes() {
           return (
             <AnimatedCard key={item.id} style={[styles.card, !item.lida && styles.cardNova]} delay={80 + index * 40}>
               <TouchableOpacity activeOpacity={0.8} style={sharedStyles.rowCentered} onPress={() => marcarComoLida(item)}>
-                <View style={[styles.iconContainer, { backgroundColor: visual.cor }]}><Icon name={visual.icone} size={28} color="#FFF" /></View>
+                <View style={[styles.iconContainer, { backgroundColor: visual.cor }]}><Icon name={visual.icone} size={28} color={visual.iconColor} /></View>
                 <View style={styles.textContainer}>
                   <View style={styles.row}><Text style={styles.cardTitle}>{item.titulo}</Text><Text style={styles.hora}>{new Date(item.criado_em).toLocaleDateString("pt-BR")}</Text></View>
                   <Text style={styles.descricao}>{item.descricao}</Text>
@@ -53,7 +53,7 @@ export default function Notificacoes() {
           );
         })}
         {!erro && notificacoes.length === 0 ? (
-          <View style={styles.emptyContainer}><Icon name="notifications-off" size={80} color="#666" /><Text style={styles.emptyTitle}>Nenhuma notificação</Text><Text style={styles.emptyText}>Quando houver novidades elas aparecerão aqui.</Text></View>
+          <View style={styles.emptyContainer}><Icon name="notifications-off" size={80} color={colors.textMuted} /><Text style={styles.emptyTitle}>Nenhuma notificação</Text><Text style={styles.emptyText}>Quando houver novidades elas aparecerão aqui.</Text></View>
         ) : null}
       </ScrollView>
       <BarraNavegacao />

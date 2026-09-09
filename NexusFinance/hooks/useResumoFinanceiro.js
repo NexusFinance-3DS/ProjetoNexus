@@ -20,7 +20,7 @@ export function useResumoFinanceiro() {
     let active = true;
     setCarregando(true);
     apiAutenticada("/financeiro/resumo")
-      .then((response) => active && setDados(response))
+      .then((response) => { if (active) { setDados(response); setErro(""); } })
       .catch((error) => active && setErro(error.message))
       .finally(() => active && setCarregando(false));
     return () => { active = false; };

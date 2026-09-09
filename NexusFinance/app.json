@@ -3,7 +3,7 @@
     "name": "NexusFinance",
     "slug": "NexusFinance",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/images.png",
     "scheme": "nexusfinance",
     "userInterfaceStyle": "automatic",
@@ -44,7 +44,8 @@
       "expo-font",
       "expo-image",
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

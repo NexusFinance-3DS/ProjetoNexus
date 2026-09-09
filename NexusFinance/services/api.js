@@ -20,12 +20,13 @@ export const API_URL = getApiUrl();
 
 export async function apiRequest(path, options = {}) {
   let response;
+  const multipart = typeof FormData !== "undefined" && options.body instanceof FormData;
 
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        ...(multipart ? {} : { "Content-Type": "application/json" }),
         ...options.headers,
       },
     });

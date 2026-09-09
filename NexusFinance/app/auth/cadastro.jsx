@@ -1,19 +1,19 @@
+import { KeyboardArea, FormScrollView, FormInput } from "../../components/FormLayout";
 import { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  Image,
+  View,
   Text,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import { router } from "expo-router";
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
+import { AnimatedScreen } from '../components/AnimatedScreen';
 import { salvarCadastroPendente } from "../../services/authFlow";
 import { validarCpf, validarDataNascimento, validarEmail } from "../../services/validations";
-import { cadastroStyles as styles, keyboardStyles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 export default function Cadastro() {
+  const { colors, cadastroStyles: styles, keyboardStyles, sharedStyles } = useAppStyles();
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
   const [nome, setNome] = useState("");
@@ -37,51 +37,51 @@ export default function Cadastro() {
   };
 
   return (
-    <AnimatedScreen style={styles.container} delay={60}>
-      <KeyboardAvoidingView
+    <AnimatedScreen animated={false} maxWidth={560} style={styles.container}>
+      <KeyboardArea
         style={keyboardStyles.avoidingView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-      <ScrollView
-        contentContainerStyle={keyboardStyles.centeredScrollContent}
+      <FormScrollView
+        contentContainerStyle={keyboardStyles.authScrollContent}
+        resetScrollOnKeyboardHide
         keyboardShouldPersistTaps="handled"
-        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
         showsVerticalScrollIndicator={false}
       >
-      <AnimatedCard style={styles.content} delay={80}>
-        <Text style={styles.title}>Crie sua conta</Text>
+      <Image source={require("../../assets/images/foto.png")} style={sharedStyles.loginLogo} resizeMode="contain" accessibilityLabel="Imagem de perfil" />
+      <View style={keyboardStyles.authForm}>
 
-        <TextInput
+
+        <FormInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           keyboardType="email-address"
           autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
         />
 
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="CPF"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           keyboardType="numeric"
           value={cpf}
           onChangeText={setCpf}
         />
 
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Nome completo"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           value={nome}
           onChangeText={setNome}
         />
 
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Data de nascimento (DD/MM/AAAA)"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           value={dataNascimento}
           onChangeText={setDataNascimento}
         />
@@ -94,9 +94,9 @@ export default function Cadastro() {
         >
           <Text style={styles.buttonText}>Continuar</Text>
         </TouchableOpacity>
-      </AnimatedCard>
-      </ScrollView>
-      </KeyboardAvoidingView>
+      </View>
+      </FormScrollView>
+      </KeyboardArea>
     </AnimatedScreen>
   );
 }

@@ -1,5 +1,8 @@
-import React from 'react';
-import { Pressable } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
+import React, { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import ScreenHeader, { ScreenHeaderHeightContext } from '../../components/ScreenHeader';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -8,13 +11,24 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-export function AnimatedScreen({ children, style, delay = 0, direction = 'up' }) {
+export function AnimatedScreen({ children, style, delay = 0, direction = 'up', maxWidth = 960, animated = true }) {
+  const { colors } = useTheme();
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const insets = useSafeAreaInsets();
   const entering = direction === 'down' ? FadeInDown.delay(delay).duration(420).springify() : FadeInUp.delay(delay).duration(420);
+  const Container = animated ? Animated.View : View;
 
   return (
-    <Animated.View entering={entering} style={style}>
+    <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: StyleSheet.flatten(style)?.backgroundColor || colors.background }}>
+    <View style={{ flex: 1, width: '100%', maxWidth, alignSelf: 'center' }}>
+    <ScreenHeader onLayout={({ nativeEvent }) => setHeaderHeight(nativeEvent.layout.height)} />
+    <ScreenHeaderHeightContext.Provider value={headerHeight + insets.top}>
+    <Container {...(animated ? { entering } : {})} style={[style, { flex: 1, width: '100%', maxWidth, alignSelf: 'center' }]}>
       {children}
-    </Animated.View>
+    </Container>
+    </ScreenHeaderHeightContext.Provider>
+    </View>
+    </SafeAreaView>
   );
 }
 

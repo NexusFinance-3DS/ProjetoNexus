@@ -1,5 +1,7 @@
+import { ScreenHeaderHeightContext } from "../../components/ScreenHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useState } from "react";
-import { View, Text, Pressable, TouchableWithoutFeedback } from "react-native";
+import { View, Text, Pressable, TouchableWithoutFeedback, Keyboard, ScrollView, useWindowDimensions } from "react-native";
 import { router, usePathname } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import * as Haptics from "expo-haptics";
@@ -11,7 +13,7 @@ import Animated, {
   FadeOut,
 } from "react-native-reanimated";
 
-import { barraNavegacaoStyles as styles, colors } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 const TABS = [
   { key: "inicial", route: "/inicial", label: "Início", icon: "home" },
@@ -36,6 +38,7 @@ const MORE_ACTIONS = [
 ];
 
 function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
+  const { barraNavegacaoStyles: styles, colors } = useAppStyles();
   const scale = useSharedValue(1);
 
   const style = useAnimatedStyle(() => ({
@@ -52,6 +55,8 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
   if (tab.key === "add") {
     return (
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Adicionar"
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={onPress}
@@ -64,7 +69,7 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
             styles.fab,
           ]}
         >
-          <Icon name="add" size={37} color={colors.textLink} />
+          <Icon name="add" size={37} color={colors.onPrimary} />
         </Animated.View>
       </Pressable>
     );
@@ -72,6 +77,8 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={tab.label}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       onPress={onPress}
@@ -111,10 +118,14 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
 }
 
 function MenuExpandido({ items, onSelect }) {
+  const { barraNavegacaoStyles: styles, colors } = useAppStyles();
+  const { height } = useWindowDimensions();
+  const headerHeight = React.useContext(ScreenHeaderHeightContext);
+  const insets = useSafeAreaInsets();
   const progress = useSharedValue(0);
   React.useEffect(() => {
     progress.value = withTiming(1, { duration: 200 });
-  }, []);
+  }, [progress]);
 
   const animStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -128,6 +139,7 @@ function MenuExpandido({ items, onSelect }) {
         styles.expandedMenu,
       ]}
     >
+      <ScrollView style={{ maxHeight: Math.max(80, height - headerHeight - insets.bottom - 110), width: "100%" }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-around" }}>
       {items.map((item) => (
         <Pressable
           key={item.label}
@@ -145,13 +157,21 @@ function MenuExpandido({ items, onSelect }) {
           </Text>
         </Pressable>
       ))}
+      </ScrollView>
     </Animated.View>
   );
 }
 
 export default function BarraNavegacao() {
+  const { barraNavegacaoStyles: styles } = useAppStyles();
   const [menuAberto, setMenuAberto] = useState(null);
   const pathname = usePathname();
+  const [keyboardVisible, setKeyboardVisible] = useState(Keyboard.isVisible());
+  React.useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () => { setKeyboardVisible(true); setMenuAberto(null); });
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   const irPara = (route) => {
     setMenuAberto(null);
@@ -168,6 +188,8 @@ export default function BarraNavegacao() {
       irPara(tab.route);
     }
   };
+
+  if (keyboardVisible) return null;
 
   return (
     <>

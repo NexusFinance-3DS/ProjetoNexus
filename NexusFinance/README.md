@@ -48,3 +48,15 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Recursos financeiros e verificação
+
+Nas telas de nova receita e despesa, selecione o tipo de conta e uma categoria. A opção **Adicionar nova categoria** salva imediatamente no MySQL e fica disponível para as próximas transações do mesmo tipo. O menu **+ → Categoria** também permite consultar e criar categorias.
+
+É possível anexar um arquivo de até 10 MB, trocar ou remover a seleção antes de salvar. Depois, abra o anexo no **Fluxo financeiro**: no celular, o app oferece o compartilhamento do arquivo; na web, faz o download. Os anexos exigem a sessão do dono da transação.
+
+O relatório exporta PDF no celular e abre a impressão na web para salvar como PDF. **Configurações → Exportar transações (CSV)** exporta os dados do histórico. A preferência de avisos financeiros é salva no banco e controla novas notificações dentro do app. A aparência atual é escura, em português.
+
+Para usar no Expo Go, mantenha o MySQL e o backend iniciados e o celular na mesma rede do computador. Se precisar configurar a API manualmente, veja `.env.example`. Após atualizar as dependências, reinicie o Metro com `npx expo start -c` e recarregue o projeto no Expo Go.
+
+Validação realizada: lint sem erros; exportação dos bundles Android, iOS e web; seis testes de geometria do teclado; testes de integração com MySQL em banco temporário; inclusão de receita e despesa com comprovante pelo navegador e consulta posterior no histórico. A seleção/compartilhamento nativos e o teclado físico do Galaxy A36 precisam ser conferidos no aparelho; a prévia web não simula esses recursos nativos.

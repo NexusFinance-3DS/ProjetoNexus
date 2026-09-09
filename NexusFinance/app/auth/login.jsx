@@ -1,20 +1,19 @@
+import { KeyboardArea, FormScrollView, FormInput } from "../../components/FormLayout";
 import React, { useState } from "react";
 import { router } from "expo-router";
 import {
   Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  View,
   Text,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
+import { AnimatedScreen } from '../components/AnimatedScreen';
 import { apiRequest } from "../../services/api";
 import { useSession } from "../../contexts/SessionContext";
-import { keyboardStyles, loginStyles as styles, sharedStyles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 export default function Login() {
+  const { colors, keyboardStyles, loginStyles: styles, sharedStyles } = useAppStyles();
   const { iniciarSessao } = useSession();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -53,47 +52,48 @@ export default function Login() {
 
   return (
 
-    <AnimatedScreen style={styles.container} delay={60}>
-      <KeyboardAvoidingView
+    <AnimatedScreen animated={false} maxWidth={560} style={styles.container}>
+      <KeyboardArea
         style={keyboardStyles.avoidingView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView
-          contentContainerStyle={keyboardStyles.centeredScrollContent}
+        <FormScrollView
+          contentContainerStyle={keyboardStyles.authScrollContent}
+          resetScrollOnKeyboardHide
           keyboardShouldPersistTaps="handled"
-          automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
           showsVerticalScrollIndicator={false}
         >
       <Image
         source={require("../../assets/images/foto.png")}
         style={sharedStyles.loginLogo}
+        resizeMode="contain"
+        accessibilityLabel="Imagem de perfil"
       />
-      <AnimatedCard delay={80}>
-      <Text style={styles.titulo}>Entrar</Text>
+      <View style={keyboardStyles.authForm}>
+
 
       <Text style={styles.label}>Email</Text>
-      <TextInput
+      <FormInput
         style={styles.input}
         value={email}
         placeholder="Digite seu email"
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.placeholder}
       />
 
       <Text style={styles.label}>Senha</Text>
-      <TextInput
+      <FormInput
         style={styles.input}
         value={senha}
         placeholder="Digite sua senha"
         onChangeText={setSenha}
         secureTextEntry
-        placeholderTextColor="#666"
+        placeholderTextColor={colors.placeholder}
       />
 
-      <TouchableOpacity>
-        <Text style={styles.link2} onPress={recuperarSenha}>
+      <TouchableOpacity accessibilityRole="button" onPress={recuperarSenha}>
+        <Text style={styles.link2}>
           Esqueceu sua senha?
         </Text>
       </TouchableOpacity>
@@ -104,14 +104,14 @@ export default function Login() {
         <Text style={styles.textoBotao}>{carregando ? "Entrando..." : "Entrar"}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
-        <Text style={styles.link} onPress={criarConta}>
+      <TouchableOpacity accessibilityRole="button" onPress={criarConta}>
+        <Text style={styles.link}>
           Ainda não tenho conta
         </Text>
       </TouchableOpacity>
-      </AnimatedCard>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </View>
+        </FormScrollView>
+      </KeyboardArea>
     </AnimatedScreen>
   );
 }
