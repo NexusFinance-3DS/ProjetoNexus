@@ -1,12 +1,13 @@
+import { AnimatedScreen } from "../components/AnimatedScreen";
 import React, { useState } from 'react';
-import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import AnimatedCircularProgress from "../../components/ProgressRing";
+import { View, Text, Pressable, ScrollView, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
-import { inicioStyles as styles, colors, gradients, sharedStyles } from '../styles/styles';
+import { useAppStyles } from '../styles/styles';
 import BarraNavegacao from '../components/BarraNavegacao';
 import { formatBRL } from '../../services/financeiro';
 import { useResumoFinanceiro } from '../../hooks/useResumoFinanceiro';
@@ -19,7 +20,8 @@ function getSaudacao() {
   return 'Boa noite';
 }
 
-function QuickCard({ icon, iconColor, iconBg, title, value, delta, deltaColor, onPress, delay }) {
+function QuickCard({ icon, iconColor, iconBg, title, value, delta, deltaColor, onPress, delay, width }) {
+  const { inicioStyles: styles } = useAppStyles();
   const scale = useSharedValue(1);
   const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -30,7 +32,7 @@ function QuickCard({ icon, iconColor, iconBg, title, value, delta, deltaColor, o
         onPressOut={() => { scale.value = withSpring(1, { damping: 10, stiffness: 200 }); }}
         onPress={onPress}
       >
-        <View style={styles.card}>
+        <View style={[styles.card, { width }]}>
           <View style={[styles.cardIconBadge, { backgroundColor: iconBg }]}>
             <Icon name={icon} size={22} color={iconColor} />
           </View>
@@ -44,6 +46,10 @@ function QuickCard({ icon, iconColor, iconBg, title, value, delta, deltaColor, o
 }
 
 export default function Inicial() {
+  const { inicioStyles: styles, colors, gradients, sharedStyles } = useAppStyles();
+  const { width, fontScale } = useWindowDimensions();
+  const compact = width < 380 || fontScale > 1.3;
+  const [quickWidth, setQuickWidth] = useState(160);
   const [saldoVisivel, setSaldoVisivel] = useState(true);
   const { usuario } = useSession();
   const { dados, erro } = useResumoFinanceiro();
@@ -56,7 +62,7 @@ export default function Inicial() {
   const valorTotalMeta = dados.meta?.objetivo || 0;
   const porcentagem = valorTotalMeta > 0 ? Math.min((valorMeta / valorTotalMeta) * 100, 100) : 0;
   const titleMeta = dados.meta?.nome || "Nenhuma meta cadastrada";
-  const categoryColors = [colors.primary, colors.danger, colors.success, "#FF9800", "#7C6BFF"];
+  const categoryColors = [colors.primary, colors.danger, colors.success, colors.chartOrange, colors.chartPurple];
   const distribuicao = dados.categorias.map((item, index) => ({
     label: item.nome,
     valor: item.valor,
@@ -67,7 +73,7 @@ export default function Inicial() {
   const saldoAtual = renda - despesa;
 
   return (
-    <View style={styles.container}>
+    <AnimatedScreen style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.paddingBottom130}>
 
         <View style={styles.header}>
@@ -102,12 +108,12 @@ export default function Inicial() {
                     hitSlop={10}
                     onPress={(e) => { e.stopPropagation?.(); setSaldoVisivel((v) => !v); }}
                   >
-                    <Icon name={saldoVisivel ? "visibility" : "visibility-off"} size={20} color="#fff" />
+                    <Icon name={saldoVisivel ? "visibility" : "visibility-off"} size={20} color={colors.onPrimary} />
                   </Pressable>
                 </View>
                 <Text style={styles.valor}>{saldoVisivel ? formatBRL(saldoAtual) : "••••••"}</Text>
                 <View style={styles.saldoFooterRow}>
-                  <Icon name="swap-horiz" size={16} color="#fff" />
+                  <Icon name="swap-horiz" size={16} color={colors.onPrimary} />
                   <Text style={styles.saldoFooterText}>Toque para ver o fluxo financeiro</Text>
                 </View>
               </LinearGradient>
@@ -120,10 +126,12 @@ export default function Inicial() {
           <Text style={styles.title}>Visão Rápida</Text>
           <ScrollView
             horizontal
+            onLayout={({ nativeEvent }) => setQuickWidth(Math.max(160, Math.floor((nativeEvent.layout.width - 36) / 3)))}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={sharedStyles.paddingRight16}
           >
             <QuickCard
+              width={quickWidth}
               delay={0}
               icon="arrow-upward"
               iconColor={colors.success}
@@ -133,6 +141,7 @@ export default function Inicial() {
               onPress={() => router.push({ pathname: '/fluxoFinanceiro', params: { aba: 'Receitas' } })}
             />
             <QuickCard
+              width={quickWidth}
               delay={80}
               icon="arrow-downward"
               iconColor={colors.danger}
@@ -142,6 +151,7 @@ export default function Inicial() {
               onPress={() => router.push({ pathname: '/fluxoFinanceiro', params: { aba: 'Despesas' } })}
             />
             <QuickCard
+              width={quickWidth}
               delay={160}
               icon="savings"
               iconColor={colors.primary}
@@ -159,7 +169,7 @@ export default function Inicial() {
               <Text style={styles.metaHeaderTitle}>Metas em andamento</Text>
               <Text style={styles.verMetasBadge} onPress={() => router.push('/metas')}>Ver metas</Text>
             </View>
-            <View style={styles.graficos}>
+            <View style={[styles.graficos, compact && { flexDirection: "column", alignItems: "stretch" }]}>
               <AnimatedCircularProgress
                 size={104}
                 width={9}
@@ -175,7 +185,7 @@ export default function Inicial() {
                   </Text>
                 )}
               </AnimatedCircularProgress>
-              <View style={styles.metaInfoCol}>
+              <View style={[styles.metaInfoCol, compact && { marginLeft: 0, marginTop: 16 }]}>
                 <Text style={styles.metaTituloTexto}>{titleMeta}</Text>
                 <View style={styles.metaBarraFundo}>
                   <View style={[styles.metaBarraPreenchida, { width: `${porcentagem}%` }]} />
@@ -217,6 +227,6 @@ export default function Inicial() {
       </ScrollView>
 
       <BarraNavegacao />
-    </View>
+    </AnimatedScreen>
   );
 }

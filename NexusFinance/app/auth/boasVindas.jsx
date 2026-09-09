@@ -1,17 +1,19 @@
 import React from "react";
-import { Text, Image, TouchableOpacity } from "react-native";
+import { Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { boasVindasStyles as styles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
-export default function boasVindas() {
+export default function BoasVindas() {
+  const { boasVindasStyles: styles, keyboardStyles } = useAppStyles();
 
     function criarConta() {
         router.push("/auth/cadastro");
     }
 
     return (
-        <AnimatedScreen style={styles.tela} delay={60}>
+        <AnimatedScreen maxWidth={560} style={styles.tela} delay={60}>
+            <ScrollView contentContainerStyle={keyboardStyles.centeredScrollContent} showsVerticalScrollIndicator={false}>
             <Image
                 source={require("../../assets/images/moedas.png")}
                 style={styles.illustration}
@@ -28,6 +30,7 @@ export default function boasVindas() {
                 <Text style={styles.link}>Já tenho uma conta</Text>
             </TouchableOpacity>
             </AnimatedCard>
+        </ScrollView>
         </AnimatedScreen>
     );
 }

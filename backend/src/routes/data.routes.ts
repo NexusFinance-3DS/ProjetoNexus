@@ -1,3 +1,6 @@
+import { createTransaction, parseMoney } from "../transactions";
+import { upload } from "../uploads";
+import { financeOptionsRoutes } from "./finance-options.routes";
 import { Router } from "express";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { authenticate, AuthenticatedRequest } from "../auth";
@@ -10,6 +13,28 @@ interface DataRow extends RowDataPacket {
 
 export const dataRoutes = Router();
 dataRoutes.use(authenticate);
+dataRoutes.use(financeOptionsRoutes);
+
+dataRoutes.get("/configuracoes", async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const [[row]] = await database.query<RowDataPacket[]>("SELECT notificacoes_ativas, tema FROM configuracoes WHERE id_usuario = ?", [req.userId]);
+    res.json({ notificacoes: row ? Boolean(row.notificacoes_ativas) : true, tema: row?.tema === 'claro' ? 'claro' : 'escuro' });
+  } catch (error) { next(error); }
+});
+
+dataRoutes.put("/configuracoes", async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const { notificacoes, tema } = req.body || {};
+    if (notificacoes === undefined && tema === undefined) return res.status(400).json({ mensagem: "Informe a preferência que deseja alterar." });
+    if (notificacoes !== undefined && typeof notificacoes !== 'boolean') return res.status(400).json({ mensagem: "Preferência de notificações inválida." });
+    if (tema !== undefined && tema !== 'claro' && tema !== 'escuro') return res.status(400).json({ mensagem: "Escolha tema claro ou escuro." });
+    // Update only supplied preferences so concurrent changes do not overwrite each other.
+    const updates = [notificacoes !== undefined ? 'notificacoes_ativas = VALUES(notificacoes_ativas)' : '', tema !== undefined ? 'tema = VALUES(tema)' : ''].filter(Boolean).join(', ');
+    await database.execute(`INSERT INTO configuracoes (id_usuario, notificacoes_ativas, tema) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ${updates}`, [req.userId, notificacoes ?? true, tema ?? 'escuro']);
+    const [[row]] = await database.query<RowDataPacket[]>('SELECT notificacoes_ativas, tema FROM configuracoes WHERE id_usuario = ?', [req.userId]);
+    res.json({ notificacoes: Boolean(row.notificacoes_ativas), tema: row.tema });
+  } catch (error) { next(error); }
+});
 
 dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next) => {
   try {
@@ -57,6 +82,7 @@ dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next
        INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
        WHERE t.id_usuario = ? AND st.nome <> 'Cancelada'
        AND t.data_transacao >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 5 MONTH)
+       AND t.data_transacao < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
        GROUP BY DATE_FORMAT(t.data_transacao, '%Y-%m') ORDER BY periodo`,
       [userId],
     );
@@ -104,13 +130,21 @@ dataRoutes.get("/financeiro/transacoes", async (req: AuthenticatedRequest, res, 
     const [rows] = await database.query<DataRow[]>(
       `SELECT t.id_transacao AS id, t.descricao, t.valor,
         DATE_FORMAT(t.data_transacao, '%Y-%m-%d') AS data,
-        c.nome AS categoria, tt.nome AS tipo, st.nome AS status, t.observacao
+        c.nome AS categoria, tt.nome AS tipo, st.nome AS status, t.observacao,
+        co.nome AS conta, tc.nome AS tipoConta
        FROM transacoes t
        INNER JOIN categorias c ON c.id_categoria = t.id_categoria
        INNER JOIN tipos_transacao tt ON tt.id_tipo_transacao = t.id_tipo_transacao
        INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
+       INNER JOIN contas co ON co.id_conta = t.id_conta
+       INNER JOIN tipos_conta tc ON tc.id_tipo_conta = co.id_tipo_conta
        WHERE t.id_usuario = ? ORDER BY t.data_transacao DESC, t.id_transacao DESC`,
       [req.userId],
+    );
+    const [attachments] = await database.query<DataRow[]>(
+      `SELECT a.id_anexo AS id, a.id_transacao AS transacaoId, a.nome_arquivo AS nome, a.tamanho_arquivo AS tamanho
+       FROM anexos_transacao a INNER JOIN transacoes t ON t.id_transacao = a.id_transacao
+       WHERE t.id_usuario = ? ORDER BY a.id_anexo`, [req.userId],
     );
     res.json({
       transacoes: rows.map((row) => ({
@@ -122,6 +156,9 @@ dataRoutes.get("/financeiro/transacoes", async (req: AuthenticatedRequest, res, 
         data: String(row.data),
         status: String(row.status),
         observacao: row.observacao ? String(row.observacao) : "",
+        conta: String(row.conta),
+        tipoConta: String(row.tipoConta),
+        anexos: attachments.filter((item) => String(item.transacaoId) === String(row.id)).map((item) => ({ id: String(item.id), nome: String(item.nome), tamanho: Number(item.tamanho), url: `/financeiro/anexos/${item.id}` })),
       })),
     });
   } catch (error) {
@@ -129,84 +166,11 @@ dataRoutes.get("/financeiro/transacoes", async (req: AuthenticatedRequest, res, 
   }
 });
 
-dataRoutes.post("/financeiro/transacoes", async (req: AuthenticatedRequest, res, next) => {
+dataRoutes.post("/financeiro/transacoes", upload.single("arquivo"), async (req: AuthenticatedRequest, res, next) => {
   try {
-    const typeName = req.body.tipo === "Receita" ? "Receita" : req.body.tipo === "Despesa" ? "Despesa" : "";
-    const description = typeof req.body.descricao === "string" ? req.body.descricao.trim() : "";
-    const categoryName = typeof req.body.categoria === "string" ? req.body.categoria.trim() : "";
-    const value = parseMoney(req.body.valor);
-    const date = normalizeDate(req.body.data);
-    const statusName = req.body.status === "Pendente" ? "Pendente" : "Confirmada";
-    const notes = typeof req.body.observacao === "string" ? req.body.observacao.trim() : null;
-
-    if (!typeName) return res.status(400).json({ mensagem: "Tipo de transação inválido." });
-    if (description.length < 2) return res.status(400).json({ mensagem: "Informe a descrição." });
-    if (!categoryName) return res.status(400).json({ mensagem: "Informe a categoria." });
-    if (!Number.isFinite(value) || value <= 0) return res.status(400).json({ mensagem: "Informe um valor válido." });
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ mensagem: "Informe uma data válida." });
-
-    const connection = await database.getConnection();
-    try {
-      await connection.beginTransaction();
-      const [[type]] = await connection.query<DataRow[]>("SELECT id_tipo_transacao AS id FROM tipos_transacao WHERE nome = ? LIMIT 1", [typeName]);
-      const [[status]] = await connection.query<DataRow[]>("SELECT id_status_transacao AS id FROM status_transacao WHERE nome = ? LIMIT 1", [statusName]);
-      if (!type || !status) throw new Error("Dados iniciais do banco não foram encontrados.");
-
-      let [[account]] = await connection.query<DataRow[]>("SELECT id_conta AS id FROM contas WHERE id_usuario = ? AND ativa = TRUE LIMIT 1", [req.userId]);
-      if (!account) {
-        const [[accountType]] = await connection.query<DataRow[]>("SELECT id_tipo_conta AS id FROM tipos_conta ORDER BY id_tipo_conta LIMIT 1");
-        const [accountResult] = await connection.execute<ResultSetHeader>(
-          "INSERT INTO contas (id_usuario, id_tipo_conta, nome) VALUES (?, ?, 'Conta principal')",
-          [req.userId!, Number(accountType.id)],
-        );
-        account = { id: accountResult.insertId } as DataRow;
-      }
-
-      let [[category]] = await connection.query<DataRow[]>(
-        "SELECT id_categoria AS id FROM categorias WHERE nome = ? AND id_tipo_transacao = ? AND (id_usuario IS NULL OR id_usuario = ?) ORDER BY padrao DESC LIMIT 1",
-        [categoryName, type.id, req.userId],
-      );
-      if (!category) {
-        const [categoryResult] = await connection.execute<ResultSetHeader>(
-          "INSERT INTO categorias (id_usuario, id_tipo_transacao, nome) VALUES (?, ?, ?)",
-          [req.userId!, Number(type.id), categoryName],
-        );
-        category = { id: categoryResult.insertId } as DataRow;
-      }
-
-      const [result] = await connection.execute<ResultSetHeader>(
-        `INSERT INTO transacoes
-         (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao, descricao, valor, data_transacao, observacao)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [req.userId!, Number(account.id), Number(category.id), Number(type.id), Number(status.id), description, value, date, notes],
-      );
-
-      if (req.body.recorrente === true) {
-        await connection.execute(
-          "INSERT INTO recorrencias (id_usuario, id_transacao_origem, frequencia, data_inicio) VALUES (?, ?, 'mensal', ?)",
-          [req.userId!, result.insertId, date],
-        );
-      }
-
-      const [[notificationType]] = await connection.query<DataRow[]>("SELECT id_tipo_notificacao AS id FROM tipos_notificacao WHERE nome = 'Financeira' LIMIT 1");
-      if (notificationType) {
-        await connection.execute(
-          "INSERT INTO notificacoes (id_usuario, id_tipo_notificacao, titulo, descricao) VALUES (?, ?, ?, ?)",
-          [req.userId!, Number(notificationType.id), `${typeName} adicionada`, `${description} no valor de R$ ${value.toFixed(2)}`],
-        );
-      }
-
-      await connection.commit();
-      res.status(201).json({ mensagem: `${typeName} salva com sucesso.`, id: result.insertId });
-    } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
-    }
-  } catch (error) {
-    next(error);
-  }
+    const result = await createTransaction(req.userId!, req.body || {}, req.file);
+    res.status(201).json(result);
+  } catch (error) { next(error); }
 });
 
 dataRoutes.get("/metas", async (req: AuthenticatedRequest, res, next) => {
@@ -323,12 +287,4 @@ function toTotals(row: DataRow | undefined) {
   const receitas = Number(row?.totalReceitas || 0);
   const despesas = Number(row?.totalDespesas || 0);
   return { totalReceitas: receitas, totalDespesas: despesas, saldo: receitas - despesas };
-}
-
-function parseMoney(value: unknown): number {
-  if (typeof value === "number") return value;
-  if (typeof value !== "string") return Number.NaN;
-  const clean = value.trim().replace(/\s/g, "").replace(/^R\$/, "");
-  const normalized = clean.includes(",") ? clean.replace(/\./g, "").replace(",", ".") : clean;
-  return Number(normalized);
 }

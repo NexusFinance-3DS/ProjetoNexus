@@ -4,12 +4,13 @@ import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from "react-native";
 import { router } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
-import { perfilStyles as styles, sharedStyles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 import { formatBRL, apiAutenticada } from "../../services/financeiro";
 import { useSession } from "../../contexts/SessionContext";
 import { useResumoFinanceiro } from "../../hooks/useResumoFinanceiro";
 
 export default function Perfil() {
+  const { colors, perfilStyles: styles, sharedStyles } = useAppStyles();
   const [modalSair, setModalSair] = useState(false);
   const { usuario, encerrarSessao } = useSession();
   const { dados } = useResumoFinanceiro();
@@ -37,7 +38,7 @@ export default function Perfil() {
             <Icon
               name="person-outline"
               size={60}
-              color="#FFF"
+              color={colors.textPrimary}
             />
           </View>
 
@@ -55,7 +56,7 @@ export default function Perfil() {
             style={styles.settingsButton}
             onPress={() => router.push("/configuracoes")}
           >
-            <Icon name="settings" size={24} color="#FFF" />
+            <Icon name="settings" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
 
         </AnimatedCard>
@@ -70,25 +71,25 @@ export default function Perfil() {
           <View style={styles.resumoRow}>
                 <>
                   <View style={styles.itemResumo}>
-                    <Icon name="account-balance-wallet" size={35} color="#5145FF" />
+                    <Icon name="account-balance-wallet" size={35} color={colors.primary} />
                     <Text style={styles.labelResumo}>Saldo</Text>
                     <Text style={styles.valorResumo}>{formatBRL(totals.saldo)}</Text>
                   </View>
 
                   <View style={styles.itemResumo}>
-                    <Icon name="trending-up" size={35} color="#2ED573" />
+                    <Icon name="trending-up" size={35} color={colors.success} />
                     <Text style={styles.labelResumo}>Receitas</Text>
                     <Text style={[styles.valorResumo, sharedStyles.positiveText]}>{formatBRL(totals.totalReceitas)}</Text>
                   </View>
 
                   <View style={styles.itemResumo}>
-                    <Icon name="trending-down" size={35} color="#FF4D4D" />
+                    <Icon name="trending-down" size={35} color={colors.danger} />
                     <Text style={styles.labelResumo}>Despesas</Text>
                     <Text style={[styles.valorResumo, sharedStyles.negativeText]}>{formatBRL(totals.totalDespesas)}</Text>
                   </View>
 
                   <View style={styles.itemResumo}>
-                    <Icon name="savings" size={35} color="#5145FF" />
+                    <Icon name="savings" size={35} color={colors.primary} />
                     <Text style={styles.labelResumo}>Economia</Text>
                     <Text style={styles.valorResumo}>{formatBRL(totals.totalReceitas - totals.totalDespesas)}</Text>
                   </View>
@@ -103,10 +104,10 @@ export default function Perfil() {
 
           <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/meuCadastro")}>
             <View style={styles.itemLeft}>
-              <Icon name="person-outline" size={24} color="#FFF" />
+              <Icon name="person-outline" size={24} color={colors.textPrimary} />
               <Text style={styles.itemTexto}>Meu cadastro</Text>
             </View>
-            <Icon name="chevron-right" size={24} color="#FFF" />
+            <Icon name="chevron-right" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -114,26 +115,26 @@ export default function Perfil() {
             onPress={() => router.push("/relatorios")}
           >
             <View style={styles.itemLeft}>
-              <Icon name="description" size={24} color="#FFF" />
+              <Icon name="description" size={24} color={colors.textPrimary} />
               <Text style={styles.itemTexto}>Relatórios</Text>
             </View>
-            <Icon name="chevron-right" size={24} color="#FFF" />
+            <Icon name="chevron-right" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/centralAjuda")}>
             <View style={styles.itemLeft}>
-              <Icon name="support-agent" size={24} color="#FFF" />
+              <Icon name="support-agent" size={24} color={colors.textPrimary} />
               <Text style={styles.itemTexto}>Central de ajuda</Text>
             </View>
-            <Icon name="chevron-right" size={24} color="#FFF" />
+            <Icon name="chevron-right" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.itemMenu} onPress={() => router.push("/menus/sobreApp")}>
             <View style={styles.itemLeft}>
-              <Icon name="info-outline" size={24} color="#FFF" />
+              <Icon name="info-outline" size={24} color={colors.textPrimary} />
               <Text style={styles.itemTexto}>Sobre o aplicativo</Text>
             </View>
-            <Icon name="chevron-right" size={24} color="#FFF" />
+            <Icon name="chevron-right" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -146,7 +147,7 @@ export default function Perfil() {
               <Icon
                 name="logout"
                 size={24}
-                color="#FFF"
+                color={colors.textPrimary}
               />
 
               <Text style={styles.itemTexto}>
@@ -158,7 +159,7 @@ export default function Perfil() {
             <Icon
               name="chevron-right"
               size={24}
-              color="#FFF"
+              color={colors.textPrimary}
             />
 
           </TouchableOpacity>
@@ -174,14 +175,14 @@ export default function Perfil() {
         animationType="fade"
         onRequestClose={() => setModalSair(false)}
       >
-        <View style={styles.modalBackground}>
+        <ScrollView contentContainerStyle={[styles.modalBackground, { flex: undefined, flexGrow: 1, paddingVertical: 32 }]}>
           <View style={styles.modal}>
 
             <View style={styles.modalIcon}>
               <Icon
                 name="logout"
                 size={40}
-                color="#fff"
+                color={colors.onPrimary}
               />
             </View>
 
@@ -216,7 +217,7 @@ export default function Perfil() {
             </View>
 
           </View>
-        </View>
+        </ScrollView>
       </Modal>
 
       <BarraNavegacao />

@@ -1,20 +1,18 @@
+import { KeyboardArea, FormScrollView, FormInput } from "../../components/FormLayout";
 import { useState } from "react";
 import {
   Text,
-  TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+  } from "react-native";
 import { router } from "expo-router";
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { apiRequest } from "../../services/api";
 import { limparRecuperacaoPendente, obterRecuperacaoPendente } from "../../services/authFlow";
 import { erroSenha } from "../../services/validations";
-import { keyboardStyles, novaSenhaStyles as styles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 export default function NovaSenha() {
+  const { colors, keyboardStyles, novaSenhaStyles: styles } = useAppStyles();
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -45,19 +43,16 @@ export default function NovaSenha() {
   };
 
   return (
-    <AnimatedScreen style={styles.container} delay={60}>
-    <KeyboardAvoidingView
+    <AnimatedScreen maxWidth={560} style={styles.container} delay={60}>
+    <KeyboardArea
       style={keyboardStyles.avoidingView}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-    <ScrollView
+    <FormScrollView
       contentContainerStyle={keyboardStyles.centeredScrollContent}
       keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
       showsVerticalScrollIndicator={false}
     >
       <AnimatedCard style={styles.content} delay={80}>
-        <Text style={styles.title}>Nova senha</Text>
 
         <Text style={styles.descricao}>
           Crie uma nova senha para acessar sua conta.
@@ -65,10 +60,10 @@ export default function NovaSenha() {
 
         <Text style={styles.label}>Nova senha</Text>
 
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Digite sua nova senha"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           secureTextEntry
           value={senha}
           onChangeText={setSenha}
@@ -76,10 +71,10 @@ export default function NovaSenha() {
 
         <Text style={styles.label}>Confirmar senha</Text>
 
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Confirme sua nova senha"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
           secureTextEntry
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
@@ -95,8 +90,8 @@ export default function NovaSenha() {
           <Text style={styles.buttonText}>{carregando ? "Salvando..." : "Salvar senha"}</Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </ScrollView>
-    </KeyboardAvoidingView>
+    </FormScrollView>
+    </KeyboardArea>
     </AnimatedScreen>
   );
 }

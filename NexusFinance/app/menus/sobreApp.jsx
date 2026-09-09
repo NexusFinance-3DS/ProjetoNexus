@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import BarraNavegacao from '../components/BarraNavegacao';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { router } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
 
-import { sharedStyles, sobreAppStyles as styles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 export default function SobreApp() {
+  const { colors, sharedStyles, sobreAppStyles: styles } = useAppStyles();
 
   return (
     <AnimatedScreen style={styles.container} delay={60}>
@@ -22,7 +23,7 @@ export default function SobreApp() {
 
           <View style={styles.featureRow}>
             <View style={[styles.featureIcon, sharedStyles.featurePurple]}>
-              <Icon name="wallet-travel" size={22} color="#FFF" />
+              <Icon name="wallet-travel" size={22} color={colors.onPrimary} />
             </View>
             <View style={styles.featureTexts}>
               <Text style={styles.featureTitle}>Organização Completa</Text>
@@ -32,7 +33,7 @@ export default function SobreApp() {
 
           <View style={styles.featureRow}>
             <View style={[styles.featureIcon, sharedStyles.featureBlue]}>
-              <Icon name="flag" size={22} color="#FFF" />
+              <Icon name="flag" size={22} color={colors.onPrimary} />
             </View>
             <View style={styles.featureTexts}>
               <Text style={styles.featureTitle}>Metas Financeiras</Text>
@@ -42,7 +43,7 @@ export default function SobreApp() {
 
           <View style={styles.featureRow}>
             <View style={[styles.featureIcon, sharedStyles.featureViolet]}>
-              <Icon name="insert-chart" size={22} color="#FFF" />
+              <Icon name="insert-chart" size={22} color={colors.onPrimary} />
             </View>
             <View style={styles.featureTexts}>
               <Text style={styles.featureTitle}>Relatórios Detalhados</Text>
@@ -52,7 +53,7 @@ export default function SobreApp() {
 
           <View style={styles.featureRow}>
             <View style={[styles.featureIcon, sharedStyles.featureRed]}>
-              <Icon name="sync-alt" size={22} color="#FFF" />
+              <Icon name="sync-alt" size={22} color={colors.onPrimary} />
             </View>
             <View style={styles.featureTexts}>
               <Text style={styles.featureTitle}>Controle de Fluxo</Text>
@@ -62,28 +63,26 @@ export default function SobreApp() {
 
         </AnimatedCard>
 
-        <TouchableOpacity style={styles.infoCard} activeOpacity={0.9}>
+        <View style={styles.infoCard}>
           <View>
-            <Text style={styles.infoTitle}>Termos de Uso</Text>
-            <Text style={styles.infoText}>Seus dados estão seguros e criptografados.</Text>
-            <Text style={styles.link}>Ler termos completos</Text>
+            <Text style={styles.infoTitle}>Seus registros</Text>
+            <Text style={styles.infoText}>Consulte suas receitas e despesas no Fluxo financeiro. Use Relatórios para acompanhar os totais por período.</Text>
           </View>
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.infoCard} activeOpacity={0.9}>
+        <View style={styles.infoCard}>
           <View>
-            <Text style={styles.infoTitle}>Política de Privacidade</Text>
-            <Text style={styles.infoText}>Seus dados estão seguros e criptografados.</Text>
-            <Text style={styles.link}>Política de Privacidade</Text>
+            <Text style={styles.infoTitle}>Sua conta</Text>
+            <Text style={styles.infoText}>Suas categorias personalizadas e seus anexos ficam vinculados à sua conta. Para sair do aplicativo, use Encerrar sessão no Perfil.</Text>
           </View>
-        </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.contactCard} activeOpacity={0.9} onPress={() => console.log("Contato")}>
+        <TouchableOpacity style={styles.contactCard} activeOpacity={0.9} onPress={() => router.push("/menus/centralAjuda")}>
           <View style={styles.contactLeft}>
-            <Icon name="person" size={20} color="#FFF" />
-            <Text style={styles.contactText}>Desenvolvedores e Contato</Text>
+            <Icon name="person" size={20} color={colors.textPrimary} />
+            <Text style={styles.contactText}>Central de ajuda</Text>
           </View>
-          <Icon name="chevron-right" size={24} color="#FFF" />
+          <Icon name="chevron-right" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
 
         <View style={styles.footer}>

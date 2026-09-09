@@ -1,10 +1,7 @@
+import { KeyboardArea, FormScrollView, FormInput } from "../../components/FormLayout";
 import { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import { router } from "expo-router";
@@ -12,9 +9,10 @@ import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { apiRequest } from "../../services/api";
 import { limparCadastroPendente, obterCadastroPendente } from "../../services/authFlow";
 import { erroSenha } from "../../services/validations";
-import { criarSenhaStyles as styles, keyboardStyles } from "../styles/styles";
+import { useAppStyles } from "../styles/styles";
 
 const CriarSenha = () => {
+  const { colors, criarSenhaStyles: styles, keyboardStyles } = useAppStyles();
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -48,35 +46,32 @@ const CriarSenha = () => {
   };
 
   return (
-    <AnimatedScreen style={styles.container} delay={60}>
-    <KeyboardAvoidingView
+    <AnimatedScreen maxWidth={560} style={styles.container} delay={60}>
+    <KeyboardArea
       style={keyboardStyles.avoidingView}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-    <ScrollView
+    <FormScrollView
       contentContainerStyle={keyboardStyles.centeredScrollContent}
       keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
       showsVerticalScrollIndicator={false}
     >
       <AnimatedCard style={styles.content} delay={80}>
-        <Text style={styles.title}>Crie sua senha</Text>
 
         <Text style={styles.label}>Senha</Text>
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Digite sua senha"
-          placeholderTextColor="#777"
+          placeholderTextColor={colors.placeholder}
           secureTextEntry
           value={senha}
           onChangeText={setSenha}
         />
 
         <Text style={styles.label}>Confirme sua senha</Text>
-        <TextInput
+        <FormInput
           style={styles.input}
           placeholder="Confirme sua senha"
-          placeholderTextColor="#777"
+          placeholderTextColor={colors.placeholder}
           secureTextEntry
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
@@ -92,8 +87,8 @@ const CriarSenha = () => {
           <Text style={styles.buttonText}>{carregando ? "Salvando..." : "Criar conta"}</Text>
         </TouchableOpacity>
       </AnimatedCard>
-    </ScrollView>
-    </KeyboardAvoidingView>
+    </FormScrollView>
+    </KeyboardArea>
     </AnimatedScreen>
   );
 };
