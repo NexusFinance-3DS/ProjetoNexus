@@ -272,7 +272,7 @@ const boasVindasStyles = StyleSheet.create({
   },
 
   botao: {
-    width: "100%", minHeight: 48,
+    width: "90%", minHeight: 48,
     backgroundColor: colors.primary,
     borderRadius: 10,
     paddingLeft: 24,

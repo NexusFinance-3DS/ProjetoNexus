@@ -36,7 +36,6 @@ const CriarSenha = () => {
         body: JSON.stringify({ ...dadosCadastro, senha, confirmarSenha }),
       });
       limparCadastroPendente();
-      alert("Cadastro realizado com sucesso!");
       router.replace("/auth/login");
     } catch (error) {
       setErro(error.message);

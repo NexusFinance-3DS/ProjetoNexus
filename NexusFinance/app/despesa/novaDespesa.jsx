@@ -29,7 +29,6 @@ export default function NovaDespesa() {
     setErro("");
     try {
       const response = await apiAutenticada("/financeiro/transacoes", opcoes.prepararEnvio({ tipo: "Despesa", valor, descricao, data, recorrente, observacao, status: paga ? "Confirmada" : "Pendente" }));
-      Alert.alert("Sucesso", response.mensagem);
       router.replace("/fluxoFinanceiro");
     } catch (error) {
       setErro(error.message);

@@ -4,6 +4,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { AnimatedScreen } from '../components/AnimatedScreen';
 import { TransactionSelectors } from '../../components/TransactionOptions';
 import { useTransactionOptions } from '../../hooks/useTransactionOptions';
+import BarraNavegacao from '../components/BarraNavegacao';
 
 function CategoriasDoTipo({ tipo }) {
   const options = useTransactionOptions(tipo);
@@ -20,5 +21,6 @@ export default function Categorias() {
       </View>
       <CategoriasDoTipo key={tipo} tipo={tipo} />
     </ScrollView>
+    <BarraNavegacao />
   </AnimatedScreen>;
 }
