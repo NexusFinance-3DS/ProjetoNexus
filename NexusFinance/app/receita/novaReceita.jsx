@@ -7,7 +7,7 @@ import { router } from "expo-router";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { AnimatedScreen } from "../components/AnimatedScreen";
 import { useAppStyles } from "../styles/styles";
-import { apiAutenticada, formatBRL, today } from "../../services/financeiro";
+import { apiAutenticada, formatBRL, formatDate } from "../../services/financeiro";
 
 export default function NovaReceita() {
   const { colors, keyboardStyles, novaReceitaStyles: styles, sharedStyles } = useAppStyles();
@@ -15,7 +15,7 @@ export default function NovaReceita() {
   const submitLock = useRef(false);
   const [valor, setValor] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [data, setData] = useState(today());
+  const [data, setData] = useState(formatDate());
   const [recorrente, setRecorrente] = useState(false);
   const [observacao, setObservacao] = useState("");
   const [enviarParaMeta, setEnviarParaMeta] = useState(false);
@@ -90,7 +90,7 @@ export default function NovaReceita() {
             <TextInput style={[styles.InputValor, sharedStyles.textAlignRight]} value={valor} onChangeText={setValor} keyboardType="decimal-pad" placeholder="R$ 0,00" placeholderTextColor={colors.placeholder} />
           </View>
           <View style={styles.inputFull}><Text style={sharedStyles.formLabel}>Descrição</Text><TextInput style={styles.input} placeholder="Ex.: Salário" placeholderTextColor={colors.placeholder} value={descricao} onChangeText={setDescricao} /></View>
-          <View style={styles.inputFull}><Text style={sharedStyles.formLabel}>Data (AAAA-MM-DD)</Text><TextInput style={styles.input} placeholder="2026-09-04" placeholderTextColor={colors.placeholder} value={data} onChangeText={setData} /></View>
+          <View style={styles.inputFull}><Text style={sharedStyles.formLabel}>Data</Text><TextInput style={styles.input} placeholder="DD/MM/AAAA" placeholderTextColor={colors.placeholder} value={data} onChangeText={setData} /></View>
           <TransactionSelectors options={opcoes} disabled={salvando} />
           <View style={styles.listItem}>
             <View style={styles.iconBox}><Icon name="repeat" size={20} color={colors.textPrimary} /></View>
