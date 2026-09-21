@@ -184,4 +184,73 @@ describe.skipIf(process.env.NEXUS_MYSQL_TEST !== "1")("finance API with real MyS
     }
     expect(await (await request('/configuracoes')).json()).toEqual({ tema: 'escuro', notificacoes: true });
   });
+
+
+  it("does not move a pending revenue into a goal before confirmation", async () => {
+    const goalResponse = await request("/metas", { nome: "Reserva pendente", objetivo: 500, atual: 0 });
+    expect(goalResponse.status).toBe(201);
+    const goal = await goalResponse.json();
+
+    const response = await request("/financeiro/transacoes", {
+      ...payload(),
+      valor: 200,
+      status: "Pendente",
+      metaId: goal.id,
+    });
+    expect(response.status).toBe(201);
+
+    const [[movement]] = await admin.query<RowDataPacket[]>(
+      "SELECT COUNT(*) AS n FROM movimentacoes_metas WHERE id_meta = ?",
+      [goal.id],
+    );
+    expect(movement.n).toBe(0);
+
+    const [[storedGoal]] = await admin.query<RowDataPacket[]>(
+      "SELECT status FROM metas WHERE id_meta = ?",
+      [goal.id],
+    );
+    expect(storedGoal.status).toBe("em_andamento");
+  });
+
+  it("creates an already reached goal as completed", async () => {
+    const response = await request("/metas", { nome: "Meta atingida", objetivo: 100, atual: 100 });
+    expect(response.status).toBe(201);
+    const goal = await response.json();
+    const [[row]] = await admin.query<RowDataPacket[]>("SELECT status FROM metas WHERE id_meta = ?", [goal.id]);
+    expect(row.status).toBe("concluida");
+  });
+
+  it("returns six history months including empty months and no fake percentage base", async () => {
+    const summary = await (await request("/financeiro/resumo")).json();
+    expect(summary.historico).toHaveLength(6);
+    expect(summary.historico.every((month: { periodo: string }) => /^\d{4}-\d{2}$/.test(month.periodo))).toBe(true);
+    if (summary.anterior.saldo === 0) {
+      expect(summary.economia.temBaseComparacao).toBe(false);
+      expect(summary.economia.percentual).toBeNull();
+      expect(summary.economia.texto).toBe("Sem base de comparação");
+    }
+  });
+
+  it("materializes monthly recurrence occurrences without duplicates", async () => {
+    await request("/financeiro/resumo");
+    await request("/financeiro/resumo");
+    const [[row]] = await admin.query<RowDataPacket[]>(
+      `SELECT COUNT(*) AS n
+       FROM transacoes t
+       INNER JOIN recorrencias r ON r.id_recorrencia = t.id_recorrencia
+       WHERE r.id_usuario = 1 AND t.id_transacao <> r.id_transacao_origem`,
+    );
+    expect(Number(row.n)).toBeGreaterThan(0);
+
+    const [[duplicates]] = await admin.query<RowDataPacket[]>(
+      `SELECT COUNT(*) AS n FROM (
+        SELECT id_recorrencia, data_transacao
+        FROM transacoes
+        WHERE id_recorrencia IS NOT NULL
+        GROUP BY id_recorrencia, data_transacao
+        HAVING COUNT(*) > 1
+      ) duplicated`,
+    );
+    expect(Number(duplicates.n)).toBe(0);
+  });
 });
