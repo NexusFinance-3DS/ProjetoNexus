@@ -3,9 +3,12 @@ import { useFocusEffect } from "expo-router";
 import { apiAutenticada } from "../services/financeiro";
 
 const EMPTY = {
+  saldoAcumulado: 0,
   atual: { totalReceitas: 0, totalDespesas: 0, saldo: 0 },
+  realizado: { totalReceitas: 0, totalDespesas: 0, saldo: 0 },
+  previsto: { totalReceitas: 0, totalDespesas: 0, saldo: 0 },
   anterior: { totalReceitas: 0, totalDespesas: 0, saldo: 0 },
-  economia: { diferenca: 0, percentual: 0 },
+  economia: { diferenca: 0, percentual: null, temBaseComparacao: false, texto: "Sem base de comparação" },
   categorias: [],
   historico: [],
   meta: null,
