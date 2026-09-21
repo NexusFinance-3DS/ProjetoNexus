@@ -54,7 +54,7 @@ export default function Inicial() {
   const { usuario } = useSession();
   const { dados, erro } = useResumoFinanceiro();
   const totals = dados.atual;
-  const economiaComp = { percent: dados.economia.percentual, diff: dados.economia.diferenca };
+  const economiaComp = { percent: dados.economia.percentual, diff: dados.economia.diferenca, hasBase: dados.economia.temBaseComparacao };
 
   const renda = totals.totalReceitas;
   const despesa = totals.totalDespesas;
@@ -70,7 +70,7 @@ export default function Inicial() {
     percentual: renda > 0 ? (item.valor / renda) * 100 : 0,
   }));
   const totalDistribuido = distribuicao.reduce((sum, item) => sum + item.valor, 0);
-  const saldoAtual = renda - despesa;
+  const saldoAtual = dados.saldoAcumulado;
 
   return (
     <AnimatedScreen style={styles.container}>
@@ -158,7 +158,7 @@ export default function Inicial() {
               iconBg={colors.primarySoft}
               title="Economia"
               value={formatBRL(totals.totalReceitas - totals.totalDespesas)}
-              delta={`${economiaComp.percent >= 0 ? '+' : '-'}${Math.abs(economiaComp.percent).toFixed(1)}% vs. mês anterior`}
+              delta={economiaComp.hasBase ? `${economiaComp.percent >= 0 ? '+' : '-'}${Math.abs(economiaComp.percent).toFixed(1)}% vs. mês anterior` : "Sem base de comparação"}
               deltaColor={economiaComp.diff >= 0 ? colors.success : colors.dangerStrong}
               onPress={() => router.push('/dashboard')}
             />
