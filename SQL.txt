@@ -277,6 +277,10 @@ CREATE TABLE transacoes (
 
     id_status_transacao TINYINT UNSIGNED NOT NULL,
 
+    id_recorrencia INT UNSIGNED NULL,
+
+    id_meta INT UNSIGNED NULL,
+
     descricao VARCHAR(255) NOT NULL,
 
     valor DECIMAL(12,2) NOT NULL,
@@ -345,6 +349,9 @@ ON transacoes(data_transacao);
 
 CREATE INDEX idx_transacoes_usuario_data
 ON transacoes(id_usuario, data_transacao);
+
+CREATE UNIQUE INDEX uq_transacoes_recorrencia_data
+ON transacoes(id_recorrencia, data_transacao);
 
 
 -- =====================================================
@@ -415,6 +422,13 @@ CREATE TABLE recorrencias (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+ALTER TABLE transacoes
+    ADD CONSTRAINT fk_transacoes_recorrencia
+        FOREIGN KEY (id_recorrencia)
+        REFERENCES recorrencias(id_recorrencia)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
 
 -- =====================================================
 -- 13. METAS FINANCEIRAS
@@ -463,6 +477,13 @@ CREATE TABLE metas (
 -- 14. MOVIMENTAÇÕES DAS METAS
 -- =====================================================
 
+ALTER TABLE transacoes
+    ADD CONSTRAINT fk_transacoes_meta
+        FOREIGN KEY (id_meta)
+        REFERENCES metas(id_meta)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
 CREATE TABLE movimentacoes_metas (
     id_movimentacao_meta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -481,7 +502,7 @@ CREATE TABLE movimentacoes_metas (
 
     data_movimentacao DATE NOT NULL,
 
-    descricao VARCHAR(255) NULL,
+    descricao VARCHAR(300) NULL,
 
     criado_em DATETIME NOT NULL
         DEFAULT CURRENT_TIMESTAMP,
