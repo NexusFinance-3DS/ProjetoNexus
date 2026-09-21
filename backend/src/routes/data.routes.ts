@@ -1,4 +1,4 @@
-import { createTransaction, parseMoney } from "../transactions";
+import { createTransaction, materializeMonthlyRecurrences, parseMoney, roundMoney } from "../transactions";
 import { upload } from "../uploads";
 import { financeOptionsRoutes } from "./finance-options.routes";
 import { Router } from "express";
@@ -39,7 +39,27 @@ dataRoutes.put("/configuracoes", async (req: AuthenticatedRequest, res, next) =>
 dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.userId!;
+    await materializeMonthlyRecurrences(userId);
+
+    const [clockRows] = await database.query<DataRow[]>(
+      "SELECT DATE_FORMAT(CURDATE(), '%Y-%m') AS mesAtual",
+    );
+    const currentMonth = String(clockRows[0]?.mesAtual || "");
+
     const [currentRows] = await database.query<DataRow[]>(
+      `SELECT
+        COALESCE(SUM(CASE WHEN tt.nome = 'Receita' THEN t.valor ELSE 0 END), 0) AS totalReceitas,
+        COALESCE(SUM(CASE WHEN tt.nome = 'Despesa' THEN t.valor ELSE 0 END), 0) AS totalDespesas
+       FROM transacoes t
+       INNER JOIN tipos_transacao tt ON tt.id_tipo_transacao = t.id_tipo_transacao
+       INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
+       WHERE t.id_usuario = ? AND st.nome = 'Confirmada'
+       AND t.data_transacao <= CURDATE()
+       AND YEAR(t.data_transacao) = YEAR(CURDATE()) AND MONTH(t.data_transacao) = MONTH(CURDATE())`,
+      [userId],
+    );
+
+    const [forecastRows] = await database.query<DataRow[]>(
       `SELECT
         COALESCE(SUM(CASE WHEN tt.nome = 'Receita' THEN t.valor ELSE 0 END), 0) AS totalReceitas,
         COALESCE(SUM(CASE WHEN tt.nome = 'Despesa' THEN t.valor ELSE 0 END), 0) AS totalDespesas
@@ -50,6 +70,7 @@ dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next
        AND YEAR(t.data_transacao) = YEAR(CURDATE()) AND MONTH(t.data_transacao) = MONTH(CURDATE())`,
       [userId],
     );
+
     const [previousRows] = await database.query<DataRow[]>(
       `SELECT
         COALESCE(SUM(CASE WHEN tt.nome = 'Receita' THEN t.valor ELSE 0 END), 0) AS totalReceitas,
@@ -57,22 +78,40 @@ dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next
        FROM transacoes t
        INNER JOIN tipos_transacao tt ON tt.id_tipo_transacao = t.id_tipo_transacao
        INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
-       WHERE t.id_usuario = ? AND st.nome <> 'Cancelada'
+       WHERE t.id_usuario = ? AND st.nome = 'Confirmada'
        AND YEAR(t.data_transacao) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
        AND MONTH(t.data_transacao) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))`,
       [userId],
     );
+
+    const [balanceRows] = await database.query<DataRow[]>(
+      `SELECT
+        COALESCE((SELECT SUM(c.saldo_inicial) FROM contas c WHERE c.id_usuario = ? AND c.ativa = TRUE), 0)
+        + COALESCE(SUM(CASE
+            WHEN st.nome = 'Confirmada' AND t.data_transacao <= CURDATE() AND tt.nome = 'Receita' THEN t.valor
+            WHEN st.nome = 'Confirmada' AND t.data_transacao <= CURDATE() AND tt.nome = 'Despesa' THEN -t.valor
+            ELSE 0
+          END), 0) AS saldoAcumulado
+       FROM transacoes t
+       INNER JOIN tipos_transacao tt ON tt.id_tipo_transacao = t.id_tipo_transacao
+       INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
+       WHERE t.id_usuario = ?`,
+      [userId, userId],
+    );
+
     const [categories] = await database.query<DataRow[]>(
       `SELECT c.nome, COALESCE(SUM(t.valor), 0) AS valor
        FROM transacoes t
        INNER JOIN categorias c ON c.id_categoria = t.id_categoria
        INNER JOIN tipos_transacao tt ON tt.id_tipo_transacao = t.id_tipo_transacao
        INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
-       WHERE t.id_usuario = ? AND tt.nome = 'Despesa' AND st.nome <> 'Cancelada'
+       WHERE t.id_usuario = ? AND tt.nome = 'Despesa' AND st.nome = 'Confirmada'
+       AND t.data_transacao <= CURDATE()
        AND YEAR(t.data_transacao) = YEAR(CURDATE()) AND MONTH(t.data_transacao) = MONTH(CURDATE())
        GROUP BY c.id_categoria, c.nome ORDER BY valor DESC`,
       [userId],
     );
+
     const [history] = await database.query<DataRow[]>(
       `SELECT DATE_FORMAT(t.data_transacao, '%Y-%m') AS periodo,
         COALESCE(SUM(CASE WHEN tt.nome = 'Receita' THEN t.valor ELSE 0 END), 0) AS receitas,
@@ -80,12 +119,13 @@ dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next
        FROM transacoes t
        INNER JOIN tipos_transacao tt ON tt.id_tipo_transacao = t.id_tipo_transacao
        INNER JOIN status_transacao st ON st.id_status_transacao = t.id_status_transacao
-       WHERE t.id_usuario = ? AND st.nome <> 'Cancelada'
+       WHERE t.id_usuario = ? AND st.nome = 'Confirmada'
+       AND t.data_transacao <= CURDATE()
        AND t.data_transacao >= DATE_SUB(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 5 MONTH)
-       AND t.data_transacao < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
        GROUP BY DATE_FORMAT(t.data_transacao, '%Y-%m') ORDER BY periodo`,
       [userId],
     );
+
     const [goals] = await database.query<DataRow[]>(
       `SELECT m.id_meta AS id, m.nome, m.valor_objetivo AS objetivo,
         COALESCE(SUM(CASE WHEN mm.tipo = 'deposito' THEN mm.valor ELSE -mm.valor END), 0) AS atual
@@ -96,28 +136,40 @@ dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next
     );
 
     const current = toTotals(currentRows[0]);
+    const forecast = toTotals(forecastRows[0]);
     const previous = toTotals(previousRows[0]);
     const currentEconomy = current.saldo;
     const previousEconomy = previous.saldo;
-    const difference = currentEconomy - previousEconomy;
-    const percent = previousEconomy === 0 ? 0 : (difference / Math.abs(previousEconomy)) * 100;
+    const difference = roundMoney(currentEconomy - previousEconomy);
+    const hasComparisonBase = previousEconomy !== 0;
+    const percent = hasComparisonBase ? roundMoney((difference / Math.abs(previousEconomy)) * 100) : null;
+    const historyByPeriod = new Map(history.map((row) => [String(row.periodo), row]));
+    const periods = sixMonthsEndingAt(currentMonth);
 
     res.json({
+      saldoAcumulado: roundMoney(Number(balanceRows[0]?.saldoAcumulado || 0)),
       atual: current,
+      realizado: current,
+      previsto: forecast,
       anterior: previous,
-      economia: { diferenca: difference, percentual: percent },
-      categorias: categories.map((row) => ({ nome: String(row.nome), valor: Number(row.valor) })),
-      historico: history.map((row) => ({
-        periodo: String(row.periodo),
-        receitas: Number(row.receitas),
-        despesas: Number(row.despesas),
-        saldo: Number(row.receitas) - Number(row.despesas),
-      })),
+      economia: {
+        diferenca: difference,
+        percentual: percent,
+        temBaseComparacao: hasComparisonBase,
+        texto: hasComparisonBase ? null : "Sem base de comparação",
+      },
+      categorias: categories.map((row) => ({ nome: String(row.nome), valor: roundMoney(Number(row.valor)) })),
+      historico: periods.map((periodo) => {
+        const row = historyByPeriod.get(periodo);
+        const receitas = roundMoney(Number(row?.receitas || 0));
+        const despesas = roundMoney(Number(row?.despesas || 0));
+        return { periodo, receitas, despesas, saldo: roundMoney(receitas - despesas) };
+      }),
       meta: goals[0] ? {
         id: Number(goals[0].id),
         nome: String(goals[0].nome),
-        objetivo: Number(goals[0].objetivo),
-        atual: Number(goals[0].atual),
+        objetivo: roundMoney(Number(goals[0].objetivo)),
+        atual: roundMoney(Number(goals[0].atual)),
       } : null,
     });
   } catch (error) {
@@ -127,6 +179,7 @@ dataRoutes.get("/financeiro/resumo", async (req: AuthenticatedRequest, res, next
 
 dataRoutes.get("/financeiro/transacoes", async (req: AuthenticatedRequest, res, next) => {
   try {
+    await materializeMonthlyRecurrences(req.userId!);
     const [rows] = await database.query<DataRow[]>(
       `SELECT t.id_transacao AS id, t.descricao, t.valor,
         DATE_FORMAT(t.data_transacao, '%Y-%m-%d') AS data,
@@ -158,6 +211,7 @@ dataRoutes.get("/financeiro/transacoes", async (req: AuthenticatedRequest, res, 
         observacao: row.observacao ? String(row.observacao) : "",
         conta: String(row.conta),
         tipoConta: String(row.tipoConta),
+        realizado: String(row.status) === "Confirmada" && String(row.data) <= new Date().toISOString().slice(0, 10),
         anexos: attachments.filter((item) => String(item.transacaoId) === String(row.id)).map((item) => ({ id: String(item.id), nome: String(item.nome), tamanho: Number(item.tamanho), url: `/financeiro/anexos/${item.id}` })),
       })),
     });
@@ -201,8 +255,8 @@ dataRoutes.post("/metas", async (req: AuthenticatedRequest, res, next) => {
     try {
       await connection.beginTransaction();
       const [result] = await connection.execute<ResultSetHeader>(
-        "INSERT INTO metas (id_usuario, nome, valor_objetivo, data_inicio) VALUES (?, ?, ?, CURDATE())",
-        [req.userId!, name, target],
+        "INSERT INTO metas (id_usuario, nome, valor_objetivo, data_inicio, status) VALUES (?, ?, ?, CURDATE(), ?)",
+        [req.userId!, name, target, current >= target ? "concluida" : "em_andamento"],
       );
       if (current > 0) {
         await connection.execute(
@@ -284,7 +338,18 @@ dataRoutes.put("/usuarios/me", async (req: AuthenticatedRequest, res, next) => {
 });
 
 function toTotals(row: DataRow | undefined) {
-  const receitas = Number(row?.totalReceitas || 0);
-  const despesas = Number(row?.totalDespesas || 0);
-  return { totalReceitas: receitas, totalDespesas: despesas, saldo: receitas - despesas };
+  const receitas = roundMoney(Number(row?.totalReceitas || 0));
+  const despesas = roundMoney(Number(row?.totalDespesas || 0));
+  return { totalReceitas: receitas, totalDespesas: despesas, saldo: roundMoney(receitas - despesas) };
+}
+
+function sixMonthsEndingAt(period: string): string[] {
+  const match = /^(\d{4})-(\d{2})$/.exec(period);
+  if (!match) return [];
+  const year = Number(match[1]);
+  const monthIndex = Number(match[2]) - 1;
+  return Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(Date.UTC(year, monthIndex - (5 - index), 1));
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+  });
 }

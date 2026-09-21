@@ -10,22 +10,111 @@ export function positiveId(value: unknown): number | null {
   return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
+export function roundMoney(value: number): number {
+  if (!Number.isFinite(value)) return Number.NaN;
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
 export function parseMoney(value: unknown): number {
-  if (typeof value === "number") return value;
+  if (typeof value === "number") return roundMoney(value);
   if (typeof value !== "string") return Number.NaN;
   const clean = value.trim().replace(/\s/g, "").replace(/^R\$/, "");
   if (!clean) return Number.NaN;
   if (clean.includes(",")) {
     if (!/^(?:\d{1,3}(?:\.\d{3})*|\d+),\d{1,2}$/.test(clean)) return Number.NaN;
-    return Number(clean.replace(/\./g, "").replace(",", "."));
+    return roundMoney(Number(clean.replace(/\./g, "").replace(",", ".")));
   }
-  return /^\d+(?:\.\d{1,2})?$/.test(clean) ? Number(clean) : Number.NaN;
+  return /^\d+(?:\.\d{1,2})?$/.test(clean) ? roundMoney(Number(clean)) : Number.NaN;
 }
 
 export function validTransactionDate(date: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number(date.slice(0, 4)) < 1000) return false;
   const parsed = new Date(`${date}T00:00:00Z`);
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date;
+}
+
+function sqlDate(value: unknown): string {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value || "").slice(0, 10);
+}
+
+function addMonthsClamped(date: string, months: number): string {
+  const [year, month, day] = date.split("-").map(Number);
+  const targetIndex = month - 1 + months;
+  const targetYear = year + Math.floor(targetIndex / 12);
+  const targetMonth = ((targetIndex % 12) + 12) % 12;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  const targetDay = Math.min(day, lastDay);
+  return `${targetYear}-${String(targetMonth + 1).padStart(2, "0")}-${String(targetDay).padStart(2, "0")}`;
+}
+
+export async function materializeMonthlyRecurrences(userId: number): Promise<number> {
+  const [[clock]] = await database.query<RowDataPacket[]>(
+    "SELECT DATE_FORMAT(LAST_DAY(DATE_ADD(CURDATE(), INTERVAL 1 MONTH)), '%Y-%m-%d') AS horizon",
+  );
+  const horizon = String(clock?.horizon || "");
+  if (!validTransactionDate(horizon)) return 0;
+
+  // Backfill the recurrence id for records created before this rule existed.
+  await database.execute(
+    `UPDATE transacoes t
+     INNER JOIN recorrencias r ON r.id_transacao_origem = t.id_transacao
+     SET t.id_recorrencia = r.id_recorrencia
+     WHERE t.id_usuario = ? AND t.id_recorrencia IS NULL`,
+    [userId],
+  );
+
+  const [[pendingStatus]] = await database.query<RowDataPacket[]>(
+    "SELECT id_status_transacao AS id FROM status_transacao WHERE nome = 'Pendente' LIMIT 1",
+  );
+  if (!pendingStatus) return 0;
+
+  const [recurrences] = await database.query<RowDataPacket[]>(
+    `SELECT r.id_recorrencia AS recurrenceId, r.data_inicio, r.data_fim,
+            t.id_conta, t.id_categoria, t.id_tipo_transacao, t.id_meta,
+            t.descricao, t.valor, t.observacao
+     FROM recorrencias r
+     INNER JOIN transacoes t ON t.id_transacao = r.id_transacao_origem
+     WHERE r.id_usuario = ? AND r.ativa = TRUE AND r.frequencia = 'mensal'
+       AND r.data_inicio <= ?`,
+    [userId, horizon],
+  );
+
+  let generated = 0;
+  for (const recurrence of recurrences) {
+    const start = sqlDate(recurrence.data_inicio);
+    const end = recurrence.data_fim ? sqlDate(recurrence.data_fim) : null;
+    if (!validTransactionDate(start)) continue;
+
+    // A rolling horizon avoids filling the account with years of future entries.
+    for (let offset = 1; offset <= 600; offset += 1) {
+      const occurrence = addMonthsClamped(start, offset);
+      if (occurrence > horizon || (end && occurrence > end)) break;
+
+      const [created] = await database.execute<ResultSetHeader>(
+        `INSERT IGNORE INTO transacoes
+          (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao,
+           id_recorrencia, id_meta, descricao, valor, data_transacao, observacao)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId,
+          recurrence.id_conta,
+          recurrence.id_categoria,
+          recurrence.id_tipo_transacao,
+          pendingStatus.id,
+          recurrence.recurrenceId,
+          recurrence.id_meta || null,
+          recurrence.descricao,
+          roundMoney(Number(recurrence.valor)),
+          occurrence,
+          recurrence.observacao || null,
+        ],
+      );
+      generated += created.affectedRows;
+    }
+  }
+
+  return generated;
 }
 
 export async function createTransaction(userId: number, body: Record<string, unknown>, file?: Express.Multer.File) {
@@ -38,6 +127,7 @@ export async function createTransaction(userId: number, body: Record<string, unk
   const value = parseMoney(body.valor);
   const date = normalizeDate(body.data);
   const notes = typeof body.observacao === "string" ? body.observacao.trim() : null;
+  const statusName = body.status === "Pendente" ? "Pendente" : "Confirmada";
 
   if (!typeName) throw new ApiError(400, "Tipo de transação inválido.");
   if (description.length < 2 || description.length > 255) throw new ApiError(400, "A descrição deve ter entre 2 e 255 caracteres.");
@@ -61,7 +151,7 @@ export async function createTransaction(userId: number, body: Record<string, unk
     if (!user) throw new ApiError(401, "Usuário não encontrado.");
 
     const [[type]] = await connection.query<RowDataPacket[]>("SELECT id_tipo_transacao AS id FROM tipos_transacao WHERE nome = ? LIMIT 1", [typeName]);
-    const [[status]] = await connection.query<RowDataPacket[]>("SELECT id_status_transacao AS id FROM status_transacao WHERE nome = ? LIMIT 1", [body.status === "Pendente" ? "Pendente" : "Confirmada"]);
+    const [[status]] = await connection.query<RowDataPacket[]>("SELECT id_status_transacao AS id FROM status_transacao WHERE nome = ? LIMIT 1", [statusName]);
     if (!type || !status) throw new ApiError(409, "Dados iniciais do banco não foram encontrados.");
 
     let goal: RowDataPacket | undefined;
@@ -103,12 +193,13 @@ export async function createTransaction(userId: number, body: Record<string, unk
     }
 
     const [result] = await connection.execute<ResultSetHeader>(
-      `INSERT INTO transacoes (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao, descricao, valor, data_transacao, observacao)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, account.id, category.id, type.id, status.id, description, value, date, notes],
+      `INSERT INTO transacoes
+        (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao, id_meta, descricao, valor, data_transacao, observacao)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [userId, account.id, category.id, type.id, status.id, metaId, description, value, date, notes],
     );
 
-    if (metaId && goal) {
+    if (metaId && goal && statusName === "Confirmada") {
       await connection.execute(
         `INSERT INTO movimentacoes_metas (id_meta, id_transacao, tipo, valor, data_movimentacao, descricao)
          VALUES (?, ?, 'deposito', ?, ?, ?)`,
@@ -128,7 +219,14 @@ export async function createTransaction(userId: number, body: Record<string, unk
     }
 
     if (body.recorrente === true || body.recorrente === "true") {
-      await connection.execute("INSERT INTO recorrencias (id_usuario, id_transacao_origem, frequencia, data_inicio) VALUES (?, ?, 'mensal', ?)", [userId, result.insertId, date]);
+      const [recurrence] = await connection.execute<ResultSetHeader>(
+        "INSERT INTO recorrencias (id_usuario, id_transacao_origem, frequencia, data_inicio) VALUES (?, ?, 'mensal', ?)",
+        [userId, result.insertId, date],
+      );
+      await connection.execute(
+        "UPDATE transacoes SET id_recorrencia = ? WHERE id_transacao = ? AND id_usuario = ?",
+        [recurrence.insertId, result.insertId, userId],
+      );
     }
 
     let attachmentId: number | undefined;
@@ -153,8 +251,14 @@ export async function createTransaction(userId: number, body: Record<string, unk
 
     await connection.commit();
 
+    const message = metaId && statusName === "Pendente"
+      ? `${typeName} salva como pendente. A meta será atualizada quando a receita for confirmada.`
+      : metaId
+        ? `${typeName} salva e adicionada à meta com sucesso.`
+        : `${typeName} salva com sucesso.`;
+
     return {
-      mensagem: metaId ? `${typeName} salva e adicionada à meta com sucesso.` : `${typeName} salva com sucesso.`,
+      mensagem: message,
       id: result.insertId,
       anexoId: attachmentId,
     };
