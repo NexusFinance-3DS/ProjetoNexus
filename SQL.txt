@@ -397,6 +397,8 @@ CREATE TABLE recorrencias (
 
     data_fim DATE NULL,
 
+    ultima_geracao DATE NULL,
+
     ativa BOOLEAN NOT NULL DEFAULT TRUE,
 
     criado_em DATETIME NOT NULL

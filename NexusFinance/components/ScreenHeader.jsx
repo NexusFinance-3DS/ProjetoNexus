@@ -46,17 +46,38 @@ export default function ScreenHeader({ onLayout }) {
 
   return (
     <View style={styles.header} onLayout={onLayout}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Voltar" onPress={goBack} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Voltar"
+        onPress={goBack}
+        style={({ pressed }) => [styles.back, pressed && styles.pressed]}
+      >
         <Icon name="arrow-back" size={26} color={colors.textPrimary} />
       </Pressable>
-      <Text accessibilityRole="header" style={styles.title}>{title}</Text>
+      <Text accessibilityRole="header" style={styles.title}>
+        {title}
+      </Text>
     </View>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
-  header: { minHeight: 60, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  back: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  pressed: { backgroundColor: colors.pressed },
-  title: { flex: 1, color: colors.textPrimary, fontSize: 21, fontWeight: '600' },
-});
+const createStyles = (colors) =>
+  StyleSheet.create({
+    header: {
+      minHeight: 60,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    back: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pressed: { backgroundColor: colors.pressed },
+    title: { flex: 1, color: colors.textPrimary, fontSize: 21, fontWeight: '600' },
+  });

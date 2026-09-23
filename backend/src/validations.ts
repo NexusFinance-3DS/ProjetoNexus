@@ -1,5 +1,5 @@
 export function normalizeEmail(email: unknown): string {
-  return typeof email === "string" ? email.trim().toLowerCase() : "";
+  return typeof email === 'string' ? email.trim().toLowerCase() : '';
 }
 
 export function isValidEmail(email: string): boolean {
@@ -7,7 +7,7 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function onlyNumbers(value: unknown): string {
-  return typeof value === "string" ? value.replace(/\D/g, "") : "";
+  return typeof value === 'string' ? value.replace(/\D/g, '') : '';
 }
 
 export function isValidCpf(value: string): boolean {
@@ -27,7 +27,7 @@ export function isValidCpf(value: string): boolean {
 }
 
 export function normalizeDate(value: unknown): string {
-  if (typeof value !== "string") return "";
+  if (typeof value !== 'string') return '';
   const date = value.trim();
   const brazilian = date.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   return brazilian ? `${brazilian[3]}-${brazilian[2]}-${brazilian[1]}` : date;
@@ -43,9 +43,10 @@ export function isValidBirthDate(value: string): boolean {
 }
 
 export function passwordError(password: unknown): string | null {
-  if (typeof password !== "string" || password.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
-  if (!/[a-z]/.test(password)) return "A senha deve ter uma letra minúscula.";
-  if (!/[A-Z]/.test(password)) return "A senha deve ter uma letra maiúscula.";
-  if (!/\d/.test(password)) return "A senha deve ter um número.";
+  if (typeof password !== 'string' || password.length < 8)
+    return 'A senha deve ter pelo menos 8 caracteres.';
+  if (!/[a-z]/.test(password)) return 'A senha deve ter uma letra minúscula.';
+  if (!/[A-Z]/.test(password)) return 'A senha deve ter uma letra maiúscula.';
+  if (!/\d/.test(password)) return 'A senha deve ter um número.';
   return null;
 }

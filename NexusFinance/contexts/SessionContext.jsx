@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { apiRequest } from "../services/api";
-import { obterToken, removerToken, salvarToken } from "../services/session";
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { apiRequest } from '../services/api';
+import { obterToken, removerToken, salvarToken } from '../services/session';
 
 const SessionContext = createContext(null);
 
@@ -17,7 +17,7 @@ export function SessionProvider({ children }) {
         return;
       }
       try {
-        const response = await apiRequest("/auth/sessao", {
+        const response = await apiRequest('/auth/sessao', {
           headers: { Authorization: `Bearer ${savedToken}` },
         });
         setToken(savedToken);
@@ -43,21 +43,24 @@ export function SessionProvider({ children }) {
     setUsuario(null);
   }
 
-  const value = useMemo(() => ({
-    token,
-    usuario,
-    carregando,
-    autenticado: Boolean(token),
-    iniciarSessao,
-    encerrarSessao,
-    setUsuario,
-  }), [token, usuario, carregando]);
+  const value = useMemo(
+    () => ({
+      token,
+      usuario,
+      carregando,
+      autenticado: Boolean(token),
+      iniciarSessao,
+      encerrarSessao,
+      setUsuario,
+    }),
+    [token, usuario, carregando],
+  );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
 export function useSession() {
   const context = useContext(SessionContext);
-  if (!context) throw new Error("useSession deve ser usado dentro de SessionProvider.");
+  if (!context) throw new Error('useSession deve ser usado dentro de SessionProvider.');
   return context;
 }

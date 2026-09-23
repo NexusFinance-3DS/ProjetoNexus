@@ -1,10 +1,10 @@
-import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const TOKEN_KEY = "nexus_token";
+const TOKEN_KEY = 'nexus_token';
 
 export async function salvarToken(token) {
-  if (Platform.OS === "web") {
+  if (Platform.OS === 'web') {
     localStorage.setItem(TOKEN_KEY, token);
     return;
   }
@@ -12,12 +12,12 @@ export async function salvarToken(token) {
 }
 
 export async function obterToken() {
-  if (Platform.OS === "web") return localStorage.getItem(TOKEN_KEY);
+  if (Platform.OS === 'web') return localStorage.getItem(TOKEN_KEY);
   return SecureStore.getItemAsync(TOKEN_KEY);
 }
 
 export async function removerToken() {
-  if (Platform.OS === "web") {
+  if (Platform.OS === 'web') {
     localStorage.removeItem(TOKEN_KEY);
     return;
   }

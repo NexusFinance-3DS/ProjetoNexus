@@ -3,7 +3,7 @@ export function validarEmail(email) {
 }
 
 export function validarCpf(valor) {
-  const cpf = valor.replace(/\D/g, "");
+  const cpf = valor.replace(/\D/g, '');
   if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
 
   const digito = (tamanho) => {
@@ -20,20 +20,20 @@ export function validarCpf(valor) {
 
 export function validarDataNascimento(valor) {
   const brasileira = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  const normalizada = brasileira
-    ? `${brasileira[3]}-${brasileira[2]}-${brasileira[1]}`
-    : valor;
+  const normalizada = brasileira ? `${brasileira[3]}-${brasileira[2]}-${brasileira[1]}` : valor;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizada)) return false;
   const data = new Date(`${normalizada}T00:00:00`);
-  return !Number.isNaN(data.getTime())
-    && data.toISOString().slice(0, 10) === normalizada
-    && data < new Date();
+  return (
+    !Number.isNaN(data.getTime()) &&
+    data.toISOString().slice(0, 10) === normalizada &&
+    data < new Date()
+  );
 }
 
 export function erroSenha(senha) {
-  if (senha.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
-  if (!/[a-z]/.test(senha)) return "A senha deve ter uma letra minúscula.";
-  if (!/[A-Z]/.test(senha)) return "A senha deve ter uma letra maiúscula.";
-  if (!/\d/.test(senha)) return "A senha deve ter um número.";
-  return "";
+  if (senha.length < 8) return 'A senha deve ter pelo menos 8 caracteres.';
+  if (!/[a-z]/.test(senha)) return 'A senha deve ter uma letra minúscula.';
+  if (!/[A-Z]/.test(senha)) return 'A senha deve ter uma letra maiúscula.';
+  if (!/\d/.test(senha)) return 'A senha deve ter um número.';
+  return '';
 }

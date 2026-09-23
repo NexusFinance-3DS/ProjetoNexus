@@ -5,7 +5,10 @@ import { View } from 'react-native';
 export default function MeasuredChart({ children }) {
   const [width, setWidth] = useState(0);
   return (
-    <View style={{ width: '100%', overflow: 'hidden' }} onLayout={({ nativeEvent }) => setWidth(Math.floor(nativeEvent.layout.width))}>
+    <View
+      style={{ width: '100%', overflow: 'hidden' }}
+      onLayout={({ nativeEvent }) => setWidth(Math.floor(nativeEvent.layout.width))}
+    >
       {width > 0 ? children(width) : null}
     </View>
   );
