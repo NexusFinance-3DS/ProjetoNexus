@@ -1,6 +1,6 @@
 import { financialSummary } from '../finance';
 import { generateRecurrences } from '../recurrences';
-import { confirmTransaction, createTransaction, parseMoney } from '../transactions';
+import { confirmTransaction, createTransaction, parseMoney, positiveId } from '../transactions';
 import { upload } from '../uploads';
 import { financeOptionsRoutes } from './finance-options.routes';
 import { Router } from 'express';
@@ -228,6 +228,89 @@ dataRoutes.post('/metas', async (req: AuthenticatedRequest, res, next) => {
     } finally {
       connection.release();
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+dataRoutes.put('/metas/:id', async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const id = positiveId(req.params.id);
+    const name = typeof req.body.nome === 'string' ? req.body.nome.trim() : '';
+    const target = parseMoney(req.body.objetivo);
+    const current = parseMoney(req.body.atual ?? 0);
+
+    if (!id) return res.status(400).json({ mensagem: 'Meta inválida.' });
+    if (name.length < 2 || name.length > 150)
+      return res
+        .status(400)
+        .json({ mensagem: 'O nome da meta deve ter entre 2 e 150 caracteres.' });
+    if (!Number.isFinite(target) || target <= 0 || target > 9999999999.99)
+      return res.status(400).json({ mensagem: 'Informe um objetivo válido.' });
+    if (!Number.isFinite(current) || current < 0 || current > 9999999999.99)
+      return res.status(400).json({ mensagem: 'Informe um valor atual válido.' });
+
+    const connection = await database.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [[goal]] = await connection.query<RowDataPacket[]>(
+        'SELECT id_meta FROM metas WHERE id_meta = ? AND id_usuario = ? FOR UPDATE',
+        [id, req.userId!],
+      );
+      if (!goal) {
+        await connection.rollback();
+        return res.status(404).json({ mensagem: 'Meta não encontrada.' });
+      }
+
+      const [[totalRow]] = await connection.query<RowDataPacket[]>(
+        `SELECT COALESCE(SUM(CASE WHEN tipo = 'deposito' THEN valor ELSE -valor END), 0) AS atual
+         FROM movimentacoes_metas WHERE id_meta = ?`,
+        [id],
+      );
+      const previousCurrent = Number(totalRow?.atual || 0);
+      const difference = Math.round((current - previousCurrent) * 100) / 100;
+
+      if (difference !== 0) {
+        await connection.execute(
+          `INSERT INTO movimentacoes_metas (id_meta, tipo, valor, data_movimentacao, descricao)
+           VALUES (?, ?, ?, CURDATE(), 'Ajuste manual da meta')`,
+          [id, difference > 0 ? 'deposito' : 'retirada', Math.abs(difference)],
+        );
+      }
+
+      await connection.execute(
+        'UPDATE metas SET nome = ?, valor_objetivo = ?, status = ? WHERE id_meta = ? AND id_usuario = ?',
+        [name, target, current >= target ? 'concluida' : 'em_andamento', id, req.userId!],
+      );
+      await connection.commit();
+      res.json({
+        mensagem: current >= target ? 'Meta atualizada e concluída.' : 'Meta atualizada com sucesso.',
+      });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+dataRoutes.delete('/metas/:id', async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const id = positiveId(req.params.id);
+    if (!id) return res.status(400).json({ mensagem: 'Meta inválida.' });
+
+    const [result] = await database.execute<ResultSetHeader>(
+      'DELETE FROM metas WHERE id_meta = ? AND id_usuario = ?',
+      [id, req.userId!],
+    );
+    if (!result.affectedRows)
+      return res.status(404).json({ mensagem: 'Meta não encontrada.' });
+
+    res.json({ mensagem: 'Meta excluída com sucesso.' });
   } catch (error) {
     next(error);
   }

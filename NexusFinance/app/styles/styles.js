@@ -1369,6 +1369,26 @@ function createAppStyles(colors) {
       marginBottom: 15,
     },
 
+    cardConcluida: {
+      borderWidth: 1,
+      borderColor: colors.success,
+    },
+
+    acoesCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+
+    botaoAcao: {
+      width: 38,
+      height: 38,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceElevated,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
     nomeMeta: {
       color: colors.textPrimary,
       fontSize: 20,
@@ -1391,6 +1411,28 @@ function createAppStyles(colors) {
       borderRadius: 50,
     },
 
+    progressFillConcluida: {
+      backgroundColor: colors.success,
+    },
+
+    concluidaBadge: {
+      alignSelf: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingVertical: 7,
+      paddingHorizontal: 10,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceElevated,
+      marginBottom: 12,
+    },
+
+    concluidaTexto: {
+      color: colors.success,
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+
     infoLinha: {
       flexWrap: 'wrap',
       gap: 8,
@@ -1404,12 +1446,27 @@ function createAppStyles(colors) {
       fontSize: 15,
     },
 
+    statusMeta: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      marginTop: 8,
+    },
+
+    statusConcluida: {
+      color: colors.success,
+      fontWeight: 'bold',
+    },
+
     porcentagem: {
       color: colors.textLink,
       fontWeight: 'bold',
       fontSize: 20,
       marginTop: 12,
       textAlign: 'right',
+    },
+
+    porcentagemConcluida: {
+      color: colors.success,
     },
 
     botaoAdicionar: {
@@ -1446,6 +1503,41 @@ function createAppStyles(colors) {
       backgroundColor: colors.surfaceMuted,
       borderRadius: 25,
       padding: 22,
+    },
+
+    modalBackgroundExcluir: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: 25,
+    },
+
+    modalExcluir: {
+      maxWidth: 460,
+      width: '100%',
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: 25,
+      padding: 22,
+      alignItems: 'center',
+    },
+
+    iconeExcluir: {
+      width: 58,
+      height: 58,
+      borderRadius: 29,
+      backgroundColor: colors.surfaceElevated,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+
+    textoConfirmacao: {
+      color: colors.textSecondary,
+      fontSize: 15,
+      lineHeight: 22,
+      textAlign: 'center',
+      marginBottom: 8,
     },
 
     modalTitulo: {
@@ -1503,6 +1595,23 @@ function createAppStyles(colors) {
     },
 
     salvarTexto: {
+      color: colors.onPrimary,
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+
+    excluir: {
+      width: '47%',
+      minHeight: 50,
+      paddingVertical: 12,
+      paddingHorizontal: 8,
+      backgroundColor: colors.danger,
+      borderRadius: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    excluirTexto: {
       color: colors.onPrimary,
       fontWeight: 'bold',
       fontSize: 16,
