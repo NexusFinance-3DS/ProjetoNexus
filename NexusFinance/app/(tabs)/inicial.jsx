@@ -82,7 +82,7 @@ export default function Inicial() {
   const [saldoVisivel, setSaldoVisivel] = useState(true);
   const { usuario } = useSession();
   const { dados, erro, carregando, recarregar } = useResumoFinanceiro();
-  const amount = (value) => (saldoVisivel ? formatBRL(value) : '••••••');
+  const amount = (value) => (saldoVisivel ? formatBRL(value) : '******');
   const totals = dados.atual;
   const economiaComp = { percent: dados.economia.percentual, diff: dados.economia.diferenca };
 
@@ -178,8 +178,10 @@ export default function Inicial() {
           ) : null}
           {!carregando && !erro ? (
             <>
-              <Text style={styles.title}>Visão Rápida</Text>
-              <Text style={sharedStyles.mutedCaption}>Realizado no mês até hoje</Text>
+             <Text style={[styles.title, { marginTop: -10 }]}>
+  Visão Rápida
+</Text>
+              <Text style={{color: '#bdbdbd', marginTop: -15, marginBottom: 10}}>Realizado no mês até hoje</Text>
               <ScrollView
                 horizontal
                 onLayout={({ nativeEvent }) =>
@@ -189,7 +191,7 @@ export default function Inicial() {
                 contentContainerStyle={sharedStyles.paddingRight16}
               >
                 <QuickCard
-                  width={quickWidth}
+                  width={190}
                   delay={0}
                   icon="arrow-upward"
                   iconColor={colors.success}
@@ -201,7 +203,7 @@ export default function Inicial() {
                   }
                 />
                 <QuickCard
-                  width={quickWidth}
+                  width={190}
                   delay={80}
                   icon="arrow-downward"
                   iconColor={colors.danger}
@@ -213,7 +215,8 @@ export default function Inicial() {
                   }
                 />
                 <QuickCard
-                  width={quickWidth}
+                  width={190}
+                  height={150}
                   delay={160}
                   icon="savings"
                   iconColor={colors.primary}

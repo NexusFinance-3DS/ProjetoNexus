@@ -59,55 +59,6 @@ export default function FinancialOverview({ dados, visible = true, home = false 
     <View style={styles.overview}>
       <View style={[styles.grid, wide && styles.columns]}>
         <Card
-          title="Resumo financeiro"
-          subtitle={`${reference} · valores realizados e previsão do mês`}
-          style={wide && styles.column}
-          action={home ? 'Ver relatórios' : undefined}
-          onPress={() => router.push('/relatorios')}
-        >
-          {[
-            ['Receitas', current.totalReceitas, forecast.totalReceitas, colors.success],
-            ['Despesas', current.totalDespesas, forecast.totalDespesas, colors.danger],
-            [
-              'Resultado do mês',
-              current.saldo,
-              forecast.saldo,
-              current.saldo < 0 ? colors.danger : colors.textLink,
-            ],
-          ].map(([label, realized, predicted, color]) => (
-            <View key={label} style={styles.summaryRow}>
-              <Text style={styles.rowLabel}>{label}</Text>
-              <View style={styles.values}>
-                <View style={styles.valueColumn}>
-                  <Text style={styles.small}>Realizado</Text>
-                  <Text style={[styles.amount, { color }]}>{amount(realized)}</Text>
-                </View>
-                <View style={styles.valueColumn}>
-                  <Text style={styles.small}>Previsto no mês</Text>
-                  <Text style={styles.amount}>{amount(predicted)}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-          <Text style={styles.caption}>{visible ? comparison : 'Comparação oculta'}</Text>
-          <View style={styles.forecast}>
-            <Text style={styles.rowLabel}>Saldo previsto no fim do mês</Text>
-            <Text
-              style={[
-                styles.bigAmount,
-                { color: dados.saldoPrevisto < 0 ? colors.danger : colors.textLink },
-              ]}
-            >
-              {amount(dados.saldoPrevisto)}
-            </Text>
-            <Text style={styles.caption}>
-              Saldo disponível + valores a realizar até o fim do mês, incluindo pendências
-              anteriores.
-            </Text>
-          </View>
-        </Card>
-
-        <Card
           title="Evolução dos resultados"
           subtitle="Últimos 6 meses · receitas menos despesas realizadas"
           style={wide && styles.column}
