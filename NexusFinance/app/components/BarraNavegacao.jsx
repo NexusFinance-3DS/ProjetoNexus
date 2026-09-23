@@ -1,40 +1,48 @@
-import { ScreenHeaderHeightContext } from "../../components/ScreenHeader";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import React, { useState } from "react";
-import { View, Text, Pressable, TouchableWithoutFeedback, Keyboard, ScrollView, useWindowDimensions } from "react-native";
-import { router, usePathname } from "expo-router";
-import Icon from "@expo/vector-icons/MaterialIcons";
-import * as Haptics from "expo-haptics";
+import { ScreenHeaderHeightContext } from '../../components/ScreenHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Pressable,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
+import { router, usePathname } from 'expo-router';
+import Icon from '@expo/vector-icons/MaterialIcons';
+import * as Haptics from 'expo-haptics';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   FadeIn,
   FadeOut,
-} from "react-native-reanimated";
+} from 'react-native-reanimated';
 
-import { useAppStyles } from "../styles/styles";
+import { useAppStyles } from '../styles/styles';
 
 const TABS = [
-  { key: "inicial", route: "/inicial", label: "Início", icon: "home" },
-  { key: "fluxoFinanceiro", route: "/fluxoFinanceiro", label: "Fluxo", icon: "swap-horiz" },
-  { key: "add", route: null, label: "", icon: "add" },
-  { key: "metas", route: "/metas", label: "Metas", icon: "radar" },
-  { key: "more", route: null, label: "Mais", icon: "menu" },
+  { key: 'inicial', route: '/inicial', label: 'Início', icon: 'home' },
+  { key: 'fluxoFinanceiro', route: '/fluxoFinanceiro', label: 'Fluxo', icon: 'swap-horiz' },
+  { key: 'add', route: null, label: '', icon: 'add' },
+  { key: 'metas', route: '/metas', label: 'Metas', icon: 'radar' },
+  { key: 'more', route: null, label: 'Mais', icon: 'menu' },
 ];
 
 const ADD_ACTIONS = [
-  { label: "Receitas", icon: "attach-money", route: "/receita/novaReceita" },
-  { label: "Despesas", icon: "receipt", route: "/despesa/novaDespesa" },
-  { label: "Categoria", icon: "category", route: "/categoria" },
-  { label: "Metas", icon: "flag", route: "/metas" },
+  { label: 'Receitas', icon: 'attach-money', route: '/receita/novaReceita' },
+  { label: 'Despesas', icon: 'receipt', route: '/despesa/novaDespesa' },
+  { label: 'Categoria', icon: 'category', route: '/categoria' },
+  { label: 'Metas', icon: 'flag', route: '/metas' },
 ];
 
 const MORE_ACTIONS = [
-  { label: "Dashboard", icon: "bar-chart", route: "/dashboard" },
-  { label: "Relatórios", icon: "description", route: "/relatorios" },
-  { label: "Perfil", icon: "person", route: "/perfil" },
-  { label: "Config.", icon: "settings", route: "/configuracoes" },
+  { label: 'Dashboard', icon: 'bar-chart', route: '/dashboard' },
+  { label: 'Relatórios', icon: 'description', route: '/relatorios' },
+  { label: 'Perfil', icon: 'person', route: '/perfil' },
+  { label: 'Config.', icon: 'settings', route: '/configuracoes' },
 ];
 
 function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
@@ -52,7 +60,7 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
     scale.value = withTiming(1, { duration: 120 });
   };
 
-  if (tab.key === "add") {
+  if (tab.key === 'add') {
     return (
       <Pressable
         accessibilityRole="button"
@@ -63,12 +71,7 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
         hitSlop={10}
         style={styles.fabPressable}
       >
-        <Animated.View
-          style={[
-            style,
-            styles.fab,
-          ]}
-        >
+        <Animated.View style={[style, styles.fab]}>
           <Icon name="add" size={37} color={colors.onPrimary} />
         </Animated.View>
       </Pressable>
@@ -89,11 +92,11 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
         <View
           style={[
             styles.tabPill,
-            { backgroundColor: isActive || isOpen ? colors.primarySoft : "transparent" },
+            { backgroundColor: isActive || isOpen ? colors.primarySoft : 'transparent' },
           ]}
         >
           <Icon
-            name={tab.key === "more" && isOpen ? "close" : tab.icon}
+            name={tab.key === 'more' && isOpen ? 'close' : tab.icon}
             size={24}
             color={isActive || isOpen ? colors.primary : colors.textSecondary}
           />
@@ -102,16 +105,14 @@ function AnimatedTabButton({ tab, isActive, isOpen, onPress }) {
           style={[
             styles.tabText,
             {
-              fontWeight: isActive ? "700" : "500",
+              fontWeight: isActive ? '700' : '500',
               color: isActive || isOpen ? colors.primary : colors.textSecondary,
             },
           ]}
         >
           {tab.label}
         </Text>
-        {isActive && (
-          <View style={styles.activeDot} />
-        )}
+        {isActive && <View style={styles.activeDot} />}
       </Animated.View>
     </Pressable>
   );
@@ -133,30 +134,33 @@ function MenuExpandido({ items, onSelect }) {
   }));
 
   return (
-    <Animated.View
-      style={[
-        animStyle,
-        styles.expandedMenu,
-      ]}
-    >
-      <ScrollView style={{ maxHeight: Math.max(80, height - headerHeight - insets.bottom - 110), width: "100%" }} contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-around" }}>
-      {items.map((item) => (
-        <Pressable
-          key={item.label}
-          onPress={() => onSelect(item.route)}
-          style={({ pressed }) => [
-            styles.expandedMenuItem,
-            { backgroundColor: pressed ? colors.primarySoft : "transparent" },
-          ]}
-        >
-          <View style={styles.expandedMenuIcon}>
-            <Icon name={item.icon} size={22} color={colors.primary} />
-          </View>
-          <Text style={styles.expandedMenuLabel}>
-            {item.label}
-          </Text>
-        </Pressable>
-      ))}
+    <Animated.View style={[animStyle, styles.expandedMenu]}>
+      <ScrollView
+        style={{
+          maxHeight: Math.max(80, height - headerHeight - insets.bottom - 110),
+          width: '100%',
+        }}
+        contentContainerStyle={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-around',
+        }}
+      >
+        {items.map((item) => (
+          <Pressable
+            key={item.label}
+            onPress={() => onSelect(item.route)}
+            style={({ pressed }) => [
+              styles.expandedMenuItem,
+              { backgroundColor: pressed ? colors.primarySoft : 'transparent' },
+            ]}
+          >
+            <View style={styles.expandedMenuIcon}>
+              <Icon name={item.icon} size={22} color={colors.primary} />
+            </View>
+            <Text style={styles.expandedMenuLabel}>{item.label}</Text>
+          </Pressable>
+        ))}
       </ScrollView>
     </Animated.View>
   );
@@ -168,9 +172,15 @@ export default function BarraNavegacao() {
   const pathname = usePathname();
   const [keyboardVisible, setKeyboardVisible] = useState(Keyboard.isVisible());
   React.useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", () => { setKeyboardVisible(true); setMenuAberto(null); });
-    const hide = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
-    return () => { show.remove(); hide.remove(); };
+    const show = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+      setMenuAberto(null);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
   }, []);
 
   const irPara = (route) => {
@@ -182,7 +192,7 @@ export default function BarraNavegacao() {
     if (Haptics?.impactAsync) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     }
-    if (tab.key === "add" || tab.key === "more") {
+    if (tab.key === 'add' || tab.key === 'more') {
       setMenuAberto((prev) => (prev === tab.key ? null : tab.key));
     } else {
       irPara(tab.route);
@@ -203,8 +213,8 @@ export default function BarraNavegacao() {
         </TouchableWithoutFeedback>
       )}
 
-      {menuAberto === "add" && <MenuExpandido items={ADD_ACTIONS} onSelect={irPara} />}
-      {menuAberto === "more" && <MenuExpandido items={MORE_ACTIONS} onSelect={irPara} />}
+      {menuAberto === 'add' && <MenuExpandido items={ADD_ACTIONS} onSelect={irPara} />}
+      {menuAberto === 'more' && <MenuExpandido items={MORE_ACTIONS} onSelect={irPara} />}
 
       <View style={styles.currentTabBar}>
         {TABS.map((tab) => (

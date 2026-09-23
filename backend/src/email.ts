@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
-import { config } from "./config";
+import nodemailer from 'nodemailer';
+import { config } from './config';
 
 export async function sendRecoveryCode(email: string, code: string): Promise<void> {
   if (!config.email.user || !config.email.password) {
@@ -17,7 +17,7 @@ export async function sendRecoveryCode(email: string, code: string): Promise<voi
   await transporter.sendMail({
     from: config.email.from,
     to: email,
-    subject: "Código de recuperação - Nexus Finance",
+    subject: 'Código de recuperação - Nexus Finance',
     text: `Seu código de recuperação é ${code}. Ele expira em 15 minutos.`,
   });
 }
