@@ -2859,6 +2859,86 @@ function createAppStyles(colors) {
     },
   });
 
+  const popupStyles = StyleSheet.create({
+  fundo: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: colors.overlay,
+  },
+
+  card: {
+    width: '100%',
+    maxWidth: 340,
+    alignItems: 'center',
+    paddingTop: 30,
+    paddingHorizontal: 24,
+    borderRadius: 26,
+    borderWidth: 1,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+
+  circuloExterno: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    backgroundColor: colors.successSoft,
+  },
+
+  circuloInterno: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.success,
+  },
+
+  titulo: {
+    fontSize: 25,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 10,
+    color: colors.textPrimary,
+  },
+
+  descricao: {
+    fontSize: 15,
+    lineHeight: 23,
+    textAlign: 'center',
+    color: colors.textSecondary,
+  },
+
+  rodape: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
+    marginTop: 24,
+    paddingVertical: 18,
+  },
+
+  legenda: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.textMuted,
+  },
+});
+
+
   const navigationScreenOptions = {
     headerShown: false,
     headerStyle: {
@@ -2901,7 +2981,10 @@ function createAppStyles(colors) {
     sobreAppStyles,
     keyboardStyles,
     sharedStyles,
+    navigationScreenOptions,    keyboardStyles,
+    sharedStyles,
     navigationScreenOptions,
+    popupStyles,
   };
 }
 
