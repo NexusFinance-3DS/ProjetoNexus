@@ -28,6 +28,9 @@ export function parseMoney(value: unknown): number {
     if (!/^(?:\d{1,3}(?:\.\d{3})*|\d+),\d{1,2}$/.test(clean)) return Number.NaN;
     return Number(clean.replace(/\./g, '').replace(',', '.'));
   }
+  if (/^\d{1,3}(?:\.\d{3})+$/.test(clean)) {
+    return Number(clean.replace(/\./g, ''));
+  }
   return /^\d+(?:\.\d{1,2})?$/.test(clean) ? Number(clean) : Number.NaN;
 }
 

@@ -23,6 +23,7 @@ import { ScreenHeaderHeightContext } from './ScreenHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { focusedScrollOffset, keyboardOverlap } from './keyboardGeometry.mjs';
 import { useTheme, useThemedStyles } from '../contexts/ThemeContext';
+import { applyInputMask } from '../services/inputMasks.mjs';
 
 const FormContext = createContext(null);
 
@@ -200,11 +201,21 @@ export function FormScrollView({
   );
 }
 
-export function FormInput({ onFocus, style, ...props }) {
+export function FormInput({
+  onFocus,
+  onChangeText,
+  style,
+  value,
+  mask,
+  maskOptions,
+  ...props
+}) {
   const { colors, isDark } = useTheme();
   const styles = useThemedStyles(createStyles);
   const ref = useRef(null);
   const form = useContext(FormContext);
+  const maskedValue = mask ? applyInputMask(mask, value, maskOptions) : value;
+
   return (
     <TextInput
       placeholderTextColor={colors.placeholder}
@@ -212,6 +223,11 @@ export function FormInput({ onFocus, style, ...props }) {
       cursorColor={colors.primary}
       keyboardAppearance={isDark ? 'dark' : 'light'}
       {...props}
+      value={maskedValue}
+      onChangeText={(text) => {
+        const nextValue = mask ? applyInputMask(mask, text, maskOptions) : text;
+        onChangeText?.(nextValue);
+      }}
       ref={ref}
       style={[{ color: colors.textPrimary }, style, styles.input]}
       inputAccessoryViewID={Platform.OS === 'ios' ? form?.accessoryId : undefined}

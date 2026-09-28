@@ -12,6 +12,27 @@ function valorParaInput(valor) {
   return Number(valor || 0).toFixed(2).replace('.', ',');
 }
 
+function moedaParaNumero(valor) {
+  const texto = String(valor ?? '')
+    .trim()
+    .replace(/\s/g, '')
+    .replace(/^R\$/i, '');
+
+  if (!texto) return Number.NaN;
+
+  if (texto.includes(',')) {
+    return Number(texto.replace(/\./g, '').replace(',', '.'));
+  }
+
+  // A máscara brasileira produz valores inteiros como "R$ 1.000".
+  // Nesse caso o ponto é separador de milhar, não casa decimal.
+  if (/^\d{1,3}(?:\.\d{3})+$/.test(texto)) {
+    return Number(texto.replace(/\./g, ''));
+  }
+
+  return Number(texto);
+}
+
 export default function Metas() {
   const { colors, keyboardStyles, metasStyles: styles, sharedStyles } = useAppStyles();
   const submitLock = useRef(false);
@@ -75,6 +96,20 @@ export default function Metas() {
 
   async function salvarMeta() {
     if (submitLock.current) return;
+
+    const objetivoNumerico = moedaParaNumero(valorMeta);
+    const atualNumerico = valorAtual ? moedaParaNumero(valorAtual) : 0;
+
+    if (!Number.isFinite(objetivoNumerico) || objetivoNumerico <= 0) {
+      setErro('Informe um valor válido para a meta.');
+      return;
+    }
+
+    if (!Number.isFinite(atualNumerico) || atualNumerico < 0) {
+      setErro('Informe um valor atual válido.');
+      return;
+    }
+
     submitLock.current = true;
     setSalvando(true);
     setErro('');
@@ -83,7 +118,7 @@ export default function Metas() {
       const path = modoEdicao ? `/metas/${metaSelecionada.id}` : '/metas';
       await apiAutenticada(path, {
         method: modoEdicao ? 'PUT' : 'POST',
-        body: JSON.stringify({ nome: nomeMeta, objetivo: valorMeta, atual: valorAtual || 0 }),
+        body: JSON.stringify({ nome: nomeMeta, objetivo: objetivoNumerico, atual: atualNumerico }),
       });
       fecharModal();
       await carregarMetas();
@@ -214,6 +249,7 @@ export default function Metas() {
                 keyboardType="decimal-pad"
                 value={valorMeta}
                 onChangeText={setValorMeta}
+                mask="currency"
               />
               <FormInput
                 style={styles.input}
@@ -222,6 +258,7 @@ export default function Metas() {
                 keyboardType="decimal-pad"
                 value={valorAtual}
                 onChangeText={setValorAtual}
+                mask="currency"
               />
               {erro ? <Text style={sharedStyles.errorText}>{erro}</Text> : null}
               <View style={styles.modalButtons}>

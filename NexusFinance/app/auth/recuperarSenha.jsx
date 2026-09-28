@@ -68,6 +68,7 @@ export default function RecuperarSenha() {
                 autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
+                mask="email"
               />
 
               <TouchableOpacity style={styles.button} onPress={enviarCodigo} disabled={carregando}>
@@ -84,6 +85,9 @@ export default function RecuperarSenha() {
               keyboardType="number-pad"
               value={codigo}
               onChangeText={setCodigo}
+              mask="digits"
+              maskOptions={{ maxDigits: 6 }}
+              maxLength={6}
             />
 
             {erro ? <Text style={styles.erro}>{erro}</Text> : null}

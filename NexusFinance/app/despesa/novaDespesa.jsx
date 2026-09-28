@@ -68,6 +68,7 @@ export default function NovaDespesa() {
               style={[styles.InputValor, sharedStyles.textAlignRight]}
               value={valor}
               onChangeText={setValor}
+              mask="currency"
               keyboardType="decimal-pad"
               placeholder="R$ 0,00"
               placeholderTextColor={colors.placeholder}
