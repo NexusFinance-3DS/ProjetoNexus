@@ -1620,6 +1620,84 @@ function createAppStyles(colors) {
 
   // meuCadastro
   const meuCadastroStyles = StyleSheet.create({
+    popupSucesso: {
+      position: 'absolute',
+      top: 25,
+      alignSelf: 'center',
+
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+
+      backgroundColor: '#1E1E1E',
+
+      paddingVertical: 12,
+      paddingHorizontal: 18,
+
+      borderRadius: 12,
+
+      zIndex: 999,
+      elevation: 10,
+
+      shadowColor: '#000000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+
+      maxWidth: '90%',
+    },
+
+    popupSucessoTexto: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+
+    popupErro: {
+      position: 'absolute',
+      top: 25,
+      alignSelf: 'center',
+
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+
+      backgroundColor: '#1E1E1E',
+      borderWidth: 1,
+      borderColor: '#EF4444',
+
+      paddingVertical: 12,
+      paddingHorizontal: 18,
+
+      borderRadius: 12,
+
+      zIndex: 999,
+      elevation: 10,
+
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+
+      maxWidth: '90%',
+    },
+
+    popupErroTexto: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+
+    saveButtonDisabled: {
+      opacity: 0.6,
+    },
+
     container: {
       flex: 1,
       backgroundColor: colors.background,
@@ -2951,6 +3029,7 @@ function createAppStyles(colors) {
     contentStyle: {
       backgroundColor: colors.background,
     },
+    
   };
 
   return {

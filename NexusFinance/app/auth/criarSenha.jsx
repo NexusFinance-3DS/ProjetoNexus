@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
@@ -28,6 +29,7 @@ const CriarSenha = () => {
     colors,
     criarSenhaStyles: styles,
     keyboardStyles,
+    sharedStyles,
     popupStyles: popup,
   } = useAppStyles();
 
@@ -124,7 +126,14 @@ const CriarSenha = () => {
         style={styles.container}
         delay={60}
       >
+        <Image
+            source={require('../../assets/images/cadeado.png')}
+            style={[sharedStyles.loginLogo, {marginTop:80, marginBottom: -50,}]}
+            resizeMode="contain"
+            accessibilityLabel="Imagem de perfil"
+          />
         <KeyboardArea style={keyboardStyles.avoidingView}>
+          
           <FormScrollView
             contentContainerStyle={keyboardStyles.centeredScrollContent}
             keyboardShouldPersistTaps="handled"
