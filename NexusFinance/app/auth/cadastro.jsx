@@ -54,6 +54,7 @@ export default function Cadastro() {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              mask="email"
             />
 
             <FormInput

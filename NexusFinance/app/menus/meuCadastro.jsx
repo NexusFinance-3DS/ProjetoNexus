@@ -209,6 +209,7 @@ export default function MeuCadastro() {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              mask="email"
             />
 
             <FormInput
@@ -218,6 +219,8 @@ export default function MeuCadastro() {
               keyboardType="phone-pad"
               value={telefone}
               onChangeText={setTelefone}
+              mask="phone"
+              maxLength={15}
             />
 
             <DateInput

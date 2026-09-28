@@ -17,10 +17,7 @@ import Icon from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { apiRequest } from '../../services/api';
-import {
-  limparCadastroPendente,
-  obterCadastroPendente,
-} from '../../services/authFlow';
+import { limparCadastroPendente, obterCadastroPendente } from '../../services/authFlow';
 import { erroSenha } from '../../services/validations';
 import { useAppStyles } from '../styles/styles';
 
@@ -37,84 +34,30 @@ const CriarSenha = () => {
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-  const [sucesso, setSucesso] = useState(false);
-
-  const animacao = useRef(new Animated.Value(0)).current;
-  const envioEmAndamento = useRef(false);
-  const navegou = useRef(false);
-
-  const irParaLogin = () => {
-    if (navegou.current) return;
-    navegou.current = true;
-    router.replace('/auth/login');
-  };
-
-  useEffect(() => {
-    if (!sucesso) return;
-
-    animacao.setValue(0);
-
-    const entrada = Animated.timing(animacao, {
-      toValue: 1,
-      duration: 220,
-      useNativeDriver: true,
-    });
-
-    entrada.start();
-
-    const temporizador = setTimeout(irParaLogin, 1500);
-
-    return () => {
-      entrada.stop();
-      clearTimeout(temporizador);
-    };
-  }, [sucesso, animacao]);
 
   const continuar = async () => {
-    if (envioEmAndamento.current || sucesso) return;
-
     const dadosCadastro = obterCadastroPendente();
-
     if (!dadosCadastro) {
-      setErro(
-        'Os dados do cadastro não foram encontrados. Volte e preencha novamente.',
-      );
+      setErro('Os dados do cadastro não foram encontrados. Volte e preencha novamente.');
       return;
     }
-
     const mensagemSenha = erroSenha(senha);
+    if (mensagemSenha) return setErro(mensagemSenha);
+    if (senha !== confirmarSenha) return setErro('As senhas não coincidem.');
 
-    if (mensagemSenha) {
-      setErro(mensagemSenha);
-      return;
-    }
-
-    if (senha !== confirmarSenha) {
-      setErro('As senhas não coincidem.');
-      return;
-    }
-
-    envioEmAndamento.current = true;
     setCarregando(true);
     setErro('');
-
     try {
       await apiRequest('/auth/cadastro', {
         method: 'POST',
-        body: JSON.stringify({
-          ...dadosCadastro,
-          senha,
-          confirmarSenha,
-        }),
+        body: JSON.stringify({ ...dadosCadastro, senha, confirmarSenha }),
       });
-
       limparCadastroPendente();
-      Keyboard.dismiss();
-      setSucesso(true);
+      alert('Cadastro realizado com sucesso!');
+      router.replace('/auth/login');
     } catch (error) {
-      setErro(error.message || 'Não foi possível criar sua conta.');
+      setErro(error.message);
     } finally {
-      envioEmAndamento.current = false;
       setCarregando(false);
     }
   };

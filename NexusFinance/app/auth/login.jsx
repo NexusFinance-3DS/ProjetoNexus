@@ -69,6 +69,7 @@ export default function Login() {
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
+              mask="email"
               placeholderTextColor={colors.placeholder}
             />
 

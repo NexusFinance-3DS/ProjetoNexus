@@ -8,6 +8,9 @@ describe('financial boundaries', () => {
     for (const value of [1.001, 1.005, 0.009, NaN, Infinity, -1, '1.001', '1,001', true, null])
       expect(parseMoney(value)).toBeNaN();
     for (const value of [1.01, '1.01', '1,01']) expect(parseMoney(value)).toBe(1.01);
+    expect(parseMoney('R$ 1.000')).toBe(1000);
+    expect(parseMoney('12.345')).toBe(12345);
+    expect(parseMoney('R$ 1.234.567,89')).toBe(1234567.89);
     expect(parseMoney(0.1 + 0.2)).toBe(0.3);
     expect(parseMoney(9999999999.99)).toBe(9999999999.99);
     expect(moneyDifference(0.3, 0.2)).toBe(0.1);
