@@ -174,13 +174,6 @@ export default function Configuracoes() {
           {erroTema ? (
             <Text style={[sharedStyles.errorText, { marginHorizontal: 18 }]}>{erroTema}</Text>
           ) : null}
-          <View style={styles.divider} />
-          <View style={styles.item}>
-            <View style={styles.itemLeft}>
-              <Icon name="language" size={26} color={colors.primary} />
-              <Text style={styles.itemText}>Idioma: Português (Brasil)</Text>
-            </View>
-          </View>
         </AnimatedCard>
         <AnimatedCard style={styles.card} delay={120}>
           <Text style={styles.cardTitle}>Conta</Text>
