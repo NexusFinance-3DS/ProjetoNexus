@@ -1,6 +1,19 @@
-import { KeyboardArea, FormScrollView, FormInput } from '../../components/FormLayout';
-import { useState } from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import {
+  KeyboardArea,
+  FormScrollView,
+  FormInput,
+} from '../../components/FormLayout';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Animated,
+  Keyboard,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+} from 'react-native';
+import Icon from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
 import { apiRequest } from '../../services/api';
@@ -9,7 +22,14 @@ import { erroSenha } from '../../services/validations';
 import { useAppStyles } from '../styles/styles';
 
 const CriarSenha = () => {
-  const { colors, criarSenhaStyles: styles, keyboardStyles } = useAppStyles();
+  const {
+    colors,
+    criarSenhaStyles: styles,
+    keyboardStyles,
+    sharedStyles,
+    popupStyles: popup,
+  } = useAppStyles();
+
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -43,43 +63,127 @@ const CriarSenha = () => {
   };
 
   return (
-    <AnimatedScreen maxWidth={560} style={styles.container} delay={60}>
-      <KeyboardArea style={keyboardStyles.avoidingView}>
-        <FormScrollView
-          contentContainerStyle={keyboardStyles.centeredScrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <AnimatedCard style={styles.content} delay={80}>
-            <Text style={styles.label}>Senha</Text>
-            <FormInput
-              style={styles.input}
-              placeholder="Digite sua senha"
-              placeholderTextColor={colors.placeholder}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-            />
+    <>
+      <AnimatedScreen
+        maxWidth={560}
+        style={styles.container}
+        delay={60}
+      >
+        <Image
+            source={require('../../assets/images/cadeado.png')}
+            style={[sharedStyles.loginLogo, {marginTop:80, marginBottom: -50,}]}
+            resizeMode="contain"
+            accessibilityLabel="Imagem de perfil"
+          />
+        <KeyboardArea style={keyboardStyles.avoidingView}>
+          
+          <FormScrollView
+            contentContainerStyle={keyboardStyles.centeredScrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <AnimatedCard style={styles.content} delay={80}>
+              <Text style={styles.label}>Senha</Text>
 
-            <Text style={styles.label}>Confirme sua senha</Text>
-            <FormInput
-              style={styles.input}
-              placeholder="Confirme sua senha"
-              placeholderTextColor={colors.placeholder}
-              secureTextEntry
-              value={confirmarSenha}
-              onChangeText={setConfirmarSenha}
-            />
+              <FormInput
+                style={styles.input}
+                placeholder="Digite sua senha"
+                placeholderTextColor={colors.placeholder}
+                secureTextEntry
+                value={senha}
+                onChangeText={setSenha}
+                editable={!carregando && !sucesso}
+              />
 
-            {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+              <Text style={styles.label}>Confirme sua senha</Text>
 
-            <TouchableOpacity style={styles.button} onPress={continuar} disabled={carregando}>
-              <Text style={styles.buttonText}>{carregando ? 'Salvando...' : 'Criar conta'}</Text>
-            </TouchableOpacity>
-          </AnimatedCard>
-        </FormScrollView>
-      </KeyboardArea>
-    </AnimatedScreen>
+              <FormInput
+                style={styles.input}
+                placeholder="Confirme sua senha"
+                placeholderTextColor={colors.placeholder}
+                secureTextEntry
+                value={confirmarSenha}
+                onChangeText={setConfirmarSenha}
+                editable={!carregando && !sucesso}
+              />
+
+              {erro ? (
+                <Text
+                  style={styles.erro}
+                  accessibilityLiveRegion="polite"
+                >
+                  {erro}
+                </Text>
+              ) : null}
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={continuar}
+                disabled={carregando || sucesso}
+                accessibilityRole="button"
+                accessibilityState={{
+                  disabled: carregando || sucesso,
+                  busy: carregando,
+                }}
+              >
+                <Text style={styles.buttonText}>
+                  {sucesso
+                    ? 'Conta criada!'
+                    : carregando
+                      ? 'Salvando...'
+                      : 'Criar conta'}
+                </Text>
+              </TouchableOpacity>
+            </AnimatedCard>
+          </FormScrollView>
+        </KeyboardArea>
+      </AnimatedScreen>
+
+      <Modal
+        visible={sucesso}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={irParaLogin}
+      >
+        <View style={popup.fundo}>
+          <Animated.View
+            accessibilityViewIsModal
+            style={[
+              popup.card,
+              {
+                opacity: animacao,
+                transform: [
+                  {
+                    scale: animacao.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.92, 1],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <View style={popup.circuloExterno}>
+              <View style={popup.circuloInterno}>
+                <Icon
+                  name="check"
+                  size={34}
+                  color={colors.surface}
+                />
+              </View>
+            </View>
+
+            <Text
+              style={popup.titulo}
+              accessibilityLiveRegion="polite"
+            >
+              Conta criada!
+            </Text>
+          </Animated.View>
+        </View>
+      </Modal>
+    </>
   );
 };
 
