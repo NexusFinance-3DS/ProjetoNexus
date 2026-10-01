@@ -304,6 +304,7 @@ function createAppStyles(colors) {
   const cadastroStyles = StyleSheet.create({
     container: {
       flex: 1,
+      marginTop: "20%",
       backgroundColor: colors.background,
       justifyContent: 'center',
       paddingHorizontal: 24,
@@ -1077,9 +1078,8 @@ function createAppStyles(colors) {
       paddingHorizontal: 16,
     },
     title: {
-      fontSize: 18,
-      marginTop: 22,
-      marginBottom: 12,
+      fontSize: 25,
+      marginTop: -10,
       fontWeight: '700',
       color: colors.textPrimary,
     },
@@ -1104,7 +1104,7 @@ function createAppStyles(colors) {
       marginBottom: 10,
     },
     cardTitle: {
-      fontSize: 14,
+      fontSize: 15.1,
       fontWeight: '600',
       color: colors.textSecondary,
     },

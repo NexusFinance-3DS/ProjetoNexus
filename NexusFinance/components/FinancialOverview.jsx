@@ -35,7 +35,7 @@ export default function FinancialOverview({ dados, visible = true, home = false 
   const { colors } = useAppStyles();
   const { width, fontScale } = useWindowDimensions();
   const wide = width >= 900 && fontScale <= 1.3;
-  const amount = (value) => (visible ? formatBRL(value) : '••••••');
+  const amount = (value) => (visible ? formatBRL(value) : '******');
   const current = dados.atual;
   const forecast = dados.previsao;
   const hasHistory = dados.historico.some((item) => item.receitas !== 0 || item.despesas !== 0);
