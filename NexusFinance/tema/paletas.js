@@ -1,0 +1,78 @@
+// Cores compartilhadas pelas telas, formulários, gráficos e navegação.
+const marca = {
+  primaria: '#5145FF',
+  primariaEscura: '#1809e0',
+  primariaIntensa: '#4800FF',
+  sobrePrimaria: '#FFFFFF',
+  sobrePrimariaSuave: '#E7E5FF',
+  sombra: '#000000',
+  destaqueRoxo: '#4C4CF0',
+  destaqueAzul: '#1479C9',
+  destaqueVioleta: '#7351DC',
+  destaqueVermelho: '#D63545'
+};
+export const paletas = {
+  escuro: {
+    ...marca,
+    fundo: '#0f0f0f',
+    fundoAlternativo: '#0f0f13',
+    superficie: '#1c1c1c',
+    superficieAlternativa: '#181820',
+    superficieElevada: '#26262E',
+    superficieSuave: '#161616',
+    campo: '#1b1b1b',
+    textoPrincipal: '#F5F5FA',
+    textoSecundario: '#B8B8C8',
+    textoSuave: '#A5A5B5',
+    textoIndicativo: '#A0A0B0',
+    textoLink: '#B5ACFF',
+    borda: '#393943',
+    divisor: '#33333D',
+    primariaSuave: '#272240',
+    sucesso: '#2ED573',
+    sucessoSuave: '#173529',
+    perigo: '#FF7C87',
+    perigoIntenso: '#FF6B78',
+    perigoSuave: '#3C2026',
+    aviso: '#FFC542',
+    sobreposicao: 'rgba(0,0,0,0.65)',
+    pressionado: 'rgba(255,255,255,0.08)',
+    interruptorDesligado: '#626271',
+    graficoRoxo: '#9B8CFF',
+    graficoAzul: '#6DBBFF',
+    graficoLaranja: '#FFB45C'
+  },
+  claro: {
+    ...marca,
+    fundo: '#F4F5FA',
+    fundoAlternativo: '#FFFFFF',
+    superficie: '#FFFFFF',
+    superficieAlternativa: '#F0F1F8',
+    superficieElevada: '#E8EAF3',
+    superficieSuave: '#EEF0F7',
+    campo: '#EEF0F7',
+    textoPrincipal: '#202136',
+    textoSecundario: '#54566F',
+    textoSuave: '#63657A',
+    textoIndicativo: '#686A7C',
+    textoLink: '#4C36C6',
+    borda: '#D1D4E2',
+    divisor: '#E0E2EC',
+    primariaSuave: '#EAE5FF',
+    sucesso: '#167345',
+    sucessoSuave: '#DDF3E6',
+    perigo: '#BC263A',
+    perigoIntenso: '#AF2034',
+    perigoSuave: '#FBE4E8',
+    aviso: '#8D5A00',
+    sobreposicao: 'rgba(24,25,42,0.4)',
+    pressionado: 'rgba(81,69,255,0.08)',
+    interruptorDesligado: '#9496A8',
+    graficoRoxo: '#7754CB',
+    graficoAzul: '#1B70B5',
+    graficoLaranja: '#B26108'
+  }
+};
+export function temaValido(valor) {
+  return valor === 'claro' || valor === 'escuro';
+}

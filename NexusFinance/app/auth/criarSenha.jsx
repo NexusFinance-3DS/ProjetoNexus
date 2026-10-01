@@ -1,48 +1,20 @@
-import {
-  KeyboardArea,
-  FormScrollView,
-  FormInput,
-} from '../../components/FormLayout';
-
-import { useEffect, useRef, useState } from 'react';
-
-import {
-  Animated,
-  Keyboard,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Image,
-} from 'react-native';
-
-import Icon from '@expo/vector-icons/MaterialIcons';
+import { AreaTeclado, RolagemFormulario, CampoFormulario } from "../../componentes/LayoutFormulario";
+import { useState } from 'react';
+import ModalAviso from "../../componentes/ModalAviso";
+import { Text, TouchableOpacity, Image } from 'react-native';
 import { router } from 'expo-router';
-
-import {
-  AnimatedCard,
-  AnimatedScreen,
-} from '../components/AnimatedScreen';
-
-import { apiRequest } from '../../services/api';
-
-import {
-  limparCadastroPendente,
-  obterCadastroPendente,
-} from '../../services/authFlow';
-
-import { erroSenha } from '../../services/validations';
-import { useAppStyles } from '../styles/styles';
-
+import { CartaoAnimado, TelaAnimada } from "../componentes/TelaAnimada";
+import { requisicaoApi } from "../../servicos/api";
+import { limparCadastroPendente, obterCadastroPendente } from "../../servicos/fluxoAutenticacao";
+import { erroSenha } from "../../servicos/validacoes";
+import { useEstilosApp } from "../estilos/estilos";
 const CriarSenha = () => {
   const {
-    colors,
-    criarSenhaStyles: styles,
-    keyboardStyles,
-    sharedStyles,
-  } = useAppStyles();
-
+    cores,
+    estilosCriarSenha: estilos,
+    estilosTeclado,
+    estilosCompartilhados
+  } = useEstilosApp();
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -50,305 +22,84 @@ const CriarSenha = () => {
 
   // POPUP
   const [sucesso, setSucesso] = useState(false);
-
-  const animacao = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (sucesso) {
-      Keyboard.dismiss();
-
-      animacao.setValue(0);
-
-      Animated.spring(animacao, {
-        toValue: 1,
-        useNativeDriver: true,
-        friction: 7,
-        tension: 80,
-      }).start();
-    }
-  }, [sucesso, animacao]);
-
   const irParaLogin = () => {
     setSucesso(false);
     router.replace('/auth/login');
   };
-
   const continuar = async () => {
+    if (carregando || sucesso) return;
     const dadosCadastro = obterCadastroPendente();
-
     if (!dadosCadastro) {
-      setErro(
-        'Os dados do cadastro não foram encontrados. Volte e preencha novamente.'
-      );
+      setErro('Os dados do cadastro não foram encontrados. Volte e preencha novamente.');
       return;
     }
-
     const mensagemSenha = erroSenha(senha);
-
     if (mensagemSenha) {
       setErro(mensagemSenha);
       return;
     }
-
     if (senha !== confirmarSenha) {
       setErro('As senhas não coincidem.');
       return;
     }
-
     setCarregando(true);
     setErro('');
-
     try {
-      await apiRequest('/auth/cadastro', {
+      await requisicaoApi('/auth/cadastro', {
         method: 'POST',
         body: JSON.stringify({
           ...dadosCadastro,
           senha,
-          confirmarSenha,
-        }),
+          confirmarSenha
+        })
       });
-
       limparCadastroPendente();
 
       // ABRE O POPUP
       setSucesso(true);
-
-    } catch (error) {
-      setErro(error.message || 'Erro ao criar conta.');
+    } catch (falha) {
+      setErro(falha.message || 'Erro ao criar conta.');
     } finally {
       setCarregando(false);
     }
   };
+  return <>
+      <TelaAnimada larguraMaxima={560} style={estilos.recipiente} atraso={60}>
+        <Image source={require('../../assets/images/cadeado.png')} style={[estilosCompartilhados.entradaLogo, {
+        marginTop: "20%",
+        marginBottom: -50
+      }]} resizeMode="contain" accessibilityLabel="Imagem de cadeado" />
 
-  return (
-    <>
-      <AnimatedScreen
-        maxWidth={560}
-        style={styles.container}
-        delay={60}
-      >
-        <Image
-          source={require('../../assets/images/cadeado.png')}
-          style={[
-            sharedStyles.loginLogo,
-            {
-              marginTop: "20%",
-              marginBottom: -50,
-            },
-          ]}
-          resizeMode="contain"
-          accessibilityLabel="Imagem de cadeado"
-        />
-
-        <KeyboardArea style={keyboardStyles.avoidingView}>
-          <FormScrollView
-            contentContainerStyle={
-              keyboardStyles.centeredScrollContent
-            }
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <AnimatedCard
-              style={styles.content}
-              delay={80}
-            >
-              <Text style={styles.label}>
+        <AreaTeclado style={estilosTeclado.desvioArea}>
+          <RolagemFormulario contentContainerStyle={estilosTeclado.centralizadoRolagemConteudo} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <CartaoAnimado style={estilos.conteudo} atraso={80}>
+              <Text style={estilos.rotulo}>
                 Senha
               </Text>
 
-              <FormInput
-                style={styles.input}
-                placeholder="Digite sua senha"
-                placeholderTextColor={colors.placeholder}
-                secureTextEntry
-                value={senha}
-                onChangeText={setSenha}
-                editable={!carregando && !sucesso}
-              />
+              <CampoFormulario style={estilos.campo} placeholder="Digite sua senha" placeholderTextColor={cores.textoIndicativo} secureTextEntry value={senha} onChangeText={setSenha} editable={!carregando && !sucesso} />
 
-              <Text style={styles.label}>
+              <Text style={estilos.rotulo}>
                 Confirme sua senha
               </Text>
 
-              <FormInput
-                style={styles.input}
-                placeholder="Confirme sua senha"
-                placeholderTextColor={colors.placeholder}
-                secureTextEntry
-                value={confirmarSenha}
-                onChangeText={setConfirmarSenha}
-                editable={!carregando && !sucesso}
-              />
+              <CampoFormulario style={estilos.campo} placeholder="Confirme sua senha" placeholderTextColor={cores.textoIndicativo} secureTextEntry value={confirmarSenha} onChangeText={setConfirmarSenha} editable={!carregando && !sucesso} />
 
-              {erro ? (
-                <Text
-                  style={styles.erro}
-                  accessibilityLiveRegion="polite"
-                >
+              {erro ? <Text style={estilos.erro} accessibilityLiveRegion="polite">
                   {erro}
-                </Text>
-              ) : null}
+                </Text> : null}
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={continuar}
-                disabled={carregando || sucesso}
-              >
-                <Text style={styles.buttonText}>
-                  {carregando
-                    ? 'Salvando...'
-                    : sucesso
-                      ? 'Conta criada!'
-                      : 'Criar conta'}
+              <TouchableOpacity style={estilos.botao} onPress={continuar} disabled={carregando || sucesso}>
+                <Text style={estilos.botaoTexto}>
+                  {carregando ? 'Salvando...' : sucesso ? 'Conta criada!' : 'Criar conta'}
                 </Text>
               </TouchableOpacity>
-            </AnimatedCard>
-          </FormScrollView>
-        </KeyboardArea>
-      </AnimatedScreen>
+            </CartaoAnimado>
+          </RolagemFormulario>
+        </AreaTeclado>
+      </TelaAnimada>
 
-      {/* POPUP DE SUCESSO */}
-
-      <Modal
-        visible={sucesso}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={irParaLogin}
-      >
-        <View style={popupStyles.fundo}>
-          <Animated.View
-            style={[
-              popupStyles.card,
-              {
-                backgroundColor: colors.surface,
-                opacity: animacao,
-                transform: [
-                  {
-                    scale: animacao.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.9, 1],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <View style={popupStyles.circuloExterno}>
-              <View style={popupStyles.circuloInterno}>
-                <Icon
-                  name="check"
-                  size={38}
-                  color="#FFFFFF"
-                />
-              </View>
-            </View>
-
-            <Text style={[popupStyles.titulo, { color: colors.textPrimary }]}>
-              Conta criada!
-            </Text>
-
-            <Text style={[popupStyles.texto, { color: colors.textSecondary }]}>
-              Seu cadastro foi realizado com sucesso.
-            </Text>
-
-            <TouchableOpacity
-              style={[
-                styles.button,
-                popupStyles.botao,
-              ]}
-              onPress={irParaLogin}
-            >
-              <Text style={styles.buttonText}>
-                Ir para o login
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-      </Modal>
-    </>
-  );
+      <ModalAviso visivel={sucesso} titulo="Conta criada!" mensagem="Seu cadastro foi realizado com sucesso." textoBotao="Ir para o login" aoFechar={irParaLogin} />
+    </>;
 };
-
-const popupStyles = StyleSheet.create({
-  fundo: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 25,
-  },
-
-  card: {
-    width: '100%',
-    maxWidth: 380,
-
-    backgroundColor: '#FFFFFF',
-
-    borderRadius: 22,
-
-    paddingVertical: 30,
-    paddingHorizontal: 25,
-
-    alignItems: 'center',
-
-    elevation: 10,
-
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-  },
-
-  circuloExterno: {
-    width: 90,
-    height: 90,
-
-    borderRadius: 45,
-
-    backgroundColor: '#DCFCE7',
-
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    marginBottom: 20,
-  },
-
-  circuloInterno: {
-    width: 64,
-    height: 64,
-
-    borderRadius: 32,
-
-    backgroundColor: '#22C55E',
-
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  titulo: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    textAlign: 'center',
-  },
-
-  texto: {
-    fontSize: 15,
-    color: '#6B7280',
-
-    textAlign: 'center',
-
-    marginTop: 8,
-  },
-
-  botao: {
-    marginTop: 24,
-    width: '100%',
-  },
-});
-
 export default CriarSenha;

@@ -1,7 +1,8 @@
 import { Redirect } from 'expo-router';
-import { useSession } from '../contexts/SessionContext';
-
-export default function Index() {
-  const { autenticado } = useSession();
+import { useSessao } from "../contextos/ContextoSessao";
+export default function Inicio() {
+  const {
+    autenticado
+  } = useSessao();
   return <Redirect href={autenticado ? '/inicial' : '/auth/boasVindas'} />;
 }

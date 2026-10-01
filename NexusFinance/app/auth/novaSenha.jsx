@@ -1,85 +1,90 @@
-import { KeyboardArea, FormScrollView, FormInput } from '../../components/FormLayout';
-import { useState } from 'react';
+import { AreaTeclado, RolagemFormulario, CampoFormulario } from "../../componentes/LayoutFormulario";
+import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity } from 'react-native';
+import ModalAviso from "../../componentes/ModalAviso";
 import { router } from 'expo-router';
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { apiRequest } from '../../services/api';
-import { limparRecuperacaoPendente, obterRecuperacaoPendente } from '../../services/authFlow';
-import { erroSenha } from '../../services/validations';
-import { useAppStyles } from '../styles/styles';
-
+import { CartaoAnimado, TelaAnimada } from "../componentes/TelaAnimada";
+import { requisicaoApi } from "../../servicos/api";
+import { limparRecuperacaoPendente, obterRecuperacaoPendente } from "../../servicos/fluxoAutenticacao";
+import { erroSenha } from "../../servicos/validacoes";
+import { useEstilosApp } from "../estilos/estilos";
 export default function NovaSenha() {
-  const { colors, keyboardStyles, novaSenhaStyles: styles } = useAppStyles();
+  const {
+    cores,
+    estilosTeclado,
+    estilosNovaSenha: estilos
+  } = useEstilosApp();
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
+  const irParaLogin = () => {
+    setSucesso(false);
+    router.replace('/auth/login');
+  };
+  useEffect(() => {
+    if (!sucesso) return;
+
+    const temporizador = setTimeout(() => {
+      setSucesso(false);
+      router.replace('/auth/login');
+    }, 1500);
+
+    return () => clearTimeout(temporizador);
+  }, [sucesso]);
 
   const alterarSenha = async () => {
+    if (carregando || sucesso) return;
     const recuperacao = obterRecuperacaoPendente();
     if (!recuperacao) return setErro('Valide o código de recuperação novamente.');
     const mensagemSenha = erroSenha(senha);
     if (mensagemSenha) return setErro(mensagemSenha);
     if (senha !== confirmarSenha) return setErro('As senhas não coincidem.');
-
     setCarregando(true);
     setErro('');
     try {
-      await apiRequest('/auth/nova-senha', {
+      await requisicaoApi('/auth/nova-senha', {
         method: 'POST',
-        body: JSON.stringify({ ...recuperacao, senha, confirmarSenha }),
+        body: JSON.stringify({
+          ...recuperacao,
+          senha,
+          confirmarSenha
+        })
       });
       limparRecuperacaoPendente();
-      alert('Senha alterada com sucesso!');
-      router.replace('/auth/login');
-    } catch (error) {
-      setErro(error.message);
+      setSucesso(true);
+    } catch (falha) {
+      setErro(falha.message || 'Não foi possível alterar a senha.');
     } finally {
       setCarregando(false);
     }
   };
+  return <>
+    <TelaAnimada larguraMaxima={560} style={estilos.recipiente} atraso={60}>
+      <AreaTeclado style={estilosTeclado.desvioArea}>
+        <RolagemFormulario contentContainerStyle={estilosTeclado.centralizadoRolagemConteudo} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <CartaoAnimado style={estilos.conteudo} atraso={80}>
+            <Text style={estilos.descricao}>Crie uma nova senha para acessar sua conta.</Text>
 
-  return (
-    <AnimatedScreen maxWidth={560} style={styles.container} delay={60}>
-      <KeyboardArea style={keyboardStyles.avoidingView}>
-        <FormScrollView
-          contentContainerStyle={keyboardStyles.centeredScrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <AnimatedCard style={styles.content} delay={80}>
-            <Text style={styles.descricao}>Crie uma nova senha para acessar sua conta.</Text>
+            <Text style={estilos.rotulo}>Nova senha</Text>
 
-            <Text style={styles.label}>Nova senha</Text>
+            <CampoFormulario style={estilos.campo} placeholder="Digite sua nova senha" placeholderTextColor={cores.textoIndicativo} secureTextEntry value={senha} onChangeText={setSenha} editable={!carregando && !sucesso} />
 
-            <FormInput
-              style={styles.input}
-              placeholder="Digite sua nova senha"
-              placeholderTextColor={colors.placeholder}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-            />
+            <Text style={estilos.rotulo}>Confirmar senha</Text>
 
-            <Text style={styles.label}>Confirmar senha</Text>
+            <CampoFormulario style={estilos.campo} placeholder="Confirme sua nova senha" placeholderTextColor={cores.textoIndicativo} secureTextEntry value={confirmarSenha} onChangeText={setConfirmarSenha} editable={!carregando && !sucesso} />
 
-            <FormInput
-              style={styles.input}
-              placeholder="Confirme sua nova senha"
-              placeholderTextColor={colors.placeholder}
-              secureTextEntry
-              value={confirmarSenha}
-              onChangeText={setConfirmarSenha}
-            />
+            {erro ? <Text style={estilos.erro} accessibilityLiveRegion="polite">{erro}</Text> : null}
 
-            {erro ? <Text style={styles.erro}>{erro}</Text> : null}
-
-            <TouchableOpacity style={styles.button} onPress={alterarSenha} disabled={carregando}>
-              <Text style={styles.buttonText}>{carregando ? 'Salvando...' : 'Salvar senha'}</Text>
+            <TouchableOpacity style={estilos.botao} onPress={alterarSenha} disabled={carregando || sucesso} accessibilityRole="button">
+              <Text style={estilos.botaoTexto}>{carregando ? 'Salvando...' : 'Salvar senha'}</Text>
             </TouchableOpacity>
-          </AnimatedCard>
-        </FormScrollView>
-      </KeyboardArea>
-    </AnimatedScreen>
-  );
+          </CartaoAnimado>
+        </RolagemFormulario>
+      </AreaTeclado>
+    </TelaAnimada>
+
+    <ModalAviso visivel={sucesso} titulo="Senha alterada!" mensagem="Sua nova senha foi salva com sucesso. Entre na sua conta para continuar." textoBotao="Ir para o login" aoFechar={irParaLogin} />
+    </>;
 }

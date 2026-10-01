@@ -1,31 +1,24 @@
-import DateInput from '../../components/DateInput';
-import { AnimatedScreen } from '../components/AnimatedScreen';
-import {
-  KeyboardArea,
-  FormScrollView,
-  FormInput,
-} from '../../components/FormLayout';
-
+import ModalAviso from "../../componentes/ModalAviso";
+import CampoData from "../../componentes/CampoData";
+import { TelaAnimada } from "../componentes/TelaAnimada";
+import { AreaTeclado, RolagemFormulario, CampoFormulario } from "../../componentes/LayoutFormulario";
 import React, { useCallback, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-
 import { router, useFocusEffect } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons';
-
-import { useAppStyles } from '../styles/styles';
-import { apiAutenticada } from '../../services/financeiro';
-import { useSession } from '../../contexts/SessionContext';
-
+import { useEstilosApp } from "../estilos/estilos";
+import { apiAutenticada } from "../../servicos/financeiro";
+import { useSessao } from "../../contextos/ContextoSessao";
 export default function MeuCadastro() {
   const {
-    colors,
-    keyboardStyles,
-    meuCadastroStyles: styles,
-    sharedStyles,
-  } = useAppStyles();
-
-  const { setUsuario } = useSession();
-
+    cores,
+    estilosTeclado,
+    estilosMeuCadastro: estilos,
+    estilosCompartilhados
+  } = useEstilosApp();
+  const {
+    setUsuario
+  } = useSessao();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
@@ -33,256 +26,143 @@ export default function MeuCadastro() {
 
   // dados originais carregados da API (para detectar se algo mudou)
   const [original, setOriginal] = useState(null);
-
   const [erro, setErro] = useState('');
   const [popupErro, setPopupErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [salvando, setSalvando] = useState(false);
-
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-
-      setErro('');
-
-      apiAutenticada('/usuarios/me')
-        .then(({ usuario }) => {
-          if (!active) return;
-
-          const dados = {
-            nome: usuario.nome || '',
-            email: usuario.email || '',
-            telefone: usuario.telefone || '',
-            nascimento: usuario.dataNascimento || '',
-          };
-
-          setNome(dados.nome);
-          setEmail(dados.email);
-          setTelefone(dados.telefone);
-          setNascimento(dados.nascimento);
-          setOriginal(dados);
-        })
-        .catch((error) => {
-          if (active) {
-            setErro(error.message);
-          }
-        });
-
-      return () => {
-        active = false;
+  useFocusEffect(useCallback(() => {
+    let ativo = true;
+    setErro('');
+    apiAutenticada('/usuarios/me').then(({
+      usuario
+    }) => {
+      if (!ativo) return;
+      const dados = {
+        nome: usuario.nome || '',
+        email: usuario.email || '',
+        telefone: usuario.telefone || '',
+        nascimento: usuario.dataNascimento || ''
       };
-    }, []),
-  );
-
+      setNome(dados.nome);
+      setEmail(dados.email);
+      setTelefone(dados.telefone);
+      setNascimento(dados.nascimento);
+      setOriginal(dados);
+    }).catch(falha => {
+      if (ativo) {
+        setErro(falha.message);
+      }
+    });
+    return () => {
+      ativo = false;
+    };
+  }, []));
   async function salvarCadastro() {
     if (salvando) return;
-
     setErro('');
     setSucesso('');
     setPopupErro('');
-
-    const semAlteracao =
-      original &&
-      nome.trim() === original.nome &&
-      email.trim() === original.email &&
-      telefone.trim() === original.telefone &&
-      nascimento.trim() === original.nascimento;
-
+    const semAlteracao = original && nome.trim() === original.nome && email.trim() === original.email && telefone.trim() === original.telefone && nascimento.trim() === original.nascimento;
     if (semAlteracao) {
       setPopupErro('Você não alterou nenhum dado.');
-      setTimeout(() => setPopupErro(''), 3000);
       return;
     }
-
     setSalvando(true);
-
     try {
-      const response = await apiAutenticada('/usuarios/me', {
+      const resposta = await apiAutenticada('/usuarios/me', {
         method: 'PUT',
         body: JSON.stringify({
           nome,
           email,
           telefone,
-          dataNascimento: nascimento,
-        }),
+          dataNascimento: nascimento
+        })
       });
-
-      setUsuario((current) => ({
-        ...current,
+      setUsuario(atual => ({
+        ...atual,
         nome,
-        email,
+        email
       }));
-
-      setSucesso(response.mensagem || 'Alterações salvas com sucesso!');
-
-      setTimeout(() => {
-        setSucesso('');
-        router.replace('/perfil');
-      }, 2500); // antes: 1200
-    } catch (error) {
-      setErro(error.message || 'Não foi possível salvar as alterações.');
+      setSucesso(resposta.mensagem || 'Alterações salvas com sucesso!');
+    } catch (falha) {
+      setErro(falha.message || 'Não foi possível salvar as alterações.');
     } finally {
       setSalvando(false);
     }
   }
+  return <TelaAnimada larguraMaxima={560} style={estilos.recipiente}>
+      <ModalAviso visivel={Boolean(sucesso)} titulo="Cadastro atualizado!" mensagem={sucesso} textoBotao="Voltar para o perfil" aoFechar={() => {
+      setSucesso('');
+      router.replace('/perfil');
+    }} />
+      <ModalAviso visivel={Boolean(popupErro)} titulo="Nenhuma alteração" mensagem={popupErro} tipo="informacao" aoFechar={() => setPopupErro('')} />
 
-  return (
-    <AnimatedScreen maxWidth={560} style={styles.container}>
-      {sucesso ? (
-        <View style={styles.popupSucesso}>
-          <Icon
-            name="check-circle"
-            size={20}
-            color={colors.success || '#22C55E'}
-          />
-
-          <Text style={styles.popupSucessoTexto}>
-            {sucesso}
-          </Text>
-        </View>
-      ) : null}
-
-      {popupErro ? (
-        <View style={styles.popupErro}>
-          <Icon
-            name="error-outline"
-            size={20}
-            color={colors.error || '#EF4444'}
-          />
-
-          <Text style={styles.popupErroTexto}>
-            {popupErro}
-          </Text>
-        </View>
-      ) : null}
-
-      <KeyboardArea>
-        <FormScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={keyboardStyles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.card}>
-            <View style={styles.profileRow}>
-              <View style={styles.profileCircle}>
-                <Icon
-                  name="person"
-                  size={32}
-                  color={colors.primary}
-                />
+      <AreaTeclado>
+        <RolagemFormulario showsVerticalScrollIndicator={false} contentContainerStyle={estilosTeclado.rolagemConteudo} keyboardShouldPersistTaps="handled">
+          <View style={estilos.cartao}>
+            <View style={estilos.perfilLinha}>
+              <View style={estilos.perfilCirculo}>
+                <Icon name="person" size={32} color={cores.primaria} />
               </View>
 
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>
+              <View style={estilos.perfilInformacoes}>
+                <Text style={estilos.perfilNome}>
                   {nome || 'Usuário'}
                 </Text>
 
-                <Text style={styles.profileEmail}>
+                <Text style={estilos.perfilEmail}>
                   {email}
                 </Text>
               </View>
             </View>
 
-            <Text style={styles.profileSubtitle}>
+            <Text style={estilos.perfilSubtitulo}>
               Estes dados são carregados diretamente do seu cadastro.
             </Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>
+          <View style={estilos.cartao}>
+            <Text style={estilos.cartaoTitulo}>
               Informações pessoais
             </Text>
 
-            <FormInput
-              style={styles.input}
-              placeholder="Nome completo"
-              placeholderTextColor={colors.placeholder}
-              value={nome}
-              onChangeText={setNome}
-            />
+            <CampoFormulario style={estilos.campo} placeholder="Nome completo" placeholderTextColor={cores.textoIndicativo} value={nome} onChangeText={setNome} />
 
-            <FormInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-              mask="email"
-            />
+            <CampoFormulario style={estilos.campo} placeholder="E-mail" placeholderTextColor={cores.textoIndicativo} keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} mask="email" />
 
-            <FormInput
-              style={styles.input}
-              placeholder="Telefone"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="phone-pad"
-              value={telefone}
-              onChangeText={setTelefone}
-              mask="phone"
-              maxLength={15}
-            />
+            <CampoFormulario style={estilos.campo} placeholder="Telefone" placeholderTextColor={cores.textoIndicativo} keyboardType="phone-pad" value={telefone} onChangeText={setTelefone} mask="phone" maxLength={15} />
 
-            <DateInput
-              style={styles.input}
-              placeholder="Data de nascimento (DD/MM/AAAA)"
-              placeholderTextColor={colors.placeholder}
-              value={nascimento}
-              onChangeText={setNascimento}
-            />
+            <CampoData style={estilos.campo} placeholder="Data de nascimento (DD/MM/AAAA)" placeholderTextColor={cores.textoIndicativo} value={nascimento} onChangeText={setNascimento} />
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>
+          <View style={estilos.cartao}>
+            <Text style={estilos.cartaoTitulo}>
               Segurança
             </Text>
 
-            <TouchableOpacity
-              style={styles.itemButton}
-              onPress={() => router.push('/auth/recuperarSenha')}
-              activeOpacity={0.8}
-            >
-              <View style={styles.itemLeft}>
-                <Icon
-                  name="lock-outline"
-                  size={24}
-                  color={colors.textPrimary}
-                />
+            <TouchableOpacity style={estilos.itemBotao} onPress={() => router.push('/auth/recuperarSenha')} activeOpacity={0.8}>
+              <View style={estilos.itemEsquerda}>
+                <Icon name="lock-outline" size={24} color={cores.textoPrincipal} />
 
-                <Text style={styles.itemText}>
+                <Text style={estilos.itemTexto}>
                   Alterar senha
                 </Text>
               </View>
 
-              <Icon
-                name="chevron-right"
-                size={24}
-                color={colors.textPrimary}
-              />
+              <Icon name="chevron-right" size={24} color={cores.textoPrincipal} />
             </TouchableOpacity>
           </View>
 
-          {erro ? (
-            <Text style={sharedStyles.errorText}>
+          {erro ? <Text style={estilosCompartilhados.erroTexto}>
               {erro}
-            </Text>
-          ) : null}
+            </Text> : null}
 
-          <TouchableOpacity
-            style={[
-              styles.saveButton,
-              salvando && styles.saveButtonDisabled,
-            ]}
-            activeOpacity={0.8}
-            onPress={salvarCadastro}
-            disabled={salvando}
-          >
-            <Text style={styles.saveButtonText}>
+          <TouchableOpacity style={[estilos.salvarBotao, salvando && estilos.salvarBotaoDesabilitado]} activeOpacity={0.8} onPress={salvarCadastro} disabled={salvando}>
+            <Text style={estilos.salvarBotaoTexto}>
               {salvando ? 'Salvando...' : 'Salvar alterações'}
             </Text>
           </TouchableOpacity>
-        </FormScrollView>
-      </KeyboardArea>
-    </AnimatedScreen>
-  );
+        </RolagemFormulario>
+      </AreaTeclado>
+    </TelaAnimada>;
 }

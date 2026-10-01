@@ -9,7 +9,12 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "build": "npx expo export --platform web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "iniciar": "expo start",
+    "navegador": "expo start --web",
+    "compilar": "expo export --platform web",
+    "verificar": "expo lint",
+    "testar": "node --test testes/*.test.mjs servicos/*.test.mjs"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

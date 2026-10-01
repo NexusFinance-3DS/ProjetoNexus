@@ -1,25 +1,18 @@
-import { KeyboardArea, FormScrollView, FormInput } from '../../components/FormLayout';
+import { AreaTeclado, RolagemFormulario, CampoFormulario } from "../../componentes/LayoutFormulario";
 import React, { useCallback, useRef, useState } from 'react';
 import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons';
-import BarraNavegacao from '../components/BarraNavegacao';
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { useAppStyles } from '../styles/styles';
-import { apiAutenticada, formatBRL } from '../../services/financeiro';
-
+import BarraNavegacao from "../componentes/BarraNavegacao";
+import { CartaoAnimado, TelaAnimada } from "../componentes/TelaAnimada";
+import { useEstilosApp } from "../estilos/estilos";
+import { apiAutenticada, formatarReais } from "../../servicos/financeiro";
 function valorParaInput(valor) {
   return Number(valor || 0).toFixed(2).replace('.', ',');
 }
-
 function moedaParaNumero(valor) {
-  const texto = String(valor ?? '')
-    .trim()
-    .replace(/\s/g, '')
-    .replace(/^R\$/i, '');
-
+  const texto = String(valor ?? '').trim().replace(/\s/g, '').replace(/^R\$/i, '');
   if (!texto) return Number.NaN;
-
   if (texto.includes(',')) {
     return Number(texto.replace(/\./g, '').replace(',', '.'));
   }
@@ -29,14 +22,17 @@ function moedaParaNumero(valor) {
   if (/^\d{1,3}(?:\.\d{3})+$/.test(texto)) {
     return Number(texto.replace(/\./g, ''));
   }
-
   return Number(texto);
 }
-
 export default function Metas() {
-  const { colors, keyboardStyles, metasStyles: styles, sharedStyles } = useAppStyles();
-  const submitLock = useRef(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const {
+    cores,
+    estilosTeclado,
+    estilosMetas: estilos,
+    estilosCompartilhados
+  } = useEstilosApp();
+  const travaEnvio = useRef(false);
+  const [modalVisivel, setModalVisivel] = useState(false);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [metaSelecionada, setMetaSelecionada] = useState(null);
   const [metaParaExcluir, setMetaParaExcluir] = useState(null);
@@ -47,23 +43,18 @@ export default function Metas() {
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
-
   const carregarMetas = useCallback(async () => {
     try {
-      const response = await apiAutenticada('/metas');
-      setMetas(response.metas);
+      const resposta = await apiAutenticada('/metas');
+      setMetas(resposta.metas);
       setErro('');
-    } catch (error) {
-      setErro(error.message);
+    } catch (falha) {
+      setErro(falha.message);
     }
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      carregarMetas();
-    }, [carregarMetas]),
-  );
-
+  useFocusEffect(useCallback(() => {
+    carregarMetas();
+  }, [carregarMetas]));
   function limparFormulario() {
     setNomeMeta('');
     setValorMeta('');
@@ -71,19 +62,16 @@ export default function Metas() {
     setMetaSelecionada(null);
     setModoEdicao(false);
   }
-
   function fecharModal() {
-    setModalVisible(false);
+    setModalVisivel(false);
     setErro('');
     limparFormulario();
   }
-
   function abrirNovaMeta() {
     limparFormulario();
     setErro('');
-    setModalVisible(true);
+    setModalVisivel(true);
   }
-
   function abrirEdicao(item) {
     setMetaSelecionada(item);
     setModoEdicao(true);
@@ -91,227 +79,157 @@ export default function Metas() {
     setValorMeta(valorParaInput(item.objetivo));
     setValorAtual(valorParaInput(item.atual));
     setErro('');
-    setModalVisible(true);
+    setModalVisivel(true);
   }
-
   async function salvarMeta() {
-    if (submitLock.current) return;
-
+    if (travaEnvio.current) return;
     const objetivoNumerico = moedaParaNumero(valorMeta);
     const atualNumerico = valorAtual ? moedaParaNumero(valorAtual) : 0;
-
     if (!Number.isFinite(objetivoNumerico) || objetivoNumerico <= 0) {
       setErro('Informe um valor válido para a meta.');
       return;
     }
-
     if (!Number.isFinite(atualNumerico) || atualNumerico < 0) {
       setErro('Informe um valor atual válido.');
       return;
     }
-
-    submitLock.current = true;
+    travaEnvio.current = true;
     setSalvando(true);
     setErro('');
-
     try {
-      const path = modoEdicao ? `/metas/${metaSelecionada.id}` : '/metas';
-      await apiAutenticada(path, {
+      const caminho = modoEdicao ? `/metas/${metaSelecionada.id}` : '/metas';
+      await apiAutenticada(caminho, {
         method: modoEdicao ? 'PUT' : 'POST',
-        body: JSON.stringify({ nome: nomeMeta, objetivo: objetivoNumerico, atual: atualNumerico }),
+        body: JSON.stringify({
+          nome: nomeMeta,
+          objetivo: objetivoNumerico,
+          atual: atualNumerico
+        })
       });
       fecharModal();
       await carregarMetas();
-    } catch (error) {
-      setErro(error.message);
+    } catch (falha) {
+      setErro(falha.message);
     } finally {
-      submitLock.current = false;
+      travaEnvio.current = false;
       setSalvando(false);
     }
   }
-
   async function excluirMeta() {
-    if (!metaParaExcluir || submitLock.current) return;
-    submitLock.current = true;
+    if (!metaParaExcluir || travaEnvio.current) return;
+    travaEnvio.current = true;
     setExcluindo(true);
     setErro('');
-
     try {
-      await apiAutenticada(`/metas/${metaParaExcluir.id}`, { method: 'DELETE' });
+      await apiAutenticada(`/metas/${metaParaExcluir.id}`, {
+        method: 'DELETE'
+      });
       setMetaParaExcluir(null);
       await carregarMetas();
-    } catch (error) {
+    } catch (falha) {
       setMetaParaExcluir(null);
-      setErro(error.message);
+      setErro(falha.message);
     } finally {
-      submitLock.current = false;
+      travaEnvio.current = false;
       setExcluindo(false);
     }
   }
-
-  function renderItem({ item, index }) {
-    const porcentagem = item.objetivo > 0 ? Math.min((item.atual / item.objetivo) * 100, 100) : 0;
+  function renderizarItem({
+    item,
+    index
+  }) {
+    const porcentagem = item.objetivo > 0 ? Math.min(item.atual / item.objetivo * 100, 100) : 0;
     const concluida = item.status === 'concluida' || porcentagem >= 100;
-
-    return (
-      <AnimatedCard style={[styles.card, concluida && styles.cardConcluida]} delay={80 + index * 60}>
-        <View style={styles.cardHeader}>
-          <Icon
-            name={concluida ? 'check-circle' : 'track-changes'}
-            size={32}
-            color={concluida ? colors.success : colors.primary}
-          />
-          <Text style={styles.nomeMeta}>{item.nome}</Text>
-          <View style={styles.acoesCard}>
-            <TouchableOpacity
-              style={styles.botaoAcao}
-              onPress={() => abrirEdicao(item)}
-              accessibilityLabel={`Editar meta ${item.nome}`}
-            >
-              <Icon name="edit" size={21} color={colors.primary} />
+    return <CartaoAnimado style={[estilos.cartao, concluida && estilos.cartaoConcluida]} atraso={80 + index * 60}>
+        <View style={estilos.cartaoCabecalho}>
+          <Icon name={concluida ? 'check-circle' : 'track-changes'} size={32} color={concluida ? cores.sucesso : cores.primaria} />
+          <Text style={estilos.nomeMeta}>{item.nome}</Text>
+          <View style={estilos.acoesCartao}>
+            <TouchableOpacity style={estilos.botaoAcao} onPress={() => abrirEdicao(item)} accessibilityLabel={`Editar meta ${item.nome}`}>
+              <Icon name="edit" size={21} color={cores.primaria} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.botaoAcao}
-              onPress={() => setMetaParaExcluir(item)}
-              accessibilityLabel={`Excluir meta ${item.nome}`}
-            >
-              <Icon name="delete-outline" size={22} color={colors.danger} />
+            <TouchableOpacity style={estilos.botaoAcao} onPress={() => setMetaParaExcluir(item)} accessibilityLabel={`Excluir meta ${item.nome}`}>
+              <Icon name="delete-outline" size={22} color={cores.perigo} />
             </TouchableOpacity>
           </View>
         </View>
 
-        {concluida ? (
-          <View style={styles.concluidaBadge}>
-            <Icon name="check" size={17} color={colors.success} />
-            <Text style={styles.concluidaTexto}>Meta concluída</Text>
-          </View>
-        ) : null}
+        {concluida ? <View style={estilos.concluidaSelo}>
+            <Icon name="check" size={17} color={cores.sucesso} />
+            <Text style={estilos.concluidaTexto}>Meta concluída</Text>
+          </View> : null}
 
-        <View style={styles.progressBackground}>
-          <View
-            style={[
-              styles.progressFill,
-              concluida && styles.progressFillConcluida,
-              { width: `${porcentagem}%` },
-            ]}
-          />
+        <View style={estilos.progressoFundo}>
+          <View style={[estilos.progressoFill, concluida && estilos.progressoFillConcluida, {
+          width: `${porcentagem}%`
+        }]} />
         </View>
-        <View style={styles.infoLinha}>
-          <Text style={styles.valor}>{formatBRL(item.atual)}</Text>
-          <Text style={styles.valor}>{formatBRL(item.objetivo)}</Text>
+        <View style={estilos.informacoesLinha}>
+          <Text style={estilos.valor}>{formatarReais(item.atual)}</Text>
+          <Text style={estilos.valor}>{formatarReais(item.objetivo)}</Text>
         </View>
-        <Text style={[styles.statusMeta, concluida && styles.statusConcluida]}>
+        <Text style={[estilos.statusMeta, concluida && estilos.statusConcluida]}>
           {concluida ? 'Concluída' : item.status === 'cancelada' ? 'Cancelada' : 'Em andamento'}
         </Text>
-        <Text style={[styles.porcentagem, concluida && styles.porcentagemConcluida]}>
+        <Text style={[estilos.porcentagem, concluida && estilos.porcentagemConcluida]}>
           {porcentagem.toFixed(0)}%
         </Text>
-      </AnimatedCard>
-    );
+      </CartaoAnimado>;
   }
-
-  return (
-    <AnimatedScreen style={styles.container} delay={60}>
-      {erro && !modalVisible ? <Text style={sharedStyles.errorText}>{erro}</Text> : null}
-      <FlatList
-        data={metas}
-        contentContainerStyle={sharedStyles.paddingBottom150}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<Text style={sharedStyles.errorText}>Nenhuma meta cadastrada.</Text>}
-      />
-      <TouchableOpacity style={styles.botaoAdicionar} onPress={abrirNovaMeta}>
-        <Icon name="add" size={25} color={colors.onPrimary} />
-        <Text style={styles.botaoTexto}>Adicionar Meta</Text>
+  return <TelaAnimada style={estilos.recipiente} atraso={60}>
+      {erro && !modalVisivel ? <Text style={estilosCompartilhados.erroTexto}>{erro}</Text> : null}
+      <FlatList data={metas} contentContainerStyle={estilosCompartilhados.espacamentoInferior150} renderItem={renderizarItem} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} ListEmptyComponent={<Text style={estilosCompartilhados.erroTexto}>Nenhuma meta cadastrada.</Text>} />
+      <TouchableOpacity style={estilos.botaoAdicionar} onPress={abrirNovaMeta}>
+        <Icon name="add" size={25} color={cores.sobrePrimaria} />
+        <Text style={estilos.botaoTexto}>Adicionar Meta</Text>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={fecharModal}>
-        <KeyboardArea modal style={keyboardStyles.avoidingView}>
-          <FormScrollView
-            contentContainerStyle={[styles.modalBackground, keyboardStyles.modalScrollContent]}
-            keyboardShouldPersistTaps="handled"
-          >
-            <AnimatedCard style={styles.modal} delay={30}>
-              <Text style={styles.modalTitulo}>{modoEdicao ? 'Editar Meta' : 'Nova Meta'}</Text>
-              <FormInput
-                style={styles.input}
-                maxLength={150}
-                placeholder="Nome da meta"
-                placeholderTextColor={colors.placeholder}
-                value={nomeMeta}
-                onChangeText={setNomeMeta}
-              />
-              <FormInput
-                style={styles.input}
-                placeholder="Valor da meta"
-                placeholderTextColor={colors.placeholder}
-                keyboardType="decimal-pad"
-                value={valorMeta}
-                onChangeText={setValorMeta}
-                mask="currency"
-              />
-              <FormInput
-                style={styles.input}
-                placeholder="Quanto você já possui?"
-                placeholderTextColor={colors.placeholder}
-                keyboardType="decimal-pad"
-                value={valorAtual}
-                onChangeText={setValorAtual}
-                mask="currency"
-              />
-              {erro ? <Text style={sharedStyles.errorText}>{erro}</Text> : null}
-              <View style={styles.modalButtons}>
-                <TouchableOpacity style={styles.cancelar} onPress={fecharModal} disabled={salvando}>
-                  <Text style={styles.cancelarTexto}>Cancelar</Text>
+      <Modal visible={modalVisivel} transparent animationType="fade" onRequestClose={fecharModal}>
+        <AreaTeclado modal style={estilosTeclado.desvioArea}>
+          <RolagemFormulario contentContainerStyle={[estilos.modalFundo, estilosTeclado.modalRolagemConteudo]} keyboardShouldPersistTaps="handled">
+            <CartaoAnimado style={estilos.modal} atraso={30}>
+              <Text style={estilos.modalTitulo}>{modoEdicao ? 'Editar Meta' : 'Nova Meta'}</Text>
+              <CampoFormulario style={estilos.campo} maxLength={150} placeholder="Nome da meta" placeholderTextColor={cores.textoIndicativo} value={nomeMeta} onChangeText={setNomeMeta} />
+              <CampoFormulario style={estilos.campo} placeholder="Valor da meta" placeholderTextColor={cores.textoIndicativo} keyboardType="decimal-pad" value={valorMeta} onChangeText={setValorMeta} mask="currency" />
+              <CampoFormulario style={estilos.campo} placeholder="Quanto você já possui?" placeholderTextColor={cores.textoIndicativo} keyboardType="decimal-pad" value={valorAtual} onChangeText={setValorAtual} mask="currency" />
+              {erro ? <Text style={estilosCompartilhados.erroTexto}>{erro}</Text> : null}
+              <View style={estilos.modalBotoes}>
+                <TouchableOpacity style={estilos.cancelar} onPress={fecharModal} disabled={salvando}>
+                  <Text style={estilos.cancelarTexto}>Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.salvar} onPress={salvarMeta} disabled={salvando}>
-                  <Text style={styles.salvarTexto}>
+                <TouchableOpacity style={estilos.salvar} onPress={salvarMeta} disabled={salvando}>
+                  <Text style={estilos.salvarTexto}>
                     {salvando ? 'Salvando...' : modoEdicao ? 'Salvar alterações' : 'Salvar'}
                   </Text>
                 </TouchableOpacity>
               </View>
-            </AnimatedCard>
-          </FormScrollView>
-        </KeyboardArea>
+            </CartaoAnimado>
+          </RolagemFormulario>
+        </AreaTeclado>
       </Modal>
 
-      <Modal
-        visible={Boolean(metaParaExcluir)}
-        transparent
-        animationType="fade"
-        onRequestClose={() => !excluindo && setMetaParaExcluir(null)}
-      >
-        <View style={styles.modalBackgroundExcluir}>
-          <AnimatedCard style={styles.modalExcluir} delay={30}>
-            <View style={styles.iconeExcluir}>
-              <Icon name="delete-outline" size={30} color={colors.danger} />
+      <Modal visible={Boolean(metaParaExcluir)} transparent animationType="fade" onRequestClose={() => !excluindo && setMetaParaExcluir(null)}>
+        <View style={estilos.modalFundoExcluir}>
+          <CartaoAnimado style={estilos.modalExcluir} atraso={30}>
+            <View style={estilos.iconeExcluir}>
+              <Icon name="delete-outline" size={30} color={cores.perigo} />
             </View>
-            <Text style={styles.modalTitulo}>Excluir meta?</Text>
-            <Text style={styles.textoConfirmacao}>
+            <Text style={estilos.modalTitulo}>Excluir meta?</Text>
+            <Text style={estilos.textoConfirmacao}>
               A meta “{metaParaExcluir?.nome}” e todo o histórico ligado a ela serão excluídos.
             </Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.cancelar}
-                onPress={() => setMetaParaExcluir(null)}
-                disabled={excluindo}
-              >
-                <Text style={styles.cancelarTexto}>Cancelar</Text>
+            <View style={estilos.modalBotoes}>
+              <TouchableOpacity style={estilos.cancelar} onPress={() => setMetaParaExcluir(null)} disabled={excluindo}>
+                <Text style={estilos.cancelarTexto}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.excluir}
-                onPress={excluirMeta}
-                disabled={excluindo}
-              >
-                <Text style={styles.excluirTexto}>{excluindo ? 'Excluindo...' : 'Excluir'}</Text>
+              <TouchableOpacity style={estilos.excluir} onPress={excluirMeta} disabled={excluindo}>
+                <Text style={estilos.excluirTexto}>{excluindo ? 'Excluindo...' : 'Excluir'}</Text>
               </TouchableOpacity>
             </View>
-          </AnimatedCard>
+          </CartaoAnimado>
         </View>
       </Modal>
 
       <BarraNavegacao />
-    </AnimatedScreen>
-  );
+    </TelaAnimada>;
 }

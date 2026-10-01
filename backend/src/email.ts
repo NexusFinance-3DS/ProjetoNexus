@@ -1,23 +1,22 @@
 import nodemailer from 'nodemailer';
-import { config } from './config';
-
-export async function sendRecoveryCode(email: string, code: string): Promise<void> {
-  if (!config.email.user || !config.email.password) {
-    console.log(`[RECUPERAÇÃO] Código para ${email}: ${code}`);
+import { configuracao } from "./configuracao";
+export async function enviarCodigoRecuperacao(email: string, codigo: string): Promise<void> {
+  if (!configuracao.email.user || !configuracao.email.password) {
     return;
   }
-
-  const transporter = nodemailer.createTransport({
-    host: config.email.host,
-    port: config.email.port,
-    secure: config.email.port === 465,
-    auth: { user: config.email.user, pass: config.email.password },
+  const transportador = nodemailer.createTransport({
+    host: configuracao.email.host,
+    port: configuracao.email.port,
+    secure: configuracao.email.port === 465,
+    auth: {
+      user: configuracao.email.user,
+      pass: configuracao.email.password
+    }
   });
-
-  await transporter.sendMail({
-    from: config.email.from,
+  await transportador.sendMail({
+    from: configuracao.email.from,
     to: email,
     subject: 'Código de recuperação - Nexus Finance',
-    text: `Seu código de recuperação é ${code}. Ele expira em 15 minutos.`,
+    text: `Seu código de recuperação é ${codigo}. Ele expira em 15 minutos.`
   });
 }

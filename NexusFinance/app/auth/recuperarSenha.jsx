@@ -1,107 +1,97 @@
-import { KeyboardArea, FormScrollView, FormInput } from '../../components/FormLayout';
+import ModalAviso from "../../componentes/ModalAviso";
+import { AreaTeclado, RolagemFormulario, CampoFormulario } from "../../componentes/LayoutFormulario";
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
-import { AnimatedCard, AnimatedScreen } from '../components/AnimatedScreen';
-import { apiRequest } from '../../services/api';
-import { salvarRecuperacaoPendente } from '../../services/authFlow';
-import { useAppStyles } from '../styles/styles';
-
+import { CartaoAnimado, TelaAnimada } from "../componentes/TelaAnimada";
+import { requisicaoApi } from "../../servicos/api";
+import { salvarRecuperacaoPendente } from "../../servicos/fluxoAutenticacao";
+import { useEstilosApp } from "../estilos/estilos";
 export default function RecuperarSenha() {
-  const { colors, keyboardStyles, recuperarSenhaStyles: styles } = useAppStyles();
+  const {
+    cores,
+    estilosTeclado,
+    estilosRecuperarSenha: estilos
+  } = useEstilosApp();
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-
+  const [mensagemEnvio, setMensagemEnvio] = useState('');
   const enviarCodigo = async () => {
     setCarregando(true);
     setErro('');
     try {
-      const resposta = await apiRequest('/auth/recuperar-senha', {
+      const resposta = await requisicaoApi('/auth/recuperar-senha', {
         method: 'POST',
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email
+        })
       });
-      alert(resposta.mensagem);
-    } catch (error) {
-      setErro(error.message);
+      setMensagemEnvio(resposta.mensagem || 'Se o e-mail estiver cadastrado, um código será enviado.');
+    } catch (falha) {
+      setErro(falha.message);
     } finally {
       setCarregando(false);
     }
   };
-
   const verificarCodigo = async () => {
     setCarregando(true);
     setErro('');
     try {
-      await apiRequest('/auth/validar-codigo', {
+      await requisicaoApi('/auth/validar-codigo', {
         method: 'POST',
-        body: JSON.stringify({ email, codigo }),
+        body: JSON.stringify({
+          email,
+          codigo
+        })
       });
-      salvarRecuperacaoPendente({ email: email.trim().toLowerCase(), codigo });
+      salvarRecuperacaoPendente({
+        email: email.trim().toLowerCase(),
+        codigo
+      });
       router.push('/auth/novaSenha');
-    } catch (error) {
-      setErro(error.message);
+    } catch (falha) {
+      setErro(falha.message);
     } finally {
       setCarregando(false);
     }
   };
-
-  return (
-    <AnimatedScreen maxWidth={560} style={styles.container} delay={60}>
-      <KeyboardArea style={keyboardStyles.avoidingView}>
-        <FormScrollView
-          contentContainerStyle={keyboardStyles.centeredScrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <AnimatedCard style={styles.content} delay={80}>
-            <Text style={styles.descricao}>
+  return <>
+    <TelaAnimada larguraMaxima={560} style={estilos.recipiente} atraso={60}>
+      <AreaTeclado style={estilosTeclado.desvioArea}>
+        <RolagemFormulario contentContainerStyle={estilosTeclado.centralizadoRolagemConteudo} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <CartaoAnimado style={estilos.conteudo} atraso={80}>
+            <Text style={estilos.descricao}>
               Digite seu e-mail para receber um código de recuperação.
             </Text>
-            <View style={styles.inputContainer1}>
-              <FormInput
-                style={styles.input}
-                placeholder="Digite seu e-mail"
-                placeholderTextColor={colors.placeholder}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-                mask="email"
-              />
+            <View style={estilos.campoRecipiente1}>
+              <CampoFormulario style={estilos.campo} placeholder="Digite seu e-mail" placeholderTextColor={cores.textoIndicativo} keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} mask="email" />
 
-              <TouchableOpacity style={styles.button} onPress={enviarCodigo} disabled={carregando}>
-                <Text style={styles.buttonText}>
+              <TouchableOpacity style={estilos.botao} onPress={enviarCodigo} disabled={carregando}>
+                <Text style={estilos.botaoTexto}>
                   {carregando ? 'Enviando...' : 'Enviar código'}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <FormInput
-              style={styles.input}
-              placeholder="Digite o código"
-              placeholderTextColor={colors.placeholder}
-              keyboardType="number-pad"
-              value={codigo}
-              onChangeText={setCodigo}
-              mask="digits"
-              maskOptions={{ maxDigits: 6 }}
-              maxLength={6}
-            />
+            <CampoFormulario style={estilos.campo} placeholder="Digite o código" placeholderTextColor={cores.textoIndicativo} keyboardType="number-pad" value={codigo} onChangeText={setCodigo} mask="digits" maskOptions={{
+              maxDigits: 6
+            }} maxLength={6} />
 
-            {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+            {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
 
-            <TouchableOpacity style={styles.button} onPress={verificarCodigo} disabled={carregando}>
-              <Text style={styles.buttonText}>{carregando ? 'Aguarde...' : 'Continuar'}</Text>
+            <TouchableOpacity style={estilos.botao} onPress={verificarCodigo} disabled={carregando}>
+              <Text style={estilos.botaoTexto}>{carregando ? 'Aguarde...' : 'Continuar'}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.voltar}>Voltar para o login</Text>
+              <Text style={estilos.voltar}>Voltar para o login</Text>
             </TouchableOpacity>
-          </AnimatedCard>
-        </FormScrollView>
-      </KeyboardArea>
-    </AnimatedScreen>
-  );
+          </CartaoAnimado>
+        </RolagemFormulario>
+      </AreaTeclado>
+    </TelaAnimada>
+    <ModalAviso visivel={Boolean(mensagemEnvio)} titulo="Confira seu e-mail" mensagem={mensagemEnvio} tipo="informacao" aoFechar={() => setMensagemEnvio('')} />
+    </>;
 }

@@ -11,7 +11,7 @@ Documento rápido explicando, de forma básica, cada funcionalidade e onde ela f
 
 - **Início**: `NexusFinance/app/(tabs)/inicial.jsx` — Tela principal com perfil resumido, saldo atual, cards de Visão Rápida (Receitas, Despesas, Economia), progresso de metas e card de Distribuição da renda (agora mostrando dados do mês anterior). Também contém a barra de navegação inferior e menu expandido.
 - **Fluxo Financeiro**: `NexusFinance/app/(tabs)/fluxoFinanceiro.jsx` — Lista de transações (Receitas/Despesas), filtros por aba (Geral/Receitas/Despesas), cálculo de totais (receitas, despesas e saldo) e exibição detalhada de cada lançamento.
-- **Dashboard**: `NexusFinance/app/(tabs)/dashboard.jsx` — Visualizações gráficas (pie/line) por categoria e evolução do saldo; resumo mensal com percentuais visuais.
+- **Painel financeiro**: `NexusFinance/app/(tabs)/painel.jsx` — Visualizações gráficas (pie/line) por categoria e evolução do saldo; resumo mensal com percentuais visuais.
 - **Relatórios**: `NexusFinance/app/(tabs)/relatorios.jsx` — Gráfico de barras Receitas x Despesas por período e resumo com opções de exportar/compartilhar.
 - **Metas**: `NexusFinance/app/(tabs)/metas.jsx` — Gerenciamento de metas financeiras: progresso, listagem e navegação para criação/edição.
 - **Perfil**: `NexusFinance/app/(tabs)/perfil.jsx` — Dados do usuário, resumo da conta (saldo, receitas, despesas, economia) e links para configurações e relatórios.
@@ -33,8 +33,8 @@ Documento rápido explicando, de forma básica, cada funcionalidade e onde ela f
 
 **Dados e utilitários**
 
-- `NexusFinance/services/financeiro.js` — comunicação autenticada com o backend e formatação de valores/datas.
-- `NexusFinance/hooks/useResumoFinanceiro.js` — carrega do MySQL os totais, categorias, histórico e meta do usuário.
+- `NexusFinance/servicos/financeiro.js` — comunicação autenticada com o backend e formatação de valores/datas.
+- `NexusFinance/ganchos/useResumoFinanceiro.js` — carrega do MySQL os totais, categorias, histórico e meta do usuário.
 - Os dados financeiros não são mais definidos dentro do aplicativo.
 
 **Layout / Navegação**
@@ -48,7 +48,7 @@ Documento rápido explicando, de forma básica, cada funcionalidade e onde ela f
 **Comportamentos importantes**
 
 - **Unificação de valores**: as telas usam os mesmos endpoints do backend para manter receitas, despesas, saldo, metas e gráficos coerentes.
-- **Menu expandido**: a barra de navegação inferior possui um menu central (`+`) para criar lançamentos e um botão `mais` que abre o botão Dashboard; ambos usam overlay que fecha ao tocar fora.
+- **Menu expandido**: a barra de navegação inferior possui um menu central (`+`) para criar lançamentos e um botão `mais` que abre o botão Painel financeiro; ambos usam overlay que fecha ao tocar fora.
 - **Economia comparativa**: o card de Economia exibe não só o valor guardado no mês atual, mas também a variação (valor e %) em relação ao mês anterior.
 
 **Sugestões / próximos passos**

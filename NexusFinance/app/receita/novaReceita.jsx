@@ -1,26 +1,27 @@
-import DateInput from '../../components/DateInput';
-import { TransactionSelectors, TransactionAttachment } from '../../components/TransactionOptions';
-import { useTransactionOptions } from '../../hooks/useTransactionOptions';
-import {
-  KeyboardArea as KeyboardAvoidingView,
-  FormScrollView as ScrollView,
-  FormInput as TextInput,
-} from '../../components/FormLayout';
+import ModalAviso from "../../componentes/ModalAviso";
+import CampoData from "../../componentes/CampoData";
+import { SeletoresTransacao, AnexoTransacao } from "../../componentes/OpcoesTransacao";
+import { useOpcoesTransacao } from "../../ganchos/useOpcoesTransacao";
+import { AreaTeclado as KeyboardAvoidingView, RolagemFormulario as ScrollView, CampoFormulario as TextInput } from "../../componentes/LayoutFormulario";
 import React, { useState, useRef } from 'react';
-import { Alert, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Switch, Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons';
-import { AnimatedScreen } from '../components/AnimatedScreen';
-import { useAppStyles } from '../styles/styles';
-import { apiAutenticada, formatBRL, today } from '../../services/financeiro';
-
+import { TelaAnimada } from "../componentes/TelaAnimada";
+import { useEstilosApp } from "../estilos/estilos";
+import { apiAutenticada, formatarReais, hoje } from "../../servicos/financeiro";
 export default function NovaReceita() {
-  const { colors, keyboardStyles, novaReceitaStyles: styles, sharedStyles } = useAppStyles();
-  const opcoes = useTransactionOptions('Receita');
-  const submitLock = useRef(false);
+  const {
+    cores,
+    estilosTeclado,
+    estilosNovaReceita: estilos,
+    estilosCompartilhados
+  } = useEstilosApp();
+  const opcoes = useOpcoesTransacao('Receita');
+  const travaEnvio = useRef(false);
   const [valor, setValor] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [data, setData] = useState(today());
+  const [dados, setData] = useState(hoje());
   const [recebida, setRecebida] = useState(true);
   const [recorrente, setRecorrente] = useState(false);
   const [observacao, setObservacao] = useState('');
@@ -31,22 +32,21 @@ export default function NovaReceita() {
   const [erroMetas, setErroMetas] = useState('');
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
-
+  const [mensagemSucesso, setMensagemSucesso] = useState('');
   async function carregarMetas() {
     setCarregandoMetas(true);
     setErroMetas('');
     try {
-      const response = await apiAutenticada('/metas');
-      const metasAtivas = (response.metas || []).filter((meta) => meta.status === 'em_andamento');
+      const resposta = await apiAutenticada('/metas');
+      const metasAtivas = (resposta.metas || []).filter(meta => meta.status === 'em_andamento');
       setMetas(metasAtivas);
-      setMetaId((atual) => (metasAtivas.some((meta) => meta.id === atual) ? atual : ''));
-    } catch (error) {
-      setErroMetas(error.message || 'Não foi possível carregar as metas.');
+      setMetaId(atual => metasAtivas.some(meta => meta.id === atual) ? atual : '');
+    } catch (falha) {
+      setErroMetas(falha.message || 'Não foi possível carregar as metas.');
     } finally {
       setCarregandoMetas(false);
     }
   }
-
   async function alterarEnvioParaMeta(ativo) {
     setEnviarParaMeta(ativo);
     setErro('');
@@ -57,9 +57,8 @@ export default function NovaReceita() {
     }
     if (!metas.length) await carregarMetas();
   }
-
   async function salvar() {
-    if (submitLock.current) return;
+    if (travaEnvio.current || mensagemSucesso) return;
     if (enviarParaMeta && !recebida) {
       setErro('Confirme o recebimento antes de enviar para uma meta.');
       return;
@@ -68,209 +67,134 @@ export default function NovaReceita() {
       setErro('Selecione uma meta para receber esta receita.');
       return;
     }
-    submitLock.current = true;
+    travaEnvio.current = true;
     setSalvando(true);
     setErro('');
     try {
-      const response = await apiAutenticada(
-        '/financeiro/transacoes',
-        opcoes.prepararEnvio({
-          tipo: 'Receita',
-          valor,
-          descricao,
-          data,
-          recorrente,
-          observacao,
-          status: recebida ? 'Confirmada' : 'Pendente',
-          ...(enviarParaMeta && metaId ? { metaId } : {}),
-        }),
-      );
-      Alert.alert('Sucesso', response.mensagem);
-      router.replace('/fluxoFinanceiro');
-    } catch (error) {
-      setErro(error.message);
+      const resposta = await apiAutenticada('/financeiro/transacoes', opcoes.prepararEnvio({
+        tipo: 'Receita',
+        valor,
+        descricao,
+        data: dados,
+        recorrente,
+        observacao,
+        status: recebida ? 'Confirmada' : 'Pendente',
+        ...(enviarParaMeta && metaId ? {
+          metaId
+        } : {})
+      }));
+      setMensagemSucesso(resposta.mensagem || 'Receita salva!');
+    } catch (falha) {
+      setErro(falha.message);
     } finally {
-      submitLock.current = false;
+      travaEnvio.current = false;
       setSalvando(false);
     }
   }
-
-  return (
-    <AnimatedScreen style={styles.container} delay={60}>
-      <KeyboardAvoidingView style={keyboardStyles.avoidingView}>
-        <ScrollView
-          contentContainerStyle={keyboardStyles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.addValor}>
-            <Text style={styles.titulo}>Adicione o valor:</Text>
-            <TextInput
-              style={[styles.InputValor, sharedStyles.textAlignRight]}
-              value={valor}
-              onChangeText={setValor}
-              mask="currency"
-              keyboardType="decimal-pad"
-              placeholder="R$ 0,00"
-              placeholderTextColor={colors.placeholder}
-            />
+  return <>
+    <TelaAnimada style={estilos.recipiente} atraso={60}>
+      <KeyboardAvoidingView style={estilosTeclado.desvioArea}>
+        <ScrollView contentContainerStyle={estilosTeclado.rolagemConteudo} keyboardShouldPersistTaps="handled">
+          <View style={estilos.adicionarValor}>
+            <Text style={estilos.titulo}>Adicione o valor:</Text>
+            <TextInput style={[estilos.campoValor, estilosCompartilhados.textoAlinhamentoDireita]} value={valor} onChangeText={setValor} mask="currency" keyboardType="decimal-pad" placeholder="R$ 0,00" placeholderTextColor={cores.textoIndicativo} />
           </View>
-          <View style={styles.inputFull}>
-            <Text style={sharedStyles.formLabel}>Descrição</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ex.: Salário"
-              placeholderTextColor={colors.placeholder}
-              maxLength={255}
-              value={descricao}
-              onChangeText={setDescricao}
-            />
+          <View style={estilos.campoCompleto}>
+            <Text style={estilosCompartilhados.formularioRotulo}>Descrição</Text>
+            <TextInput style={estilos.campo} placeholder="Ex.: Salário" placeholderTextColor={cores.textoIndicativo} maxLength={255} value={descricao} onChangeText={setDescricao} />
           </View>
-          <View style={styles.inputFull}>
-            <Text style={sharedStyles.formLabel}>Data (DD/MM/AAAA)</Text>
-            <DateInput
-              style={styles.input}
-              placeholder="DD/MM/AAAA"
-              placeholderTextColor={colors.placeholder}
-              value={data}
-              onChangeText={setData}
-            />
+          <View style={estilos.campoCompleto}>
+            <Text style={estilosCompartilhados.formularioRotulo}>Data (DD/MM/AAAA)</Text>
+            <CampoData style={estilos.campo} placeholder="DD/MM/AAAA" placeholderTextColor={cores.textoIndicativo} value={dados} onChangeText={setData} />
           </View>
-          <TransactionSelectors options={opcoes} disabled={salvando} />
-          <View style={styles.listItem}>
-            <View style={styles.iconBox}>
-              <Icon name="check-circle" size={20} color={colors.textPrimary} />
+          <SeletoresTransacao opcoes={opcoes} desabilitado={salvando} />
+          <View style={estilos.listaItem}>
+            <View style={estilos.iconeCaixa}>
+              <Icon name="check-circle" size={20} color={cores.textoPrincipal} />
             </View>
-            <View style={sharedStyles.flex}>
-              <Text style={styles.listItemText}>Receita recebida</Text>
-              <Text style={styles.listItemSub}>{recebida ? 'Confirmada' : 'Pendente'}</Text>
+            <View style={estilosCompartilhados.flexivel}>
+              <Text style={estilos.listaItemTexto}>Receita recebida</Text>
+              <Text style={estilos.listaItemSecundario}>{recebida ? 'Confirmada' : 'Pendente'}</Text>
             </View>
-            <Switch
-              accessibilityLabel="Receita recebida"
-              value={recebida}
-              disabled={salvando}
-              onValueChange={(value) => {
-                setRecebida(value);
-                if (!value) {
-                  setEnviarParaMeta(false);
-                  setMetaId('');
-                }
-              }}
-            />
+            <Switch accessibilityLabel="Receita recebida" value={recebida} disabled={salvando} onValueChange={valorAuxiliar => {
+              setRecebida(valorAuxiliar);
+              if (!valorAuxiliar) {
+                setEnviarParaMeta(false);
+                setMetaId('');
+              }
+            }} />
           </View>
-          <View style={styles.listItem}>
-            <View style={styles.iconBox}>
-              <Icon name="repeat" size={20} color={colors.textPrimary} />
+          <View style={estilos.listaItem}>
+            <View style={estilos.iconeCaixa}>
+              <Icon name="repeat" size={20} color={cores.textoPrincipal} />
             </View>
-            <View style={sharedStyles.flex}>
-              <Text style={styles.listItemText}>Receita fixa</Text>
-              <Text style={styles.listItemSub}>Próximos meses serão lançados como pendentes</Text>
+            <View style={estilosCompartilhados.flexivel}>
+              <Text style={estilos.listaItemTexto}>Receita fixa</Text>
+              <Text style={estilos.listaItemSecundario}>Próximos meses serão lançados como pendentes</Text>
             </View>
             <Switch value={recorrente} onValueChange={setRecorrente} disabled={salvando} />
           </View>
 
-          <View style={styles.listItem}>
-            <View style={styles.iconBox}>
-              <Icon name="flag" size={20} color={colors.textPrimary} />
+          <View style={estilos.listaItem}>
+            <View style={estilos.iconeCaixa}>
+              <Icon name="flag" size={20} color={cores.textoPrincipal} />
             </View>
-            <View style={sharedStyles.flex}>
-              <Text style={styles.listItemText}>Enviar para uma meta</Text>
-              <Text style={styles.listItemSub}>Destinar esta receita para uma meta</Text>
+            <View style={estilosCompartilhados.flexivel}>
+              <Text style={estilos.listaItemTexto}>Enviar para uma meta</Text>
+              <Text style={estilos.listaItemSecundario}>Destinar esta receita para uma meta</Text>
             </View>
-            <Switch
-              value={enviarParaMeta}
-              onValueChange={alterarEnvioParaMeta}
-              disabled={salvando || !recebida}
-            />
+            <Switch value={enviarParaMeta} onValueChange={alterarEnvioParaMeta} disabled={salvando || !recebida} />
           </View>
 
-          {enviarParaMeta ? (
-            <View style={styles.inputFull}>
-              <Text style={sharedStyles.formLabel}>Escolha a meta</Text>
-              {carregandoMetas ? <Text style={styles.listItemSub}>Carregando metas...</Text> : null}
-              {erroMetas ? (
-                <TouchableOpacity
-                  style={styles.listItem}
-                  onPress={carregarMetas}
-                  disabled={carregandoMetas || salvando}
-                >
-                  <View style={styles.iconBox}>
-                    <Icon name="refresh" size={20} color={colors.textPrimary} />
+          {enviarParaMeta ? <View style={estilos.campoCompleto}>
+              <Text style={estilosCompartilhados.formularioRotulo}>Escolha a meta</Text>
+              {carregandoMetas ? <Text style={estilos.listaItemSecundario}>Carregando metas...</Text> : null}
+              {erroMetas ? <TouchableOpacity style={estilos.listaItem} onPress={carregarMetas} disabled={carregandoMetas || salvando}>
+                  <View style={estilos.iconeCaixa}>
+                    <Icon name="refresh" size={20} color={cores.textoPrincipal} />
                   </View>
-                  <View style={sharedStyles.flex}>
-                    <Text style={styles.listItemText}>Tentar novamente</Text>
-                    <Text style={sharedStyles.errorText}>{erroMetas}</Text>
+                  <View style={estilosCompartilhados.flexivel}>
+                    <Text style={estilos.listaItemTexto}>Tentar novamente</Text>
+                    <Text style={estilosCompartilhados.erroTexto}>{erroMetas}</Text>
                   </View>
-                </TouchableOpacity>
-              ) : null}
-              {!carregandoMetas && !erroMetas && metas.length === 0 ? (
-                <Text style={styles.listItemSub}>Nenhuma meta em andamento.</Text>
-              ) : null}
-              {!carregandoMetas && !erroMetas
-                ? metas.map((meta) => {
-                    const selecionada = meta.id === metaId;
-                    return (
-                      <TouchableOpacity
-                        key={meta.id}
-                        style={styles.listItem}
-                        onPress={() => setMetaId(meta.id)}
-                        disabled={salvando}
-                      >
-                        <View style={styles.iconBox}>
-                          <Icon
-                            name={selecionada ? 'radio-button-checked' : 'radio-button-unchecked'}
-                            size={20}
-                            color={selecionada ? colors.primary : colors.textPrimary}
-                          />
+                </TouchableOpacity> : null}
+              {!carregandoMetas && !erroMetas && metas.length === 0 ? <Text style={estilos.listaItemSecundario}>Nenhuma meta em andamento.</Text> : null}
+              {!carregandoMetas && !erroMetas ? metas.map(meta => {
+              const selecionada = meta.id === metaId;
+              return <TouchableOpacity key={meta.id} style={estilos.listaItem} onPress={() => setMetaId(meta.id)} disabled={salvando}>
+                        <View style={estilos.iconeCaixa}>
+                          <Icon name={selecionada ? 'radio-button-checked' : 'radio-button-unchecked'} size={20} color={selecionada ? cores.primaria : cores.textoPrincipal} />
                         </View>
-                        <View style={sharedStyles.flex}>
-                          <Text style={styles.listItemText}>{meta.nome}</Text>
-                          <Text style={styles.listItemSub}>
-                            {formatBRL(meta.atual)} de {formatBRL(meta.objetivo)}
+                        <View style={estilosCompartilhados.flexivel}>
+                          <Text style={estilos.listaItemTexto}>{meta.nome}</Text>
+                          <Text style={estilos.listaItemSecundario}>
+                            {formatarReais(meta.atual)} de {formatarReais(meta.objetivo)}
                           </Text>
                         </View>
-                        {selecionada ? (
-                          <Icon name="check" size={20} color={colors.primary} />
-                        ) : null}
-                      </TouchableOpacity>
-                    );
-                  })
-                : null}
-            </View>
-          ) : null}
+                        {selecionada ? <Icon name="check" size={20} color={cores.primaria} /> : null}
+                      </TouchableOpacity>;
+            }) : null}
+            </View> : null}
 
-          <View style={styles.inputFull}>
-            <Text style={sharedStyles.formLabel}>Observação (opcional)</Text>
-            <TextInput
-              style={[styles.input, sharedStyles.multilineInput]}
-              placeholder="Observação"
-              placeholderTextColor={colors.placeholder}
-              multiline
-              value={observacao}
-              onChangeText={setObservacao}
-            />
+          <View style={estilos.campoCompleto}>
+            <Text style={estilosCompartilhados.formularioRotulo}>Observação (opcional)</Text>
+            <TextInput style={[estilos.campo, estilosCompartilhados.multilinhaCampo]} placeholder="Observação" placeholderTextColor={cores.textoIndicativo} multiline value={observacao} onChangeText={setObservacao} />
           </View>
-          <TransactionAttachment options={opcoes} disabled={salvando} />
-          {erro ? <Text style={sharedStyles.errorText}>{erro}</Text> : null}
-          <View style={styles.saveWrapper}>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={salvar}
-              disabled={
-                salvando ||
-                opcoes.carregando ||
-                !!opcoes.erroOpcoes ||
-                !opcoes.categoriaId ||
-                !opcoes.tipoContaId ||
-                (enviarParaMeta && (!metaId || carregandoMetas || !!erroMetas))
-              }
-            >
-              <Text style={styles.saveButtonText}>
+          <AnexoTransacao opcoes={opcoes} desabilitado={salvando} />
+          {erro ? <Text style={estilosCompartilhados.erroTexto}>{erro}</Text> : null}
+          <View style={estilos.salvarEnvoltorio}>
+            <TouchableOpacity style={estilos.salvarBotao} onPress={salvar} disabled={salvando || opcoes.carregando || !!opcoes.erroOpcoes || !opcoes.categoriaId || !opcoes.tipoContaId || enviarParaMeta && (!metaId || carregandoMetas || !!erroMetas)}>
+              <Text style={estilos.salvarBotaoTexto}>
                 {salvando ? 'Salvando...' : 'Salvar receita'}
               </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </AnimatedScreen>
-  );
+    </TelaAnimada>
+    <ModalAviso visivel={Boolean(mensagemSucesso)} titulo="Receita salva!" mensagem={mensagemSucesso} textoBotao="Ver fluxo financeiro" aoFechar={() => {
+      setMensagemSucesso('');
+      router.replace('/fluxoFinanceiro');
+    }} />
+    </>;
 }

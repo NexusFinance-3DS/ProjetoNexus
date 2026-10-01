@@ -1,104 +1,80 @@
-import { KeyboardArea, FormScrollView, FormInput } from '../../components/FormLayout';
+import { AreaTeclado, RolagemFormulario, CampoFormulario } from "../../componentes/LayoutFormulario";
 import React, { useState } from 'react';
 import { router } from 'expo-router';
 import { Image, View, Text, TouchableOpacity } from 'react-native';
-import { AnimatedScreen } from '../components/AnimatedScreen';
-import { apiRequest } from '../../services/api';
-import { useSession } from '../../contexts/SessionContext';
-import { useAppStyles } from '../styles/styles';
-
+import { TelaAnimada } from "../componentes/TelaAnimada";
+import { requisicaoApi } from "../../servicos/api";
+import { useSessao } from "../../contextos/ContextoSessao";
+import { useEstilosApp } from "../estilos/estilos";
 export default function Login() {
-  const { colors, keyboardStyles, loginStyles: styles, sharedStyles } = useAppStyles();
-  const { iniciarSessao } = useSession();
+  const {
+    cores,
+    estilosTeclado,
+    estilosLogin: estilos,
+    estilosCompartilhados
+  } = useEstilosApp();
+  const {
+    iniciarSessao
+  } = useSessao();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-
   function criarConta() {
     router.push('/auth/cadastro');
   }
-
   function recuperarSenha() {
     router.push('/auth/recuperarSenha');
   }
-
   async function entrar() {
     if (!email || !senha) {
       setErro('Preencha email e senha.');
       return;
     }
-
     setCarregando(true);
     setErro('');
     try {
-      const resposta = await apiRequest('/auth/login', {
+      const resposta = await requisicaoApi('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({
+          email,
+          senha
+        })
       });
       await iniciarSessao(resposta.token, resposta.usuario);
       router.replace('/inicial');
-    } catch (error) {
-      setErro(error.message);
+    } catch (falha) {
+      setErro(falha.message);
     } finally {
       setCarregando(false);
     }
   }
+  return <TelaAnimada animada={false} larguraMaxima={560} style={estilos.recipiente}>
+      <AreaTeclado style={estilosTeclado.desvioArea}>
+        <RolagemFormulario contentContainerStyle={estilosTeclado.autenticacaoRolagemConteudo} resetScrollOnKeyboardHide keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <Image source={require('../../assets/images/foto.png')} style={estilosCompartilhados.entradaLogo} resizeMode="contain" accessibilityLabel="Imagem de perfil" />
+          <View style={estilosTeclado.autenticacaoFormulario}>
+            <Text style={estilos.rotulo}>E-mail</Text>
+            <CampoFormulario style={estilos.campo} value={email} placeholder="Digite seu e-mail" onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" mask="email" placeholderTextColor={cores.textoIndicativo} />
 
-  return (
-    <AnimatedScreen animated={false} maxWidth={560} style={styles.container}>
-      <KeyboardArea style={keyboardStyles.avoidingView}>
-        <FormScrollView
-          contentContainerStyle={keyboardStyles.authScrollContent}
-          resetScrollOnKeyboardHide
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <Image
-            source={require('../../assets/images/foto.png')}
-            style={sharedStyles.loginLogo}
-            resizeMode="contain"
-            accessibilityLabel="Imagem de perfil"
-          />
-          <View style={keyboardStyles.authForm}>
-            <Text style={styles.label}>Email</Text>
-            <FormInput
-              style={styles.input}
-              value={email}
-              placeholder="Digite seu email"
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              mask="email"
-              placeholderTextColor={colors.placeholder}
-            />
-
-            <Text style={styles.label}>Senha</Text>
-            <FormInput
-              style={styles.input}
-              value={senha}
-              placeholder="Digite sua senha"
-              onChangeText={setSenha}
-              secureTextEntry
-              placeholderTextColor={colors.placeholder}
-            />
+            <Text style={estilos.rotulo}>Senha</Text>
+            <CampoFormulario style={estilos.campo} value={senha} placeholder="Digite sua senha" onChangeText={setSenha} secureTextEntry placeholderTextColor={cores.textoIndicativo} />
 
             <TouchableOpacity accessibilityRole="button" onPress={recuperarSenha}>
-              <Text style={styles.link2}>Esqueceu sua senha?</Text>
+              <Text style={estilos.link2}>Esqueceu sua senha?</Text>
             </TouchableOpacity>
 
-            {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+            {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
 
-            <TouchableOpacity style={styles.botao} onPress={entrar} disabled={carregando}>
-              <Text style={styles.textoBotao}>{carregando ? 'Entrando...' : 'Entrar'}</Text>
+            <TouchableOpacity style={estilos.botao} onPress={entrar} disabled={carregando}>
+              <Text style={estilos.textoBotao}>{carregando ? 'Entrando...' : 'Entrar'}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity accessibilityRole="button" onPress={criarConta}>
-              <Text style={styles.link}>Ainda não tenho conta</Text>
+              <Text style={estilos.link}>Ainda não tenho conta</Text>
             </TouchableOpacity>
           </View>
-        </FormScrollView>
-      </KeyboardArea>
-    </AnimatedScreen>
-  );
+        </RolagemFormulario>
+      </AreaTeclado>
+    </TelaAnimada>;
 }

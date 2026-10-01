@@ -5,7 +5,7 @@ do navegador está desativado: ScreenHeader renderiza título e seta de voltar d
 da tela, e sua altura medida é considerada pelo teclado. O conteúdo fica com largura máxima
 de 960 pontos; os formulários, com 560. A orientação acompanha o dispositivo.
 
-`components/FormLayout.jsx` centraliza o tratamento do teclado. No iOS, considera
+`componentes/LayoutFormulario.jsx` centraliza o tratamento do teclado. No iOS, considera
 a altura do cabeçalho e oferece o botão Concluir. No Android, não reduz a altura
 novamente quando a janela já foi redimensionada pelo sistema. Qualquer área sobreposta pelo
 teclado vira espaço extra no fim do formulário, permitindo rolar até o último campo.

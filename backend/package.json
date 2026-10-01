@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch src/servidor.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/servidor.js",
     "test": "vitest run",
-    "migrate": "tsx src/migrate.ts"
+    "migrate": "tsx src/migrar.ts",
+    "desenvolver": "tsx watch src/servidor.ts",
+    "iniciar": "node dist/servidor.js",
+    "compilar": "tsc",
+    "testar": "vitest run",
+    "migrar": "tsx src/migrar.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
