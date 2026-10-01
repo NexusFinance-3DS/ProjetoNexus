@@ -132,7 +132,7 @@ const CriarSenha = () => {
           style={[
             sharedStyles.loginLogo,
             {
-              marginTop: 80,
+              marginTop: "20%",
               marginBottom: -50,
             },
           ]}
@@ -198,8 +198,8 @@ const CriarSenha = () => {
                   {carregando
                     ? 'Salvando...'
                     : sucesso
-                    ? 'Conta criada!'
-                    : 'Criar conta'}
+                      ? 'Conta criada!'
+                      : 'Criar conta'}
                 </Text>
               </TouchableOpacity>
             </AnimatedCard>
@@ -221,8 +221,8 @@ const CriarSenha = () => {
             style={[
               popupStyles.card,
               {
+                backgroundColor: colors.surface,
                 opacity: animacao,
-
                 transform: [
                   {
                     scale: animacao.interpolate({
@@ -244,11 +244,11 @@ const CriarSenha = () => {
               </View>
             </View>
 
-            <Text style={popupStyles.titulo}>
+            <Text style={[popupStyles.titulo, { color: colors.textPrimary }]}>
               Conta criada!
             </Text>
 
-            <Text style={popupStyles.texto}>
+            <Text style={[popupStyles.texto, { color: colors.textSecondary }]}>
               Seu cadastro foi realizado com sucesso.
             </Text>
 

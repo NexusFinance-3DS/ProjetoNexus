@@ -48,25 +48,21 @@ function QuickCard({
   delta,
   deltaColor,
   onPress,
-  delay,
-  width,
+  delay = 0,
+  width = '100%',
 }) {
   const { inicioStyles: styles } = useAppStyles();
 
   const scale = useSharedValue(1);
 
   const animStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scale: scale.value,
-      },
-    ],
+    transform: [{ scale: scale.value }],
   }));
 
   return (
     <Animated.View
       entering={FadeInDown.delay(delay).duration(400).springify()}
-      style={animStyle}
+      style={[{ width: '100%' }, animStyle]}
     >
       <Pressable
         onPressIn={() => {
@@ -88,39 +84,28 @@ function QuickCard({
             styles.card,
             {
               width,
+              marginRight: 0,
             },
           ]}
         >
           <View
             style={[
               styles.cardIconBadge,
-              {
-                backgroundColor: iconBg,
-              },
+              { backgroundColor: iconBg },
             ]}
           >
-            <Icon
-              name={icon}
-              size={22}
-              color={iconColor}
-            />
+            <Icon name={icon} size={22} color={iconColor} />
           </View>
 
-          <Text style={styles.cardTitle}>
-            {title}
-          </Text>
+          <Text style={styles.cardTitle}>{title}</Text>
 
-          <Text style={styles.cardValue}>
-            {value}
-          </Text>
+          <Text style={styles.cardValue}>{value}</Text>
 
           {delta ? (
             <Text
               style={[
                 styles.cardDelta,
-                {
-                  color: deltaColor,
-                },
+                { color: deltaColor },
               ]}
             >
               {delta}
@@ -141,15 +126,9 @@ export default function Inicial() {
   } = useAppStyles();
 
   const { width, fontScale } = useWindowDimensions();
+  const compact = width < 380 || fontScale > 1.3;
 
-  const compact =
-    width < 380 || fontScale > 1.3;
-
-  const [quickWidth, setQuickWidth] =
-    useState(160);
-
-  const [saldoVisivel, setSaldoVisivel] =
-    useState(true);
+  const [saldoVisivel, setSaldoVisivel] = useState(true);
 
   const { usuario } = useSession();
 
@@ -161,9 +140,7 @@ export default function Inicial() {
   } = useResumoFinanceiro();
 
   const amount = (value) =>
-    saldoVisivel
-      ? formatBRL(value)
-      : '••••••';
+    saldoVisivel ? formatBRL(value) : '••••••';
 
   const totals = dados.atual;
 
@@ -172,69 +149,40 @@ export default function Inicial() {
     diff: dados.economia.diferenca,
   };
 
-  const renda =
-    totals.totalReceitas || 0;
+  const renda = totals.totalReceitas || 0;
+  const despesa = totals.totalDespesas || 0;
 
-  const despesa =
-    totals.totalDespesas || 0;
-
-  const valorMeta =
-    Number(dados.meta?.atual) || 0;
-
-  const valorTotalMeta =
-    Number(dados.meta?.objetivo) || 0;
+  const valorMeta = Number(dados.meta?.atual) || 0;
+  const valorTotalMeta = Number(dados.meta?.objetivo) || 0;
 
   const porcentagem =
     valorTotalMeta > 0
-      ? Math.min(
-          (valorMeta / valorTotalMeta) * 100,
-          100
-        )
+      ? Math.min((valorMeta / valorTotalMeta) * 100, 100)
       : 0;
 
   const titleMeta =
-    dados.meta?.nome ||
-    'Nenhuma meta em andamento';
+    dados.meta?.nome || 'Nenhuma meta em andamento';
 
-  const saldoTotal =
-    Number(dados.saldoDisponivel) || 0;
-
-  const saldoDisponivelSemMetas =
-    saldoTotal - valorMeta;
-
-  const saldoTotalComMetas =
-    saldoDisponivelSemMetas + valorMeta;
+  const saldoTotal = Number(dados.saldoDisponivel) || 0;
+  const saldoDisponivelSemMetas = saldoTotal - valorMeta;
+  const saldoTotalComMetas = saldoDisponivelSemMetas + valorMeta;
 
   return (
-    <AnimatedScreen
-      style={styles.container}
-    >
+    <AnimatedScreen style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={
-          sharedStyles.paddingBottom130
-        }
+        contentContainerStyle={sharedStyles.paddingBottom130}
       >
         <View style={styles.header}>
           <Animated.View
             entering={FadeInUp.duration(400)}
-            style={
-              sharedStyles.screenHeaderRow
-            }
+            style={sharedStyles.screenHeaderRow}
           >
             <Pressable
-              onPress={() =>
-                router.push('/perfil')
-              }
-              style={
-                styles.profileContaine
-              }
+              onPress={() => router.push('/perfil')}
+              style={styles.profileContaine}
             >
-              <View
-                style={
-                  styles.profileCircle
-                }
-              >
+              <View style={styles.profileCircle}>
                 <Icon
                   name="person-outline"
                   size={36}
@@ -242,42 +190,25 @@ export default function Inicial() {
                 />
               </View>
 
-              <View
-                style={
-                  styles.profileInfo
-                }
-              >
-                <Text
-                  style={
-                    styles.greetingLabel
-                  }
-                >
+              <View style={styles.profileInfo}>
+                <Text style={styles.greetingLabel}>
                   {getSaudacao()},
                 </Text>
 
-                <Text
-                  style={styles.nome}
-                  numberOfLines={1}
-                >
+                <Text style={styles.nome} numberOfLines={1}>
                   {usuario?.nome || 'Usuário'}
                 </Text>
               </View>
             </Pressable>
 
             <Pressable
-              style={
-                styles.bellButton
-              }
-              onPress={() =>
-                router.push('/notificacoes')
-              }
+              style={styles.bellButton}
+              onPress={() => router.push('/notificacoes')}
             >
               <Icon
                 name="notifications-none"
                 size={22}
-                color={
-                  colors.textPrimary
-                }
+                color={colors.textPrimary}
               />
             </Pressable>
           </Animated.View>
@@ -286,34 +217,16 @@ export default function Inicial() {
             entering={FadeInUp.delay(80).duration(400)}
           >
             <Pressable
-              onPress={() =>
-                router.push('/fluxoFinanceiro')
-              }
+              onPress={() => router.push('/fluxoFinanceiro')}
             >
               <LinearGradient
                 colors={gradients.brand}
-                start={{
-                  x: 0,
-                  y: 0,
-                }}
-                end={{
-                  x: 1,
-                  y: 1,
-                }}
-                style={
-                  styles.saldoContainer
-                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.saldoContainer}
               >
-                <View
-                  style={
-                    styles.saldoTopRow
-                  }
-                >
-                  <Text
-                    style={
-                      styles.titleSaldo
-                    }
-                  >
+                <View style={styles.saldoTopRow}>
+                  <Text style={styles.titleSaldo}>
                     Saldo disponível
                   </Text>
 
@@ -327,10 +240,7 @@ export default function Inicial() {
                     hitSlop={10}
                     onPress={(e) => {
                       e.stopPropagation?.();
-
-                      setSaldoVisivel(
-                        (v) => !v
-                      );
+                      setSaldoVisivel((v) => !v);
                     }}
                   >
                     <Icon
@@ -340,43 +250,27 @@ export default function Inicial() {
                           : 'visibility-off'
                       }
                       size={20}
-                      color={
-                        colors.onPrimary
-                      }
+                      color={colors.onPrimary}
                     />
                   </Pressable>
                 </View>
 
-                <Text
-                  style={styles.valor}
-                >
+                <Text style={styles.valor}>
                   {carregando
                     ? 'Carregando...'
                     : erro
-                    ? 'Indisponível'
-                    : amount(
-                        saldoDisponivelSemMetas
-                      )}
+                      ? 'Indisponível'
+                      : amount(saldoDisponivelSemMetas)}
                 </Text>
 
-                <View
-                  style={
-                    styles.saldoFooterRow
-                  }
-                >
+                <View style={styles.saldoFooterRow}>
                   <Icon
                     name="swap-horiz"
                     size={16}
-                    color={
-                      colors.onPrimary
-                    }
+                    color={colors.onPrimary}
                   />
 
-                  <Text
-                    style={
-                      styles.saldoFooterText
-                    }
-                  >
+                  <Text style={styles.saldoFooterText}>
                     Toque para ver o fluxo financeiro
                   </Text>
                 </View>
@@ -395,11 +289,7 @@ export default function Inicial() {
 
           {erro ? (
             <View>
-              <Text
-                style={
-                  sharedStyles.errorText
-                }
-              >
+              <Text style={sharedStyles.errorText}>
                 {erro}
               </Text>
 
@@ -411,11 +301,7 @@ export default function Inicial() {
                   justifyContent: 'center',
                 }}
               >
-                <Text
-                  style={{
-                    color: colors.textLink,
-                  }}
-                >
+                <Text style={{ color: colors.textLink }}>
                   Tentar novamente
                 </Text>
               </Pressable>
@@ -428,69 +314,63 @@ export default function Inicial() {
                 Visão Rápida
               </Text>
 
-              <Text
-                style={
-                  sharedStyles.mutedCaption
-                }
-              >
+              <Text style={sharedStyles.mutedCaption}>
                 Realizado no mês até hoje
               </Text>
 
-              <ScrollView
-                horizontal
-                onLayout={({ nativeEvent }) =>
-                  setQuickWidth(
-                    Math.max(
-                      160,
-                      Math.floor(
-                        (nativeEvent.layout.width - 36) / 3
-                      )
-                    )
-                  )
-                }
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={
-                  sharedStyles.paddingRight16
-                }
+              {/* Dois cards lado a lado */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  gap: 12,
+                  marginTop: 12,
+                  alignItems: 'stretch',
+                }}
+              >
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <QuickCard
+                    delay={80}
+                    icon="arrow-upward"
+                    iconColor={colors.success}
+                    iconBg={colors.successSoft}
+                    title="Receitas realizadas"
+                    value={amount(renda)}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/fluxoFinanceiro',
+                        params: { aba: 'Receitas' },
+                      })
+                    }
+                  />
+                </View>
+
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <QuickCard
+                    delay={120}
+                    icon="arrow-downward"
+                    iconColor={colors.danger}
+                    iconBg={colors.dangerSoft}
+                    title="Despesas realizadas"
+                    value={amount(despesa)}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/fluxoFinanceiro',
+                        params: { aba: 'Despesas' },
+                      })
+                    }
+                  />
+                </View>
+              </View>
+
+              {/* Resultado mensal abaixo dos dois cards */}
+              <View
+                style={{
+                  width: '100%',
+                  marginTop: 12,
+                  marginBottom: 8,
+                }}
               >
                 <QuickCard
-                  width={quickWidth}
-                  delay={0}
-                  icon="arrow-upward"
-                  iconColor={colors.success}
-                  iconBg={colors.successSoft}
-                  title="Receitas realizadas"
-                  value={amount(renda)}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/fluxoFinanceiro',
-                      params: {
-                        aba: 'Receitas',
-                      },
-                    })
-                  }
-                />
-
-                <QuickCard
-                  width={quickWidth}
-                  delay={80}
-                  icon="arrow-downward"
-                  iconColor={colors.danger}
-                  iconBg={colors.dangerSoft}
-                  title="Despesas realizadas"
-                  value={amount(despesa)}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/fluxoFinanceiro',
-                      params: {
-                        aba: 'Despesas',
-                      },
-                    })
-                  }
-                />
-
-                <QuickCard
-                  width={quickWidth}
                   delay={160}
                   icon="savings"
                   iconColor={colors.primary}
@@ -501,27 +381,24 @@ export default function Inicial() {
                     !saldoVisivel
                       ? 'Comparação oculta'
                       : economiaComp.percent === null
-                      ? 'Sem base de comparação'
-                      : `${economiaComp.percent >= 0 ? '+' : '-'}${Math.abs(
-                          economiaComp.percent
-                        ).toLocaleString(
-                          'pt-BR',
-                          {
+                        ? 'Sem base de comparação'
+                        : `${
+                            economiaComp.percent >= 0 ? '+' : '-'
+                          }${Math.abs(
+                            economiaComp.percent
+                          ).toLocaleString('pt-BR', {
                             minimumFractionDigits: 1,
                             maximumFractionDigits: 1,
-                          }
-                        )}% vs. mês anterior`
+                          })}% vs. mês anterior`
                   }
                   deltaColor={
                     economiaComp.diff >= 0
                       ? colors.success
                       : colors.dangerStrong
                   }
-                  onPress={() =>
-                    router.push('/dashboard')
-                  }
+                  onPress={() => router.push('/dashboard')}
                 />
-              </ScrollView>
+              </View>
 
               <FinancialOverview
                 dados={dados}
@@ -533,26 +410,14 @@ export default function Inicial() {
                 entering={FadeInDown.delay(200).duration(400)}
                 style={styles.sectionCard}
               >
-                <View
-                  style={
-                    styles.metaHeaderRow
-                  }
-                >
-                  <Text
-                    style={
-                      styles.metaHeaderTitle
-                    }
-                  >
+                <View style={styles.metaHeaderRow}>
+                  <Text style={styles.metaHeaderTitle}>
                     Metas em andamento
                   </Text>
 
                   <Text
-                    style={
-                      styles.verMetasBadge
-                    }
-                    onPress={() =>
-                      router.push('/metas')
-                    }
+                    style={[styles.metaHeaderLink, { color: "#B5ACFF" }]}
+                    onPress={() => router.push('/metas')}
                   >
                     Ver metas
                   </Text>
@@ -561,7 +426,6 @@ export default function Inicial() {
                 <View
                   style={[
                     styles.graficos,
-
                     compact && {
                       flexDirection: 'column',
                       alignItems: 'stretch',
@@ -571,24 +435,14 @@ export default function Inicial() {
                   <AnimatedCircularProgress
                     size={104}
                     width={9}
-                    fill={
-                      saldoVisivel
-                        ? porcentagem
-                        : 0
-                    }
+                    fill={saldoVisivel ? porcentagem : 0}
                     tintColor={colors.primary}
-                    backgroundColor={
-                      colors.surfaceElevated
-                    }
+                    backgroundColor={colors.surfaceElevated}
                     rotation={0}
                     lineCap="round"
                   >
                     {() => (
-                      <Text
-                        style={
-                          sharedStyles.progressPercent
-                        }
-                      >
+                      <Text style={sharedStyles.progressPercent}>
                         {saldoVisivel
                           ? `${Math.round(porcentagem)}%`
                           : '•••'}
@@ -599,45 +453,30 @@ export default function Inicial() {
                   <View
                     style={[
                       styles.metaInfoCol,
-
                       compact && {
                         marginLeft: 0,
                         marginTop: 16,
                       },
                     ]}
                   >
-                    <Text
-                      style={
-                        styles.metaTituloTexto
-                      }
-                    >
+                    <Text style={styles.metaTituloTexto}>
                       {titleMeta}
                     </Text>
 
-                    <View
-                      style={
-                        styles.metaBarraFundo
-                      }
-                    >
+                    <View style={styles.metaBarraFundo}>
                       <View
                         style={[
                           styles.metaBarraPreenchida,
                           {
                             width: `${
-                              saldoVisivel
-                                ? porcentagem
-                                : 0
+                              saldoVisivel ? porcentagem : 0
                             }%`,
                           },
                         ]}
                       />
                     </View>
 
-                    <Text
-                      style={
-                        styles.metaValoresTexto
-                      }
-                    >
+                    <Text style={styles.metaValoresTexto}>
                       {amount(valorMeta)} / {amount(valorTotalMeta)}
                     </Text>
                   </View>
