@@ -4,9 +4,9 @@ API simples em TypeScript para cadastro, login, sessão e recuperação de senha
 
 ## Como executar
 
-1. Inicie o MySQL (no XAMPP, use **Start** no módulo MySQL). Apenas na primeira instalação, importe `../SQL.txt`: esse arquivo apaga e recria o banco, portanto não o execute sobre dados que deseja preservar.
-2. Copie `.env.example` para `.env` e ajuste os dados do MySQL e o `JWT_SECRET`.
-3. Dentro desta pasta, execute `npm install`, `npm run migrate` e depois `npm run dev`. A migração adiciona o controle de recorrências sem apagar dados; também pode ser executada como `npm run build` seguido de `node dist/migrate.js`.
+1. Inicie o MySQL (no XAMPP, use **Start** no módulo MySQL). Apenas na primeira instalação, importe `../bancoDados/estrutura.sql`: esse arquivo apaga e recria o banco, portanto não o execute sobre dados que deseja preservar.
+2. Crie `.env` e configure `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` e `JWT_SECRET`. Consulte os valores de desenvolvimento em `src/config/configuracao.ts`.
+3. Dentro desta pasta, execute `npm install`, `npm run migrate` e depois `npm run dev`. A migração adiciona o controle de recorrências sem apagar dados; também pode ser executada como `npm run build` seguido de `node dist/bancoDados/migrar.js`.
 
 A API ficará disponível em `http://localhost:3000`.
 
@@ -47,7 +47,7 @@ O aplicativo já salva o `token` retornado usando `expo-secure-store` no Android
 
 O cadastro da transação recebe `tipo`, `valor`, `descricao`, `data`, `categoriaId`, `tipoContaId`, `recorrente`, `status` e `observacao`. Sem arquivo, use JSON. Com arquivo, use multipart/form-data com o campo `arquivo`; o cliente deve deixar o fetch definir o boundary. Aceita um arquivo não vazio de até 10 MiB. O tipo de conta escolhido usa uma conta ativa desse tipo do usuário, criando-a quando necessário.
 
-As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e para o tipo de transação escolhido. Os arquivos ficam em `backend/uploads/transacoes` (ou em `UPLOAD_DIR`), com os metadados em `anexos_transacao`. Preserve o diretório de arquivos junto com os backups do banco. As tabelas já existem em `SQL.txt`; esta alteração não exige recriar o banco.
+As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e para o tipo de transação escolhido. Os arquivos ficam em `backend/uploads/transacoes` (ou em `UPLOAD_DIR`), com os metadados em `anexos_transacao`. Preserve o diretório de arquivos junto com os backups do banco. As tabelas já existem em `bancoDados/estrutura.sql`; esta alteração não exige recriar o banco.
 
 ## Regras financeiras
 
@@ -61,10 +61,8 @@ As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e pa
 - Recorrências mensais são processadas na inicialização, a cada hora e antes das consultas de resumo/transações. O processo recupera meses atrasados e gera até o fim do mês atual, respeitando `ativa` e `data_fim`. Os novos lançamentos são pendentes e não repetem aportes em metas nem anexos. Dias 29–31 são ajustados ao último dia de meses curtos, preservando o dia original nos demais meses.
 - O cursor `ultima_geracao` e as inserções são gravados na mesma transação com bloqueio da regra, evitando duplicação em tentativas repetidas e processos concorrentes. Execute a migração antes de iniciar esta versão em um banco existente.
 
-## Testes
+## Verificar a compilação
 
-Para a revisão visual com dados sintéticos, compile o backend e exporte o frontend com `EXPO_PUBLIC_API_URL=http://127.0.0.1:3107` usando `npx expo export --platform web --clear` (limpar o cache garante a atualização da URL). Execute `node scripts/preview-finance.cjs` nesta pasta. A prévia abre em `http://127.0.0.1:8082`, cria somente um banco temporário `nexus_preview_*` e informa as credenciais de teste no terminal. Digite `exit` nesse terminal para encerrar e remover esse banco. Ao terminar, exporte novamente o frontend com a URL habitual da API.
-
-`npm test` executa as validações unitárias. Para testar também com MySQL local, execute no PowerShell `$env:NEXUS_MYSQL_TEST='1'; npm test`. A integração cria e remove somente um banco temporário com prefixo `nexus_test_`, incluindo testes de categoria, conta, upload, isolamento entre usuários e rollback dos arquivos. `npm run build` verifica e compila o TypeScript.
+`npm run build` verifica e compila o TypeScript.
 
 Se aparecer `ECONNREFUSED` na porta 3306, confirme que o MySQL está iniciado e que `DB_HOST`/`DB_PORT` correspondem ao serviço em execução.
