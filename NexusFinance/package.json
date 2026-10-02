@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
@@ -13,8 +12,7 @@
     "iniciar": "expo start",
     "navegador": "expo start --web",
     "compilar": "expo export --platform web",
-    "verificar": "expo lint",
-    "testar": "node --test testes/*.test.mjs servicos/*.test.mjs"
+    "verificar": "expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -40,14 +38,12 @@
     "expo-status-bar": "~55.0.6",
     "expo-symbols": "~55.0.9",
     "expo-system-ui": "~55.0.22",
-    "expo-web-browser": "~55.0.20",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.10",
     "react-native-chart-kit": "^7.0.2",
     "react-native-circular-progress": "^1.4.1",
     "react-native-gesture-handler": "~2.30.0",
-    "react-native-ico-material-design": "^7.0.1",
     "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",

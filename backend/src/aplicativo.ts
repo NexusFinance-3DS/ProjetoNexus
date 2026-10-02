@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { rotasAutenticacao } from "./rotas/autenticacao.rotas";
 import { rotasDados } from "./rotas/dados.rotas";
 import multer from 'multer';
-import { ErroApi } from "./erros";
+import { ErroApi } from "./middlewares/erros";
 const aplicativo = express();
 export { aplicativo };
 aplicativo.use(cors());

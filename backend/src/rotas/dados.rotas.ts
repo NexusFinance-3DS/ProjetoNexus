@@ -1,13 +1,13 @@
-import { resumoFinanceiro } from "../financeiro";
-import { gerarRecorrencias } from "../recorrencias";
-import { confirmarTransacao, criarTransacao, converterValorMonetario, identificadorPositivo } from "../transacoes";
-import { upload } from "../anexos";
+import { resumoFinanceiro } from "../servicos/financeiro";
+import { gerarRecorrencias } from "../servicos/recorrencias";
+import { confirmarTransacao, criarTransacao, converterValorMonetario, identificadorPositivo } from "../servicos/transacoes";
+import { upload } from "../servicos/anexos";
 import { rotasOpcoesFinanceiras } from "./opcoesFinanceiras.rotas";
 import { Router } from 'express';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { autenticar, RequisicaoAutenticada } from "../autenticacao";
-import { bancoDados } from "../bancoDados";
-import { dataNascimentoValida, emailValido, normalizarData, normalizarEmail } from "../validacoes";
+import { autenticar, RequisicaoAutenticada } from "../middlewares/autenticacao";
+import { bancoDados } from "../bancoDados/bancoDados";
+import { dataNascimentoValida, emailValido, normalizarData, normalizarEmail } from "../utilitarios/validacoes";
 interface DataRow extends RowDataPacket {
   [chave: string]: unknown;
 }

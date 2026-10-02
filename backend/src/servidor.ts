@@ -1,7 +1,7 @@
-import { gerarRecorrencias } from "./recorrencias";
+import { gerarRecorrencias } from "./servicos/recorrencias";
 import { aplicativo as app } from "./aplicativo";
-import { configuracao } from "./configuracao";
-import { bancoDados } from "./bancoDados";
+import { configuracao } from "./config/configuracao";
+import { bancoDados } from "./bancoDados/bancoDados";
 async function iniciar(): Promise<void> {
   await bancoDados.query('SELECT 1');
   await gerarRecorrencias();

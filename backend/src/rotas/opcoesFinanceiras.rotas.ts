@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import path from 'node:path';
-import { RequisicaoAutenticada } from "../autenticacao";
-import { bancoDados } from "../bancoDados";
-import { ErroApi } from "../erros";
-import { identificadorPositivo } from "../transacoes";
-import { diretorioAnexos } from "../anexos";
+import { RequisicaoAutenticada } from "../middlewares/autenticacao";
+import { bancoDados } from "../bancoDados/bancoDados";
+import { ErroApi } from "../middlewares/erros";
+import { identificadorPositivo } from "../servicos/transacoes";
+import { diretorioAnexos } from "../servicos/anexos";
 export const rotasOpcoesFinanceiras = Router();
 rotasOpcoesFinanceiras.get('/financeiro/opcoes', async (requisicao: RequisicaoAutenticada, resposta, proximo) => {
   try {

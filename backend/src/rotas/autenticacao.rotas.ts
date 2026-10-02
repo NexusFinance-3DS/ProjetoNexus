@@ -2,10 +2,10 @@ import { randomInt } from 'crypto';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { autenticar, RequisicaoAutenticada, criarToken } from "../autenticacao";
-import { bancoDados } from "../bancoDados";
-import { enviarCodigoRecuperacao } from '../email';
-import { dataNascimentoValida, emailValido, normalizarData, normalizarEmail, erroSenha } from "../validacoes";
+import { autenticar, RequisicaoAutenticada, criarToken } from "../middlewares/autenticacao";
+import { bancoDados } from "../bancoDados/bancoDados";
+import { enviarCodigoRecuperacao } from '../servicos/email';
+import { dataNascimentoValida, emailValido, normalizarData, normalizarEmail, erroSenha } from "../utilitarios/validacoes";
 interface UserRow extends RowDataPacket {
   id_usuario: number;
   nome: string;

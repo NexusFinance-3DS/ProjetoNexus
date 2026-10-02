@@ -6,13 +6,11 @@
     "dev": "tsx watch src/servidor.ts",
     "build": "tsc",
     "start": "node dist/servidor.js",
-    "test": "vitest run",
-    "migrate": "tsx src/migrar.ts",
+    "migrate": "tsx src/bancoDados/migrar.ts",
     "desenvolver": "tsx watch src/servidor.ts",
     "iniciar": "node dist/servidor.js",
     "compilar": "tsc",
-    "testar": "vitest run",
-    "migrar": "tsx src/migrar.ts"
+    "migrar": "tsx src/bancoDados/migrar.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -32,7 +30,6 @@
     "@types/node": "^24.13.3",
     "@types/nodemailer": "^7.0.1",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.3"
   }
 }
