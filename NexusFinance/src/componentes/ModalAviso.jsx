@@ -17,6 +17,7 @@ export default function ModalAviso({
   const margensSeguras = useSafeAreaInsets();
   const animacao = useRef(new Animated.Value(0)).current;
   const cor = tipo === 'erro' ? cores.perigo : tipo === 'informacao' ? cores.primaria : cores.sucesso;
+  const fundoBotao = tipo === 'erro' ? cores.perigo : cores.primaria;
   const fundoIcone = tipo === 'erro' ? cores.perigoSuave : tipo === 'informacao' ? cores.primariaSuave : cores.sucessoSuave;
   const icone = tipo === 'erro' ? 'error-outline' : tipo === 'informacao' ? 'info-outline' : 'check';
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function ModalAviso({
       paddingBottom: 24 + margensSeguras.bottom
     }]}>
         <ScrollView contentContainerStyle={estilos.rolagem} showsVerticalScrollIndicator={false} bounces={false}>
-          <Animated.View accessibilityViewIsModal style={[estilos.cartao, {
+          <Animated.View accessibilityViewIsModal accessibilityRole="alert" style={[estilos.cartao, {
           backgroundColor: cores.superficie,
           borderColor: cores.borda,
           opacity: animacao,
@@ -62,13 +63,13 @@ export default function ModalAviso({
             <Text accessibilityRole="header" style={[estilos.titulo, {
             color: cores.textoPrincipal
           }]}>{titulo}</Text>
-            <Text style={[estilos.texto, {
+            <Text accessibilityLiveRegion={tipo === 'erro' ? 'assertive' : 'polite'} style={[estilos.texto, {
             color: cores.textoSecundario
           }]}>{mensagem}</Text>
             <Pressable accessibilityRole="button" onPress={aoFechar} style={({
             pressed
           }) => [estilos.botao, {
-            backgroundColor: cores.primaria,
+            backgroundColor: fundoBotao,
             opacity: pressed ? 0.8 : 1
           }]}>
               <Text style={[estilos.textoBotao, {
@@ -93,10 +94,10 @@ const estilos = StyleSheet.create({
   cartao: {
     width: '100%',
     maxWidth: 380,
-    borderRadius: 22,
+    borderRadius: 18,
     borderWidth: 1,
-    paddingVertical: 30,
-    paddingHorizontal: 25,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     alignItems: 'center',
     elevation: 10,
     shadowColor: '#000000',
@@ -108,22 +109,22 @@ const estilos = StyleSheet.create({
     shadowRadius: 10
   },
   circuloExterno: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20
+    marginBottom: 16
   },
   circuloInterno: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center'
   },
   titulo: {
-    fontSize: 24,
+    fontSize: 21,
     fontWeight: '700',
     textAlign: 'center'
   },
@@ -134,7 +135,7 @@ const estilos = StyleSheet.create({
     marginTop: 8
   },
   botao: {
-    marginTop: 24,
+    marginTop: 20,
     width: '100%',
     minHeight: 48,
     padding: 14,

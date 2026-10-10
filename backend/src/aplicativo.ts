@@ -41,6 +41,12 @@ aplicativo.use((falha: Error, _requisicao: Request, resposta: Response, _proximo
     });
     return;
   }
+  if ((falha as { code?: string }).code === 'ER_DUP_ENTRY') {
+    resposta.status(409).json({
+      mensagem: 'Já existe um cadastro com esses dados.'
+    });
+    return;
+  }
   console.error(falha);
   resposta.status(500).json({
     mensagem: 'Erro interno do servidor.'

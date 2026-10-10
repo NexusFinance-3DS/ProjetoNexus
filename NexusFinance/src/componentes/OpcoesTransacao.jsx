@@ -33,7 +33,7 @@ function SeletorOpcao({
         <View style={estilos.sobreposicao}>
           <View style={estilos.dialogo}>
             <View style={estilos.cabecalho}>
-              <Text style={estilos.titulo}>{rotulo}</Text>
+              <Text accessibilityRole="header" style={estilos.titulo}>Selecione {rotulo.toLowerCase()}</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Fechar opções" onPress={() => setAberto(false)} style={estilos.iconeBotao}>
                 <Icon name="close" color={cores.textoPrincipal} size={24} />
               </Pressable>
@@ -71,7 +71,7 @@ export function SeletoresTransacao({
   async function salvarCategoria() {
     if (salvando) return;
     if (nome.trim().length < 2) {
-      setErro('Informe pelo menos 2 caracteres.');
+      setErro('Digite pelo menos 2 caracteres para o nome da categoria.');
       return;
     }
     setSalvando(true);
@@ -214,11 +214,11 @@ const criarEstilos = cores => StyleSheet.create({
   },
   dialogo: {
     width: '100%',
-    maxWidth: 520,
+    maxWidth: 380,
     maxHeight: '80%',
     alignSelf: 'center',
     borderRadius: 18,
-    padding: 18,
+    padding: 20,
     backgroundColor: cores.superficie
   },
   cabecalho: {
@@ -260,7 +260,7 @@ const criarEstilos = cores => StyleSheet.create({
   },
   categoriaDialogo: {
     width: '100%',
-    maxWidth: 520,
+    maxWidth: 380,
     alignSelf: 'center',
     padding: 20,
     backgroundColor: cores.superficie,

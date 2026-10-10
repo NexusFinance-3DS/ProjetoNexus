@@ -24,11 +24,13 @@ export async function requisicaoApi(caminho, opcoes = {}) {
       }
     });
   } catch {
-    throw new Error(`Não foi possível conectar ao servidor em ${URL_API}. Verifique se o backend está ligado.`);
+    throw new Error('Não foi possível conectar ao serviço. Tente novamente em alguns instantes.');
   }
   const dados = await resposta.json().catch(() => ({}));
   if (!resposta.ok) {
-    throw new Error(dados.mensagem || 'Não foi possível concluir a operação.');
+    const mensagem = typeof dados.mensagem === 'string' ? dados.mensagem.trim() : '';
+    if (resposta.status >= 500) throw new Error('O serviço está indisponível no momento. Tente novamente em alguns instantes.');
+    throw new Error(mensagem || 'Não foi possível concluir. Confira os dados e tente novamente.');
   }
   return dados;
 }

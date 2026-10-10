@@ -943,11 +943,11 @@ function criarEstilosApp(cores) {
       paddingHorizontal: 25
     },
     modal: {
-      maxWidth: 520,
+      maxWidth: 380,
       width: '100%',
       backgroundColor: cores.superficieSuave,
-      borderRadius: 25,
-      padding: 22
+      borderRadius: 18,
+      padding: 20
     },
     modalFundoExcluir: {
       flex: 1,
@@ -957,11 +957,11 @@ function criarEstilosApp(cores) {
       paddingHorizontal: 25
     },
     modalExcluir: {
-      maxWidth: 460,
+      maxWidth: 380,
       width: '100%',
       backgroundColor: cores.superficieSuave,
-      borderRadius: 25,
-      padding: 22,
+      borderRadius: 18,
+      padding: 20,
       alignItems: 'center'
     },
     iconeExcluir: {
@@ -982,9 +982,9 @@ function criarEstilosApp(cores) {
     },
     modalTitulo: {
       color: cores.textoPrincipal,
-      fontSize: 24,
+      fontSize: 21,
       fontWeight: 'bold',
-      marginBottom: 20,
+      marginBottom: 16,
       textAlign: 'center'
     },
     campo: {
@@ -1000,6 +1000,7 @@ function criarEstilosApp(cores) {
     modalBotoes: {
       flexDirection: 'row',
       justifyContent: 'space-between',
+      gap: 10,
       marginTop: 10
     },
     cancelar: {
@@ -1627,20 +1628,21 @@ function criarEstilosApp(cores) {
       flex: 1,
       backgroundColor: cores.sobreposicao,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      paddingHorizontal: 25
     },
     modal: {
-      maxWidth: 520,
-      width: '85%',
+      maxWidth: 380,
+      width: '100%',
       backgroundColor: cores.superficie,
-      borderRadius: 25,
-      padding: 25,
+      borderRadius: 18,
+      padding: 20,
       alignItems: 'center'
     },
     modalIcone: {
-      width: 75,
-      height: 75,
-      borderRadius: 40,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
       backgroundColor: cores.primaria,
       justifyContent: 'center',
       alignItems: 'center',
@@ -1648,7 +1650,7 @@ function criarEstilosApp(cores) {
     },
     modalTitulo: {
       color: cores.textoPrincipal,
-      fontSize: 24,
+      fontSize: 21,
       fontWeight: 'bold'
     },
     modalTexto: {
@@ -1656,7 +1658,7 @@ function criarEstilosApp(cores) {
       fontSize: 16,
       textAlign: 'center',
       marginTop: 12,
-      marginBottom: 30
+      marginBottom: 22
     },
     modalBotoes: {
       flexDirection: 'row',
@@ -1685,7 +1687,7 @@ function criarEstilosApp(cores) {
       paddingVertical: 12,
       paddingHorizontal: 8,
       borderRadius: 15,
-      backgroundColor: cores.primaria,
+      backgroundColor: cores.perigo,
       justifyContent: 'center',
       alignItems: 'center'
     },

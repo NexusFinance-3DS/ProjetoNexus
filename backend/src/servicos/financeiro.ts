@@ -37,6 +37,26 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
     JOIN status_transacao st USING (id_status_transacao)
     WHERE t.id_usuario = ? AND st.nome <> 'Cancelada'`, [idUsuario, idUsuario]);
   const hoje = String(linha.hoje);
+  const [[linhaMetas]] = await conexao.query<RowDataPacket[]>(`SELECT
+      COALESCE(SUM(GREATEST(COALESCE(movimentado.atual, 0), 0)), 0) AS reservado
+    FROM metas m
+    LEFT JOIN (
+      SELECT id_meta,
+        SUM(CASE WHEN tipo = 'deposito' THEN valor ELSE -valor END) AS atual
+      FROM movimentacoes_metas
+      GROUP BY id_meta
+    ) movimentado ON movimentado.id_meta = m.id_meta
+    WHERE m.id_usuario = ? AND m.status <> 'cancelada'`, [idUsuario]);
+  const [[linhaDespesasPeriodoAnterior]] = await conexao.query<RowDataPacket[]>(`SELECT
+      COALESCE(SUM(t.valor), 0) AS total
+    FROM transacoes t
+    JOIN tipos_transacao tt USING (id_tipo_transacao)
+    JOIN status_transacao st USING (id_status_transacao)
+    WHERE t.id_usuario = ?
+      AND tt.nome = 'Despesa'
+      AND st.nome = 'Confirmada'
+      AND t.data_transacao >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+      AND t.data_transacao <= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)`, [idUsuario]);
   const periodos = periodosMensais(hoje);
   const periodoAtual = periodos[5];
   const [linhas] = await conexao.query<RowDataPacket[]>(`SELECT
@@ -86,17 +106,29 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
   const atual = totais(5),
     anterior = totais(4);
   const diferenca = diferencaMonetaria(atual.saldo, anterior.saldo);
-  const disponivel = (centavos(linha.inicial) + centavos(linha.realizado)) / 100;
+  const despesasPeriodoAnterior = centavos(linhaDespesasPeriodoAnterior.total) / 100;
+  const diferencaDespesas = diferencaMonetaria(atual.totalDespesas, despesasPeriodoAnterior);
+  const saldoTotal = (centavos(linha.inicial) + centavos(linha.realizado)) / 100;
+  const saldoReservadoMetas = centavos(linhaMetas.reservado) / 100;
+  const saldoDisponivel = diferencaMonetaria(saldoTotal, saldoReservadoMetas);
   return {
     dataReferencia: hoje,
-    saldoDisponivel: disponivel,
-    saldoPrevisto: (centavos(disponivel) + centavos(linha.aRealizar)) / 100,
+    saldoTotal: saldoTotal,
+    saldoReservadoMetas: saldoReservadoMetas,
+    saldoDisponivel: saldoDisponivel,
+    saldoPrevisto: (centavos(saldoDisponivel) + centavos(linha.aRealizar)) / 100,
     atual: atual,
     anterior: anterior,
     previsao: previsao,
     economia: {
       diferenca: diferenca,
       percentual: anterior.saldo === 0 ? null : diferenca / Math.abs(anterior.saldo) * 100
+    },
+    variacaoDespesas: {
+      atual: atual.totalDespesas,
+      anterior: despesasPeriodoAnterior,
+      diferenca: diferencaDespesas,
+      percentual: despesasPeriodoAnterior === 0 ? null : diferencaDespesas / despesasPeriodoAnterior * 100
     },
     categorias: [...categorias].map(([nome, valor]) => ({
       nome,

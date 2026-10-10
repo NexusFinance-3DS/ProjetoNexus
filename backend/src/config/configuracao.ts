@@ -1,4 +1,8 @@
 import 'dotenv/config';
+const segredoConfigurado = process.env.JWT_SECRET?.trim();
+if (process.env.NODE_ENV === 'production' && (!segredoConfigurado || segredoConfigurado.length < 32)) {
+  throw new Error('Configure JWT_SECRET com pelo menos 32 caracteres antes de iniciar em produção.');
+}
 function obrigatoria(nome: string, alternativa?: string): string {
   const valor = process.env[nome] || alternativa;
   if (!valor) {

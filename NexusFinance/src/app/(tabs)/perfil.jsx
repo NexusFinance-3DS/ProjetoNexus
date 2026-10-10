@@ -153,16 +153,16 @@ export default function Perfil() {
               <Icon name="logout" size={40} color={cores.sobrePrimaria} />
             </View>
 
-            <Text style={estilos.modalTitulo}>Encerrar sessão</Text>
+            <Text accessibilityRole="header" style={estilos.modalTitulo}>Sair da conta?</Text>
 
-            <Text style={estilos.modalTexto}>Tem certeza que deseja sair da sua conta?</Text>
+            <Text style={estilos.modalTexto}>Você poderá entrar novamente quando quiser.</Text>
 
             <View style={estilos.modalBotoes}>
-              <TouchableOpacity style={estilos.cancelar} onPress={() => setModalSair(false)}>
+              <TouchableOpacity style={estilos.sair} onPress={() => setModalSair(false)}>
                 <Text style={estilos.cancelarTexto}>Cancelar</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={estilos.sair} onPress={sair}>
+              <TouchableOpacity style={estilos.cancelar} onPress={sair}>
                 <Text style={estilos.sairTexto}>Sair</Text>
               </TouchableOpacity>
             </View>

@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { apiAutenticada } from "../servicos/financeiro";
 const VAZIO = {
+  saldoTotal: 0,
+  saldoReservadoMetas: 0,
   saldoDisponivel: 0,
   saldoPrevisto: 0,
   previsao: {
@@ -20,6 +22,12 @@ const VAZIO = {
     saldo: 0
   },
   economia: {
+    diferenca: 0,
+    percentual: null
+  },
+  variacaoDespesas: {
+    atual: 0,
+    anterior: 0,
     diferenca: 0,
     percentual: null
   },

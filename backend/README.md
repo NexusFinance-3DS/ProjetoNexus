@@ -51,9 +51,11 @@ As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e pa
 
 ## Regras financeiras
 
-- `saldoDisponivel`: saldo inicial de todas as contas mais receitas menos despesas confirmadas com data até hoje, incluindo meses anteriores. Contas inativas preservam seu histórico no patrimônio total.
+- `saldoTotal`: saldo inicial de todas as contas mais receitas menos despesas confirmadas com data até hoje, incluindo meses anteriores. Contas inativas preservam seu histórico no patrimônio total.
+- `saldoReservadoMetas`: saldo líquido das movimentações de todas as metas que não foram canceladas; valores inconsistentes negativos por meta são limitados a zero.
+- `saldoDisponivel`: saldo total menos valores reservados nas metas. Esse cálculo é feito no backend para que todas as telas apresentem o mesmo valor.
 - `atual` e `anterior`: receitas, despesas e resultado **realizados** de cada mês. O mês atual vai até hoje; a comparação usa o mês anterior completo. `saldo` nesses objetos é o resultado mensal, não o saldo disponível.
-- `previsao`: todos os lançamentos não cancelados do mês, realizados e a realizar. `saldoPrevisto`: saldo disponível mais pendências (inclusive atrasadas) e lançamentos futuros até o fim do mês. Valores posteriores ao mês ficam fora dessa previsão.
+- `previsao`: todos os lançamentos não cancelados do mês, realizados e a realizar. `saldoPrevisto`: saldo disponível (após metas reservadas) mais pendências (inclusive atrasadas) e lançamentos futuros até o fim do mês. Valores posteriores ao mês ficam fora dessa previsão.
 - Categorias e os seis meses de histórico consideram apenas confirmados até hoje; meses vazios têm zero. Resultado anterior zero retorna percentual `null`, exibido como “Sem base de comparação”.
 - Datas financeiras seguem `CURDATE()` do MySQL; configure o fuso do banco para o calendário usado pelo negócio.
 - Valores monetários aceitam no máximo duas casas, tanto em JSON numérico quanto em texto. Excesso de precisão é rejeitado com HTTP 400; diferenças são calculadas em centavos.

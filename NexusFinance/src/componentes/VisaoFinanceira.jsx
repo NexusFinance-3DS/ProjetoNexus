@@ -1,298 +1,110 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { router } from 'expo-router';
-import GraficoMedido from "./GraficoMedido";
-import { useEstilosTema } from "../contextos/ContextoTema";
-import { useEstilosApp } from "../style/style";
-import { formatarReais } from "../servicos/financeiro";
+import Icon from '@expo/vector-icons/MaterialIcons';
+import GraficoMedido from './GraficoMedido';
+import CartaoPainel from './CartaoPainel';
+import { useEstilosTema } from '../contextos/ContextoTema';
+import { useEstilosApp } from '../style/style';
+import { formatarReais } from '../servicos/financeiro';
+
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const rotuloMes = periodo => `${MESES[Number(periodo.slice(5, 7)) - 1]}/${periodo.slice(2, 4)}`;
-function Cartao({
-  titulo,
-  subtitulo,
-  children: filhos,
-  style: estilo,
-  acao,
-  aoPressionar: aoPressionar
-}) {
+
+function Cartao({ titulo, subtitulo, children, style, aoExportar, exportando }) {
   const estilos = useEstilosTema(criarEstilos);
-  return <View style={[estilos.cartao, estilo]}>
-      <View style={estilos.cabecalho}>
-        <Text accessibilityRole="header" style={estilos.titulo}>
-          {titulo}
-        </Text>
-        {acao ? <Pressable accessibilityRole="button" onPress={aoPressionar} style={estilos.link}>
-            <Text style={estilos.linkTexto}>{acao}</Text>
-          </Pressable> : null}
+  const { cores } = useEstilosApp();
+  return <CartaoPainel style={style}>
+    <View style={estilos.cabecalho}>
+      <View style={estilos.titulos}>
+        <Text accessibilityRole="header" style={estilos.titulo}>{titulo}</Text>
+        {!!subtitulo && <Text style={estilos.legenda}>{subtitulo}</Text>}
       </View>
-      <Text style={estilos.legenda}>{subtitulo}</Text>
-      {filhos}
-    </View>;
+      {aoExportar && <Pressable accessibilityRole="button" accessibilityLabel={`Baixar PDF de ${titulo}`} disabled={exportando} onPress={aoExportar} style={estilos.botaoBaixar}>
+        <Icon name={exportando ? 'hourglass-empty' : 'file-download'} size={19} color={cores.primaria} />
+      </Pressable>}
+    </View>
+    {children}
+  </CartaoPainel>;
 }
-export default function VisaoFinanceira({
-  dados,
-  visivel = true,
-  inicio = false
-}) {
+
+export default function VisaoFinanceira({ dados, aoExportar, exportando = false }) {
   const estilos = useEstilosTema(criarEstilos);
-  const {
-    cores
-  } = useEstilosApp();
-  const {
-    width: largura,
-    fontScale: escalaFonte
-  } = useWindowDimensions();
-  const telaLarga = largura >= 900 && escalaFonte <= 1.3;
-  const valorFormatado = valor => visivel ? formatarReais(valor) : '******';
-  const atual = dados.atual;
-  const previsao = dados.previsao;
-  const temHistorico = dados.historico.some(item => item.receitas !== 0 || item.despesas !== 0);
-  const paleta = [cores.primaria, cores.graficoRoxo, cores.graficoAzul, cores.graficoLaranja, cores.perigo, cores.sucesso];
-  const referencia = dados.dataReferencia ? `Até ${dados.dataReferencia.slice(8, 10)}/${dados.dataReferencia.slice(5, 7)}/${dados.dataReferencia.slice(0, 4)}` : 'Mês atual';
-  const comparacao = dados.economia.percentual === null ? 'Sem base de comparação' : `${dados.economia.percentual >= 0 ? '+' : ''}${dados.economia.percentual.toLocaleString('pt-BR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1
-  })}% em relação ao mês anterior completo`;
+  const { cores } = useEstilosApp();
+  const { width: largura, fontScale } = useWindowDimensions();
+  const larga = largura >= 900 && fontScale <= 1.3;
+  const historico = (dados.historico || []).slice(-6);
+  const atual = dados.atual || { totalReceitas: 0, totalDespesas: 0, saldo: 0 };
+  const previsao = dados.previsao || { totalReceitas: 0, totalDespesas: 0, saldo: 0 };
+  const categorias = dados.categorias || [];
+  const coresCategorias = [cores.primaria, cores.graficoRoxo, cores.graficoAzul, cores.graficoLaranja, cores.perigo, cores.sucesso];
+  const referencia = dados.dataReferencia ? `${dados.dataReferencia.slice(8, 10)}/${dados.dataReferencia.slice(5, 7)}/${dados.dataReferencia.slice(0, 4)}` : 'Mês atual';
+  const chartPalette = {
+    backgroundGradientFrom: cores.superficie,
+    backgroundGradientTo: cores.superficie,
+    decimalPlaces: 0,
+    color: () => cores.primaria,
+    labelColor: () => cores.textoSecundario,
+    propsForBackgroundLines: { stroke: cores.divisor, strokeDasharray: '4 6' },
+    propsForLabels: { fontSize: 10 },
+  };
+
   return <View style={estilos.visaoGeral}>
-      <View style={[estilos.grade, telaLarga && estilos.colunas]}>
-        <Cartao titulo="Resumo financeiro" subtitulo={`${referencia} · valores realizados e previsão do mês`} style={telaLarga && estilos.coluna} acao={inicio ? 'Ver relatórios' : undefined} aoPressionar={() => router.push('/relatorios')}>
-          {[['Receitas', atual.totalReceitas, previsao.totalReceitas, cores.sucesso], ['Despesas', atual.totalDespesas, previsao.totalDespesas, cores.perigo], ['Resultado do mês', atual.saldo, previsao.saldo, atual.saldo < 0 ? cores.perigo : cores.textoLink]].map(([rotulo, realizado, previsto, cor]) => <View key={rotulo} style={estilos.resumoLinha}>
-              <Text style={estilos.linhaRotulo}>{rotulo}</Text>
-              <View style={estilos.valores}>
-                <View style={estilos.valorColuna}>
-                  <Text style={estilos.pequeno}>Realizado</Text>
-                  <Text style={[estilos.valor, {
-                color: cor
-              }]}>{valorFormatado(realizado)}</Text>
-                </View>
-                <View style={estilos.valorColuna}>
-                  <Text style={estilos.pequeno}>Previsto no mês</Text>
-                  <Text style={estilos.valor}>{valorFormatado(previsto)}</Text>
-                </View>
-              </View>
-            </View>)}
-          <Text style={estilos.legenda}>{visivel ? comparacao : 'Comparação oculta'}</Text>
-          <View style={estilos.previsao}>
-            <Text style={estilos.linhaRotulo}>Saldo previsto no fim do mês</Text>
-            <Text style={[estilos.grandeValor, {
-            color: dados.saldoPrevisto < 0 ? cores.perigo : cores.textoLink
-          }]}>
-              {valorFormatado(dados.saldoPrevisto)}
-            </Text>
-            <Text style={estilos.legenda}>
-              Saldo disponível + valores a realizar até o fim do mês, incluindo pendências
-              anteriores.
-            </Text>
-          </View>
-        </Cartao>
-
-        <Cartao titulo="Evolução dos resultados" subtitulo="Últimos 6 meses · receitas menos despesas realizadas" style={telaLarga && estilos.coluna} acao={inicio ? "Ver painel financeiro" : undefined} aoPressionar={() => router.push("/painel")}>
-          {!visivel ? <Text style={estilos.vazio}>Gráfico oculto para proteger seus valores.</Text> : <>
-              {!temHistorico ? <Text style={estilos.vazio}>
-                  Nenhuma movimentação realizada nos últimos seis meses.
-                </Text> : null}
-              {dados.historico.length > 0 ? <GraficoMedido>
-                  {larguraGrafico => <LineChart data={{
-              labels: dados.historico.map(item => rotuloMes(item.periodo)),
-              datasets: [{
-                data: dados.historico.map(item => item.saldo)
-              }]
-            }} width={larguraGrafico} height={210} fromZero withShadow={false} withOuterLines={false} formatYLabel={valor => Number(valor).toLocaleString('pt-BR', {
-              notation: 'compact',
-              maximumFractionDigits: 1
-            })} chartConfig={{
-              backgroundGradientFrom: cores.superficie,
-              backgroundGradientTo: cores.superficie,
-              decimalPlaces: 0,
-              color: () => cores.primaria,
-              labelColor: () => cores.textoSecundario,
-              propsForBackgroundLines: {
-                stroke: cores.divisor
-              },
-              propsForLabels: {
-                fontSize: 10
-              }
-            }} />}
-                </GraficoMedido> : null}
-              <Text style={estilos.pequeno}>
-                Valores em reais (R$). O mês atual considera somente até hoje.
-              </Text>
-              <View style={estilos.history}>
-                {dados.historico.map(item => <View style={estilos.historyLinha} key={item.periodo}>
-                    <Text style={estilos.legenda}>{rotuloMes(item.periodo)}</Text>
-                    <Text style={[estilos.historyValor, {
-                color: item.saldo < 0 ? cores.perigo : cores.textoPrincipal
-              }]}>
-                      {formatarReais(item.saldo)}
-                    </Text>
-                  </View>)}
-              </View>
-            </>}
-        </Cartao>
-      </View>
-
-      <Cartao titulo="Gastos por categoria" subtitulo="Participação nas despesas realizadas do mês">
-        {!visivel ? <Text style={estilos.vazio}>Distribuição oculta para proteger seus valores.</Text> : dados.categorias.length === 0 ? <Text style={estilos.vazio}>
-            Nenhuma despesa realizada neste mês. Despesas pendentes aparecem apenas na previsão.
-          </Text> : dados.categorias.map((item, index) => {
-        const percentual = atual.totalDespesas > 0 ? item.valor / atual.totalDespesas * 100 : 0;
-        return <View key={item.nome} style={estilos.categoria}>
-                <View style={estilos.categoriaCabecalho}>
-                  <Text style={estilos.linhaRotulo}>{item.nome}</Text>
-                  <Text style={estilos.valor}>{formatarReais(item.valor)}</Text>
-                </View>
-                <View style={estilos.track}>
-                  <View style={[estilos.fill, {
-              width: `${Math.min(100, percentual)}%`,
-              backgroundColor: paleta[index % paleta.length]
-            }]} />
-                </View>
-                <Text style={estilos.pequeno}>
-                  {percentual.toLocaleString('pt-BR', {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1
-            })}
-                  % das despesas
-                </Text>
-              </View>;
-      })}
+    <View style={[estilos.grade, larga && estilos.duasColunas]}>
+      <Cartao titulo="Evolução do resultado" subtitulo="Receitas menos despesas realizadas" aoExportar={aoExportar ? () => aoExportar('resultados') : undefined} exportando={exportando} style={larga && estilos.coluna}>
+        {historico.length ? <GraficoMedido>
+          {width => <LineChart data={{ labels: historico.map(item => rotuloMes(item.periodo)), datasets: [{ data: historico.map(item => Number(item.saldo) || 0) }] }} width={width} height={210} fromZero withShadow={false} withOuterLines={false} bezier formatYLabel={valor => Number(valor).toLocaleString('pt-BR', { notation: 'compact', maximumFractionDigits: 1 })} chartConfig={chartPalette} style={estilos.chartKit} />}
+        </GraficoMedido> : <Text style={estilos.vazio}>Ainda não há histórico suficiente para exibir a evolução.</Text>}
+        {!!historico.length && <Text style={estilos.nota}>O mês atual considera os valores até a data de referência.</Text>}
       </Cartao>
-    </View>;
+
+      <Cartao titulo="Projeção do mês" subtitulo={`Estimativa até o fim do mês · ${referencia}`} aoExportar={aoExportar ? () => aoExportar('indicadores') : undefined} exportando={exportando} style={larga && estilos.coluna}>
+        {[
+          ['Receitas estimadas', previsao.totalReceitas, cores.sucesso],
+          ['Despesas estimadas', previsao.totalDespesas, cores.perigo],
+          ['Resultado estimado', previsao.saldo, Number(previsao.saldo) < 0 ? cores.perigo : cores.textoLink],
+        ].map(([nome, valor, cor]) => <View key={nome} style={estilos.linhaResumo}>
+          <Text style={estilos.rotulo}>{nome}</Text>
+          <Text style={[estilos.valorResumo, { color: cor }]}>{formatarReais(valor)}</Text>
+        </View>)}
+        <Text style={estilos.nota}>Inclui valores realizados e lançamentos previstos.</Text>
+      </Cartao>
+    </View>
+
+    <View style={[estilos.grade, larga && estilos.duasColunas]}>
+      <Cartao titulo="Despesas por categoria" subtitulo="Distribuição das despesas realizadas" aoExportar={aoExportar ? () => aoExportar('categorias') : undefined} exportando={exportando} style={larga && estilos.coluna}>
+        {categorias.length ? categorias.map((item, index) => {
+          const percentual = Number(atual.totalDespesas) > 0 ? Number(item.valor) / Number(atual.totalDespesas) * 100 : 0;
+          return <View key={item.nome} style={estilos.categoria}>
+            <View style={estilos.categoriaCabecalho}><Text style={estilos.rotulo}>{item.nome}</Text><Text style={estilos.valorResumo}>{formatarReais(item.valor)}</Text></View>
+            <View style={estilos.trilho}><View style={[estilos.preenchimento, { width: `${Math.min(100, percentual)}%`, backgroundColor: coresCategorias[index % coresCategorias.length] }]} /></View>
+            <Text style={estilos.pequeno}>{percentual.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% das despesas</Text>
+          </View>;
+        }) : <Text style={estilos.vazio}>Nenhuma despesa realizada neste mês.</Text>}
+      </Cartao>
+    </View>
+  </View>;
 }
+
 const criarEstilos = cores => StyleSheet.create({
-  visaoGeral: {
-    gap: 16,
-    marginTop: 18
-  },
-  grade: {
-    gap: 16
-  },
-  colunas: {
-    flexDirection: 'row',
-    alignItems: 'stretch'
-  },
-  coluna: {
-    flex: 1,
-    minWidth: 0
-  },
-  cartao: {
-    padding: 18,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    backgroundColor: cores.superficie
-  },
-  cabecalho: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 4
-  },
-  titulo: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: cores.textoPrincipal,
-    flexShrink: 1
-  },
-  legenda: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: cores.textoSecundario
-  },
-  link: {
-    minHeight: 44,
-    justifyContent: 'center'
-  },
-  linkTexto: {
-    color: cores.textoLink,
-    fontWeight: '600',
-    fontSize: 13
-  },
-  resumoLinha: {
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: cores.divisor,
-    gap: 8
-  },
-  linhaRotulo: {
-    color: cores.textoPrincipal,
-    fontSize: 14,
-    fontWeight: '600',
-    flexShrink: 1
-  },
-  valores: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16
-  },
-  valorColuna: {
-    flex: 1,
-    minWidth: 105,
-    gap: 4
-  },
-  pequeno: {
-    color: cores.textoSecundario,
-    fontSize: 12,
-    lineHeight: 18
-  },
-  valor: {
-    color: cores.textoPrincipal,
-    fontSize: 16,
-    fontWeight: '700',
-    flexShrink: 1
-  },
-  previsao: {
-    marginTop: 16,
-    padding: 14,
-    borderRadius: 14,
-    backgroundColor: cores.superficieElevada,
-    gap: 8
-  },
-  grandeValor: {
-    fontSize: 24,
-    fontWeight: '700'
-  },
-  vazio: {
-    marginVertical: 20,
-    fontSize: 14,
-    lineHeight: 22,
-    color: cores.textoSecundario
-  },
-  history: {
-    marginTop: 12,
-    gap: 6
-  },
-  historyLinha: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 8
-  },
-  historyValor: {
-    fontSize: 13,
-    fontWeight: '600'
-  },
-  categoria: {
-    marginTop: 18,
-    gap: 8
-  },
-  categoriaCabecalho: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 8
-  },
-  track: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: cores.superficieElevada,
-    overflow: 'hidden'
-  },
-  fill: {
-    height: '100%',
-    borderRadius: 4
-  }
+  visaoGeral: { gap: 16, marginTop: 16 },
+  grade: { gap: 16 },
+  duasColunas: { flexDirection: 'row', alignItems: 'stretch' },
+  coluna: { flex: 1, minWidth: 0 },
+  cabecalho: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 16 },
+  titulos: { flex: 1, gap: 3 },
+  titulo: { fontSize: 17, lineHeight: 23, fontWeight: '700', color: cores.textoPrincipal },
+  legenda: { fontSize: 12, lineHeight: 18, color: cores.textoSecundario },
+  botaoBaixar: { width: 38, height: 38, borderRadius: 13, borderWidth: 1, borderColor: cores.borda, alignItems: 'center', justifyContent: 'center' },
+  chartKit: { borderRadius: 12, paddingRight: 8 },
+  nota: { color: cores.textoSecundario, fontSize: 12, lineHeight: 18, marginTop: 10 },
+  linhaResumo: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: cores.divisor, gap: 8 },
+  rotulo: { color: cores.textoPrincipal, fontSize: 14, fontWeight: '600', flexShrink: 1 },
+  valorResumo: { color: cores.textoPrincipal, fontSize: 15, fontWeight: '700', flexShrink: 1 },
+  pequeno: { color: cores.textoSecundario, fontSize: 11, lineHeight: 17 },
+  categoria: { gap: 7, marginTop: 14 },
+  categoriaCabecalho: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
+  trilho: { height: 8, borderRadius: 5, backgroundColor: cores.superficieElevada, overflow: 'hidden' },
+  preenchimento: { height: '100%', borderRadius: 5 },
+  vazio: { marginVertical: 16, color: cores.textoSecundario, fontSize: 14, lineHeight: 21 },
 });
