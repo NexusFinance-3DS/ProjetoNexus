@@ -33,10 +33,10 @@ rotasAutenticacao.post('/cadastro', async (requisicao, resposta, proximo) => {
       mensagem: 'Informe o nome completo.'
     });
     if (!emailValido(email)) return resposta.status(400).json({
-      mensagem: 'E-mail inválido.'
+      mensagem: 'Informe um e-mail válido, como nome@exemplo.com.'
     });
     if (!dataNascimentoValida(dataNascimento)) return resposta.status(400).json({
-      mensagem: 'Data de nascimento inválida.'
+      mensagem: 'Confira a data de nascimento. Use o formato DD/MM/AAAA.'
     });
     const senhaErro = erroSenha(senha);
     if (senhaErro) return resposta.status(400).json({
@@ -135,7 +135,7 @@ rotasAutenticacao.post('/recuperar-senha', async (requisicao, resposta, proximo)
   try {
     const email = normalizarEmail(requisicao.body.email);
     if (!emailValido(email)) return resposta.status(400).json({
-      mensagem: 'E-mail inválido.'
+      mensagem: 'Informe um e-mail válido, como nome@exemplo.com.'
     });
     const [usuarios] = await bancoDados.query<UserRow[]>('SELECT id_usuario, email FROM usuarios WHERE email = ? AND ativo = TRUE LIMIT 1', [email]);
     if (usuarios.length) {
@@ -158,7 +158,7 @@ rotasAutenticacao.post('/validar-codigo', async (requisicao, resposta, proximo) 
     const codigo = typeof requisicao.body.codigo === 'string' ? requisicao.body.codigo.trim() : '';
     const recuperacao = await encontrarRecuperacaoValida(email, codigo);
     if (!recuperacao) return resposta.status(400).json({
-      mensagem: 'Código inválido ou expirado.'
+      mensagem: 'O código não confere ou expirou. Solicite outro e tente novamente.'
     });
     resposta.json({
       mensagem: 'Código válido.'
@@ -182,7 +182,7 @@ rotasAutenticacao.post('/nova-senha', async (requisicao, resposta, proximo) => {
     });
     const recuperacao = await encontrarRecuperacaoValida(email, codigo);
     if (!recuperacao) return resposta.status(400).json({
-      mensagem: 'Código inválido ou expirado.'
+      mensagem: 'O código não confere ou expirou. Solicite outro e tente novamente.'
     });
     const conexao = await bancoDados.getConnection();
     try {

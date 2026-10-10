@@ -28,7 +28,7 @@ export default function Login() {
   }
   async function entrar() {
     if (!email || !senha) {
-      setErro('Preencha email e senha.');
+      setErro('Informe seu e-mail e sua senha.');
       return;
     }
     setCarregando(true);

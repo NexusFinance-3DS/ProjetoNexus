@@ -188,10 +188,10 @@ export default function Metas() {
         <AreaTeclado modal style={estilosTeclado.desvioArea}>
           <RolagemFormulario contentContainerStyle={[estilos.modalFundo, estilosTeclado.modalRolagemConteudo]} keyboardShouldPersistTaps="handled">
             <CartaoAnimado style={estilos.modal} atraso={30}>
-              <Text style={estilos.modalTitulo}>{modoEdicao ? 'Editar Meta' : 'Nova Meta'}</Text>
-              <CampoFormulario style={estilos.campo} maxLength={150} placeholder="Nome da meta" placeholderTextColor={cores.textoIndicativo} value={nomeMeta} onChangeText={setNomeMeta} />
-              <CampoFormulario style={estilos.campo} placeholder="Valor da meta" placeholderTextColor={cores.textoIndicativo} keyboardType="decimal-pad" value={valorMeta} onChangeText={setValorMeta} mask="currency" />
-              <CampoFormulario style={estilos.campo} placeholder="Quanto você já possui?" placeholderTextColor={cores.textoIndicativo} keyboardType="decimal-pad" value={valorAtual} onChangeText={setValorAtual} mask="currency" />
+              <Text accessibilityRole="header" style={estilos.modalTitulo}>{modoEdicao ? 'Editar meta' : 'Nova meta'}</Text>
+              <CampoFormulario accessibilityLabel="Nome da meta" style={estilos.campo} maxLength={150} placeholder="Ex.: Reserva de emergência" placeholderTextColor={cores.textoIndicativo} value={nomeMeta} onChangeText={setNomeMeta} />
+              <CampoFormulario accessibilityLabel="Valor da meta" style={estilos.campo} placeholder="Valor da meta" placeholderTextColor={cores.textoIndicativo} keyboardType="decimal-pad" value={valorMeta} onChangeText={setValorMeta} mask="currency" />
+              <CampoFormulario accessibilityLabel="Valor já guardado" style={estilos.campo} placeholder="Quanto você já guardou?" placeholderTextColor={cores.textoIndicativo} keyboardType="decimal-pad" value={valorAtual} onChangeText={setValorAtual} mask="currency" />
               {erro ? <Text style={estilosCompartilhados.erroTexto}>{erro}</Text> : null}
               <View style={estilos.modalBotoes}>
                 <TouchableOpacity style={estilos.cancelar} onPress={fecharModal} disabled={salvando}>
@@ -199,7 +199,7 @@ export default function Metas() {
                 </TouchableOpacity>
                 <TouchableOpacity style={estilos.salvar} onPress={salvarMeta} disabled={salvando}>
                   <Text style={estilos.salvarTexto}>
-                    {salvando ? 'Salvando...' : modoEdicao ? 'Salvar alterações' : 'Salvar'}
+                    {salvando ? 'Salvando...' : modoEdicao ? 'Salvar alterações' : 'Criar meta'}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -214,15 +214,15 @@ export default function Metas() {
             <View style={estilos.iconeExcluir}>
               <Icon name="delete-outline" size={30} color={cores.perigo} />
             </View>
-            <Text style={estilos.modalTitulo}>Excluir meta?</Text>
+            <Text accessibilityRole="header" style={estilos.modalTitulo}>Excluir esta meta?</Text>
             <Text style={estilos.textoConfirmacao}>
-              A meta “{metaParaExcluir?.nome}” e todo o histórico ligado a ela serão excluídos.
+              A meta “{metaParaExcluir?.nome}” e seu histórico serão removidos.
             </Text>
             <View style={estilos.modalBotoes}>
-              <TouchableOpacity style={estilos.cancelar} onPress={() => setMetaParaExcluir(null)} disabled={excluindo}>
+              <TouchableOpacity style={estilos.excluir} onPress={() => setMetaParaExcluir(null)} disabled={excluindo}>
                 <Text style={estilos.cancelarTexto}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={estilos.excluir} onPress={excluirMeta} disabled={excluindo}>
+              <TouchableOpacity style={estilos.cancelar} onPress={excluirMeta} disabled={excluindo}>
                 <Text style={estilos.excluirTexto}>{excluindo ? 'Excluindo...' : 'Excluir'}</Text>
               </TouchableOpacity>
             </View>
