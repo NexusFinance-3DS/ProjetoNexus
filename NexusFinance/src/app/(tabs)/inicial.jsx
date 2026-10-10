@@ -1,15 +1,14 @@
-import VisaoFinanceira from "../../componentes/VisaoFinanceira";
 import { TelaAnimada } from "../../componentes/TelaAnimada";
-import React, { useState } from 'react';
-import ProgressoCircularAnimado from "../../componentes/AnelProgresso";
-import { ActivityIndicator, View, Text, Pressable, ScrollView, useWindowDimensions } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, View, Text, Pressable, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import Animated, { FadeInDown, FadeInUp, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useEstilosApp } from "../../style/style";
 import BarraNavegacao from "../../componentes/BarraNavegacao";
-import { formatarReais } from "../../servicos/financeiro";
+import { apiAutenticada, formatarReais } from "../../servicos/financeiro";
+import CartaoPainel from "../../componentes/CartaoPainel";
 import { useResumoFinanceiro } from "../../ganchos/useResumoFinanceiro";
 import { useSessao } from "../../contextos/ContextoSessao";
 function obterSaudacao() {
@@ -53,10 +52,7 @@ function CartaoResumo({
         stiffness: 200
       });
     }} onPress={aoPressionar}>
-        <View style={[estilos.cartao, {
-        width: largura,
-        marginRight: 0
-      }]}>
+        <CartaoPainel style={{ width: largura, minHeight: 150, justifyContent: 'flex-start' }}>
           <View style={[estilos.cartaoIconeSelo, {
           backgroundColor: fundoIcone
         }]}>
@@ -72,7 +68,7 @@ function CartaoResumo({
         }]}>
               {comparacao}
             </Text> : null}
-        </View>
+        </CartaoPainel>
       </Pressable>
     </Animated.View>;
 }
@@ -83,12 +79,10 @@ export default function Inicial() {
     gradientes,
     estilosCompartilhados
   } = useEstilosApp();
-  const {
-    width: largura,
-    fontScale: escalaFonte
-  } = useWindowDimensions();
-  const compacto = largura < 380 || escalaFonte > 1.3;
   const [saldoVisivel, setSaldoVisivel] = useState(true);
+  const [metas, setMetas] = useState([]);
+  const [erroMetas, setErroMetas] = useState('');
+  const [carregandoMetas, setCarregandoMetas] = useState(true);
   const {
     usuario
   } = useSessao();
@@ -98,21 +92,37 @@ export default function Inicial() {
     carregando,
     recarregar
   } = useResumoFinanceiro();
+  useFocusEffect(useCallback(() => {
+    let ativo = true;
+    setCarregandoMetas(true);
+    apiAutenticada('/metas').then(resposta => {
+      if (ativo) {
+        setMetas(Array.isArray(resposta?.metas) ? resposta.metas : []);
+        setErroMetas('');
+      }
+    }).catch(falha => {
+      if (ativo) setErroMetas(falha.message || 'Não foi possível carregar suas metas.');
+    }).finally(() => {
+      if (ativo) setCarregandoMetas(false);
+    });
+    return () => { ativo = false; };
+  }, []));
   const valorFormatado = valor => saldoVisivel ? formatarReais(valor) : '••••••';
   const totais = dados.atual;
-  const comparacaoEconomia = {
-    percent: dados.economia.percentual,
-    diff: dados.economia.diferenca
-  };
   const renda = totais.totalReceitas || 0;
   const despesa = totais.totalDespesas || 0;
-  const valorMeta = Number(dados.meta?.atual) || 0;
-  const valorTotalMeta = Number(dados.meta?.objetivo) || 0;
-  const porcentagem = valorTotalMeta > 0 ? Math.min(valorMeta / valorTotalMeta * 100, 100) : 0;
-  const tituloMeta = dados.meta?.nome || 'Nenhuma meta em andamento';
+  const metasProximas = metas.map(meta => ({
+    ...meta,
+    progresso: Number(meta.objetivo) > 0 ? Math.min(100, Math.max(0, Number(meta.atual || 0) / Number(meta.objetivo) * 100)) : 0,
+  })).filter(meta => meta.status !== 'cancelada' && meta.status !== 'concluida' && meta.progresso < 100)
+    .sort((a, b) => b.progresso - a.progresso)
+    .slice(0, 3);
+  const valorMeta = metas.filter(meta => meta.status !== 'cancelada').reduce((soma, meta) => soma + (Number(meta.atual) || 0), 0);
   const saldoTotal = Number(dados.saldoDisponivel) || 0;
   const saldoDisponivelSemMetas = saldoTotal - valorMeta;
-  const saldoTotalComMetas = saldoDisponivelSemMetas + valorMeta;
+  const previsao = dados.previsao || { totalReceitas: 0, totalDespesas: 0, saldo: 0 };
+  const categoriaPrincipal = dados.categorias?.[0];
+  const percentualCategoria = categoriaPrincipal && despesa > 0 ? Number(categoriaPrincipal.valor) / despesa * 100 : 0;
   return <TelaAnimada style={estilos.recipiente}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={estilosCompartilhados.espacamentoInferior130}>
         <View style={estilos.cabecalho}>
@@ -243,57 +253,79 @@ export default function Inicial() {
             marginTop: 12,
             marginBottom: 8
           }}>
-                <CartaoResumo atraso={160} icone="savings" corIcone={cores.primaria} fundoIcone={cores.primariaSuave} titulo="Resultado mensal total" valor={valorFormatado(saldoTotalComMetas)} comparacao={!saldoVisivel ? 'Comparação oculta' : comparacaoEconomia.percent === null ? 'Sem base de comparação' : `${comparacaoEconomia.percent >= 0 ? '+' : '-'}${Math.abs(comparacaoEconomia.percent).toLocaleString('pt-BR', {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1
-            })}% vs. mês anterior`} corComparacao={comparacaoEconomia.diff >= 0 ? cores.sucesso : cores.perigoIntenso} aoPressionar={() => router.push("/painel")} />
+                <CartaoResumo atraso={160} icone="account-balance-wallet" corIcone={cores.primaria} fundoIcone={cores.primariaSuave} titulo="Resultado do mês" valor={valorFormatado(totais.saldo)} comparacao="Receitas realizadas menos despesas" corComparacao={cores.textoSecundario} aoPressionar={() => router.push("/painel")} />
               </View>
 
-              <VisaoFinanceira dados={dados} visivel={saldoVisivel} inicio />
-
-              <Animated.View entering={FadeInDown.delay(200).duration(400)} style={estilos.secaoCartao}>
-                <View style={estilos.metaCabecalhoLinha}>
-                  <Text style={estilos.metaCabecalhoTitulo}>
-                    Metas em andamento
-                  </Text>
-
-                  <Text style={[estilos.metaHeaderLink, {
-                color: "#B5ACFF"
-              }]} onPress={() => router.push('/metas')}>
-                    Ver metas
-                  </Text>
-                </View>
-
-                <View style={[estilos.graficos, compacto && {
-              flexDirection: 'column',
-              alignItems: 'stretch'
-            }]}>
-                  <ProgressoCircularAnimado size={104} width={9} fill={saldoVisivel ? porcentagem : 0} tintColor={cores.primaria} backgroundColor={cores.superficieElevada} rotation={0} lineCap="round">
-                    {() => <Text style={estilosCompartilhados.progressoPercentual}>
-                        {saldoVisivel ? `${Math.round(porcentagem)}%` : '•••'}
-                      </Text>}
-                  </ProgressoCircularAnimado>
-
-                  <View style={[estilos.metaInformacoesColuna, compacto && {
-                marginLeft: 0,
-                marginTop: 16
-              }]}>
-                    <Text style={estilos.metaTituloTexto}>
-                      {tituloMeta}
-                    </Text>
-
-                    <View style={estilos.metaBarraFundo}>
-                      <View style={[estilos.metaBarraPreenchida, {
-                    width: `${saldoVisivel ? porcentagem : 0}%`
-                  }]} />
+              <Animated.View entering={FadeInDown.delay(200).duration(400)} style={{ marginTop: 18, marginBottom: 25 }}>
+                <CartaoPainel>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: cores.textoPrincipal, fontSize: 18, lineHeight: 24, fontWeight: '800' }}>Próximas conquistas</Text>
+                      <Text style={{ color: cores.textoSecundario, fontSize: 12, lineHeight: 18, marginTop: 3 }}>Suas 3 metas com maior progresso</Text>
                     </View>
-
-                    <Text style={estilos.metaValoresTexto}>
-                      {valorFormatado(valorMeta)} / {valorFormatado(valorTotalMeta)}
-                    </Text>
+                    <Pressable accessibilityRole="button" onPress={() => router.push('/metas')} style={{ minHeight: 40, paddingHorizontal: 12, borderRadius: 12, backgroundColor: cores.primariaSuave, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                      <Text style={{ color: cores.textoLink, fontSize: 12, fontWeight: '700' }}>Ver todas</Text>
+                      <Icon name="arrow-forward" size={15} color={cores.textoLink} />
+                    </Pressable>
                   </View>
-                </View>
+
+                  {carregandoMetas ? <ActivityIndicator accessibilityLabel="Carregando metas" color={cores.primaria} /> : null}
+                  {erroMetas && metas.length === 0 ? <Text style={estilosCompartilhados.erroTexto}>{erroMetas}</Text> : null}
+                  {metasProximas.length ? metasProximas.map((meta, index) => <Pressable key={meta.id} accessibilityRole="button" accessibilityLabel={`Abrir meta ${meta.nome}, ${Math.round(meta.progresso)} por cento concluída`} onPress={() => router.push('/metas')} style={{ paddingVertical: 13, borderTopWidth: index === 0 ? 0 : 1, borderTopColor: cores.divisor }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <View style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: cores.primariaSuave, alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={{ color: cores.textoLink, fontSize: 13, fontWeight: '800' }}>{index + 1}</Text>
+                      </View>
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text numberOfLines={1} style={{ color: cores.textoPrincipal, fontSize: 14, fontWeight: '700' }}>{meta.nome}</Text>
+                        <Text style={{ color: cores.textoSecundario, fontSize: 11, marginTop: 3 }}>{valorFormatado(meta.atual)} de {valorFormatado(meta.objetivo)}</Text>
+                      </View>
+                      <View style={{ paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: cores.primariaSuave }}>
+                        <Text style={{ color: cores.textoLink, fontSize: 11, fontWeight: '800' }}>{saldoVisivel ? `${Math.round(meta.progresso)}%` : '•••'}</Text>
+                      </View>
+                    </View>
+                    <View style={{ height: 7, marginTop: 11, marginLeft: 44, borderRadius: 5, backgroundColor: cores.superficieElevada, overflow: 'hidden' }}>
+                      <View style={{ width: `${saldoVisivel ? meta.progresso : 0}%`, height: '100%', borderRadius: 5, backgroundColor: index === 0 ? cores.sucesso : cores.primaria }} />
+                    </View>
+                    <Text style={{ color: cores.textoSecundario, fontSize: 10, marginTop: 5, marginLeft: 44 }}>{valorFormatado(Math.max(0, Number(meta.objetivo) - Number(meta.atual || 0)))} para concluir</Text>
+                  </Pressable>) : !erroMetas && !carregandoMetas ? <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                    <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: cores.primariaSuave, alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}><Icon name="flag" size={24} color={cores.primaria} /></View>
+                    <Text style={{ color: cores.textoPrincipal, fontSize: 14, fontWeight: '700' }}>Nenhuma meta em andamento</Text>
+                    <Text style={{ color: cores.textoSecundario, fontSize: 12, textAlign: 'center', marginTop: 4 }}>Crie uma meta e acompanhe seu progresso por aqui.</Text>
+                    <Pressable accessibilityRole="button" onPress={() => router.push('/metas')} style={{ minHeight: 42, justifyContent: 'center', paddingHorizontal: 12 }}><Text style={{ color: cores.textoLink, fontSize: 13, fontWeight: '700' }}>Criar primeira meta</Text></Pressable>
+                  </View> : null}
+                </CartaoPainel>
               </Animated.View>
+
+              <CartaoPainel style={{ marginTop: 18 }}>
+                <Text style={{ color: cores.textoPrincipal, fontSize: 17, fontWeight: '700', marginBottom: 14 }}>Ações rápidas</Text>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  {[
+                    { icone: 'add-circle-outline', titulo: 'Nova receita', rota: '/receita/novaReceita', cor: cores.sucesso, fundo: cores.sucessoSuave },
+                    { icone: 'remove-circle-outline', titulo: 'Nova despesa', rota: '/despesa/novaDespesa', cor: cores.perigo, fundo: cores.perigoSuave },
+                    { icone: 'insights', titulo: 'Ver painel', rota: '/painel', cor: cores.primaria, fundo: cores.primariaSuave },
+                  ].map(acao => <Pressable key={acao.titulo} accessibilityRole="button" onPress={() => router.push(acao.rota)} style={{ flex: 1, minHeight: 92, alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, backgroundColor: acao.fundo, paddingHorizontal: 6, paddingVertical: 10 }}>
+                    <Icon name={acao.icone} size={23} color={acao.cor} />
+                    <Text style={{ color: cores.textoPrincipal, fontSize: 11, fontWeight: '600', textAlign: 'center' }}>{acao.titulo}</Text>
+                  </Pressable>)}
+                </View>
+              </CartaoPainel>
+
+              <CartaoPainel style={{ marginTop: 16 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                  <View style={{ width: 38, height: 38, borderRadius: 13, backgroundColor: cores.primariaSuave, alignItems: 'center', justifyContent: 'center' }}><Icon name="auto-awesome" size={20} color={cores.primaria} /></View>
+                  <View style={{ flex: 1 }}><Text style={{ color: cores.textoPrincipal, fontSize: 17, fontWeight: '700' }}>Destaques do mês</Text><Text style={{ color: cores.textoSecundario, fontSize: 12, marginTop: 2 }}>Uma visão rápida do que vem pela frente</Text></View>
+                </View>
+                <Pressable accessibilityRole="button" onPress={() => router.push('/painel')} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 10 }}>
+                  <View style={{ flex: 1 }}><Text style={{ color: cores.textoSecundario, fontSize: 12 }}>Resultado estimado no fechamento</Text><Text style={{ color: Number(previsao.saldo) < 0 ? cores.perigo : cores.textoPrincipal, fontSize: 18, fontWeight: '700', marginTop: 3 }}>{valorFormatado(previsao.saldo)}</Text></View>
+                  <Icon name="arrow-forward-ios" size={15} color={cores.textoSecundario} />
+                </Pressable>
+                <View style={{ height: 1, backgroundColor: cores.divisor }} />
+                <Pressable accessibilityRole="button" onPress={() => router.push('/painel')} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 12 }}>
+                  <View style={{ flex: 1 }}><Text style={{ color: cores.textoSecundario, fontSize: 12 }}>Maior categoria de despesa</Text><Text style={{ color: cores.textoPrincipal, fontSize: 14, fontWeight: '700', marginTop: 3 }}>{categoriaPrincipal?.nome || 'Sem despesas registradas'}</Text></View>
+                  {categoriaPrincipal ? <Text style={{ color: cores.perigo, fontSize: 13, fontWeight: '700' }}>{percentualCategoria.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</Text> : null}
+                </Pressable>
+              </CartaoPainel>
             </> : null}
         </View>
       </ScrollView>
