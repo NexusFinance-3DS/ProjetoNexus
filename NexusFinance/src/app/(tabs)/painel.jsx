@@ -43,7 +43,7 @@ export default function Painel() {
   const historico = (dados.historico || []).slice(-6);
   const atual = dados.atual || { totalReceitas: 0, totalDespesas: 0, saldo: 0 };
   const taxaEconomia = Number(atual.totalReceitas) > 0 ? Number(atual.saldo) / Number(atual.totalReceitas) * 100 : null;
-  const percentualAnterior = dados.economia?.percentual;
+  const percentualAnterior = dados.variacaoDespesas?.percentual;
   const mudancaDespesas = percentualAnterior == null ? null : Number(percentualAnterior);
   const progressoMeta = Number(dados.meta?.objetivo) > 0 ? Math.min(100, Math.max(0, (Number(dados.meta.atual) || 0) / Number(dados.meta.objetivo) * 100)) : 0;
   const duasColunas = largura >= 700 && fontScale <= 1.3;
@@ -166,9 +166,9 @@ export default function Painel() {
                 <View style={estilosPagina.leituraLinha}>
                   <View style={[estilosPagina.iconeLeitura, { backgroundColor: cores.primaria + '18' }]}><Icon name="compare-arrows" size={20} color={cores.primaria} /></View>
                   <View style={estilosPagina.leituraTexto}>
-                    <Text style={estilosPagina.rotuloLeitura}>Despesas vs. mês anterior</Text>
+                    <Text style={estilosPagina.rotuloLeitura}>Despesas vs. mesmo período do mês anterior</Text>
                     <View style={estilosPagina.valorLeituraLinha}><Text style={estilosPagina.valorLeitura}>{Number.isFinite(mudancaDespesas) ? `${mudancaDespesas > 0 ? '+' : ''}${mudancaDespesas.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : '—'}</Text><View style={[estilosPagina.selo, { backgroundColor: mudancaDespesas != null && mudancaDespesas <= 0 ? cores.sucesso + '18' : cores.perigo + '18' }]}><Text style={[estilosPagina.textoSelo, { color: mudancaDespesas != null && mudancaDespesas <= 0 ? cores.sucesso : cores.perigo }]}>{mudancaDespesas == null ? 'Sem comparação' : mudancaDespesas > 0 ? 'Subiram' : mudancaDespesas < 0 ? 'Diminuíram' : 'Estáveis'}</Text></View></View>
-                    <Text style={estilosPagina.legenda}>{mudancaDespesas == null ? 'Ainda não há mês anterior completo para comparar.' : mudancaDespesas > 0 ? 'Os gastos cresceram em relação ao mês anterior.' : mudancaDespesas < 0 ? 'Os gastos caíram em relação ao mês anterior.' : 'Os gastos ficaram no mesmo nível do mês anterior.'}</Text>
+                    <Text style={estilosPagina.legenda}>{mudancaDespesas == null ? 'Ainda não há despesas no período anterior para comparar.' : mudancaDespesas > 0 ? 'Os gastos aumentaram em relação ao mesmo período do mês anterior.' : mudancaDespesas < 0 ? 'Os gastos diminuíram em relação ao mesmo período do mês anterior.' : 'Os gastos ficaram no mesmo nível do período anterior.'}</Text>
                   </View>
                 </View>
               </CartaoPainel>

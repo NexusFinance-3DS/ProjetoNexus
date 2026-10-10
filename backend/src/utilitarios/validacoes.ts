@@ -28,10 +28,12 @@ export function normalizarData(valor: unknown): string {
 }
 export function dataNascimentoValida(valor: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
-  const data = new Date(`${valor}T00:00:00`);
+  // Parse dates as calendar values in UTC so the host server timezone cannot
+  // shift a birthday to the previous or next day.
+  const data = new Date(`${valor}T00:00:00.000Z`);
   if (Number.isNaN(data.getTime()) || data.toISOString().slice(0, 10) !== valor) return false;
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
+  const agora = new Date();
+  const hoje = new Date(Date.UTC(agora.getFullYear(), agora.getMonth(), agora.getDate()));
   return data < hoje;
 }
 export function erroSenha(senha: unknown): string | null {

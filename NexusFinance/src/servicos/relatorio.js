@@ -55,7 +55,6 @@ function escaparHtml(valor) {
 export async function exportarDashboard(tipo, dados) {
   const atual = dados.atual || {};
   const previsao = dados.previsao || {};
-  const anterior = dados.anterior || {};
   const historico = dados.historico || [];
   const categorias = dados.categorias || [];
   const moeda = valor => formatarReais(valor);
@@ -77,7 +76,7 @@ export async function exportarDashboard(tipo, dados) {
         ['Despesas previstas', moeda(previsao.totalDespesas)],
         ['Resultado previsto', moeda(previsao.saldo)],
         ['Taxa de economia', Number(atual.totalReceitas) > 0 ? ((Number(atual.saldo) / Number(atual.totalReceitas)) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : 'Sem receitas'],
-        ['Variação das despesas vs. mês anterior', Number(anterior.totalDespesas) > 0 ? (((Number(atual.totalDespesas) - Number(anterior.totalDespesas)) / Number(anterior.totalDespesas)) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%' : 'Sem comparação']
+        ['Variação das despesas vs. mesmo período do mês anterior', dados.variacaoDespesas?.percentual == null ? 'Sem comparação' : Number(dados.variacaoDespesas.percentual).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%']
       ]
     ));
   }

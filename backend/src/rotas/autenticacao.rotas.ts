@@ -180,15 +180,26 @@ rotasAutenticacao.post('/nova-senha', async (requisicao, resposta, proximo) => {
     if (senha !== confirmarSenha) return resposta.status(400).json({
       mensagem: 'As senhas não coincidem.'
     });
-    const recuperacao = await encontrarRecuperacaoValida(email, codigo);
-    if (!recuperacao) return resposta.status(400).json({
-      mensagem: 'O código não confere ou expirou. Solicite outro e tente novamente.'
-    });
     const conexao = await bancoDados.getConnection();
     try {
       await conexao.beginTransaction();
+      // Lock the active code while consuming it. Concurrent password-reset
+      // requests using the same code must not both succeed.
+      const [linhas] = await conexao.query<RecoveryRow[]>(`SELECT r.id_recuperacao, r.id_usuario, r.token, r.expira_em, r.utilizado
+         FROM recuperacoes_senha r
+         INNER JOIN usuarios u ON u.id_usuario = r.id_usuario
+         WHERE u.email = ? AND r.utilizado = FALSE AND r.expira_em > NOW()
+         ORDER BY r.criado_em DESC LIMIT 1 FOR UPDATE`, [email]);
+      const recuperacao = linhas[0] && await bcrypt.compare(codigo, linhas[0].token) ? linhas[0] : null;
+      if (!recuperacao) {
+        await conexao.rollback();
+        return resposta.status(400).json({
+          mensagem: 'O código não confere ou expirou. Solicite outro e tente novamente.'
+        });
+      }
       await conexao.execute('UPDATE usuarios SET senha_hash = ? WHERE id_usuario = ?', [await bcrypt.hash(senha, 10), recuperacao.id_usuario]);
-      await conexao.execute('UPDATE recuperacoes_senha SET utilizado = TRUE WHERE id_recuperacao = ?', [recuperacao.id_recuperacao]);
+      // Revoke other outstanding reset codes for the account as well.
+      await conexao.execute('UPDATE recuperacoes_senha SET utilizado = TRUE WHERE id_usuario = ? AND utilizado = FALSE', [recuperacao.id_usuario]);
       await conexao.commit();
       resposta.json({
         mensagem: 'Senha alterada com sucesso.'
