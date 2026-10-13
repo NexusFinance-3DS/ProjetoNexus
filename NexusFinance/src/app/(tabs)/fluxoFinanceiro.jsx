@@ -7,6 +7,40 @@ import { useEstilosApp } from "../../style/style";
 import { apiAutenticada, formatarReais, formatarData } from "../../servicos/financeiro";
 import { abrirAnexo } from "../../servicos/arquivos";
 
+function OpcoesFiltro({ opcoes, selecionado, aoSelecionar, cores }) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+      {opcoes.map(({ valor, rotulo }) => {
+        const ativo = selecionado === valor;
+        return (
+          <TouchableOpacity
+            key={valor}
+            accessibilityRole="button"
+            accessibilityState={{ selected: ativo }}
+            onPress={() => aoSelecionar(valor)}
+            style={{
+              minHeight: 44,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1.5,
+              borderColor: ativo ? cores.primaria : cores.borda,
+              borderRadius: 999,
+              paddingHorizontal: 16,
+              paddingVertical: 9,
+              backgroundColor: ativo ? cores.primaria : 'transparent',
+            }}
+          >
+            <Text style={{ color: ativo ? cores.sobrePrimaria : cores.textoPrincipal, fontSize: 14, fontWeight: '600' }}>
+              {rotulo}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
 export default function FluxoFinanceiro() {
   const {
     cores,
@@ -15,6 +49,7 @@ export default function FluxoFinanceiro() {
   } = useEstilosApp();
   const [filtroAberto, setFiltroAberto] = useState(false);
   const [statusFiltro, setStatusFiltro] = useState('Todos');
+  const [statusRascunho, setStatusRascunho] = useState('Todos');
   const {
     aba
   } = useLocalSearchParams();
@@ -22,6 +57,13 @@ export default function FluxoFinanceiro() {
   const [abaSelecionada, setAbaSelecionada] = useState(aba || 'Geral');
   const [transacoes, setTransacoes] = useState([]);
   const [contaFiltro, setContaFiltro] = useState('Todos');
+  const [contaRascunho, setContaRascunho] = useState('Todos');
+  const [categoriaFiltro, setCategoriaFiltro] = useState('Todos');
+  const [categoriaRascunho, setCategoriaRascunho] = useState('Todos');
+  const [categoriasCatalogo, setCategoriasCatalogo] = useState([]);
+  const [carregandoCategorias, setCarregandoCategorias] = useState(false);
+  const [erroCategorias, setErroCategorias] = useState('');
+  const [tipoOutrosAberto, setTipoOutrosAberto] = useState(null);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [confirmando, setConfirmando] = useState(null);
@@ -79,6 +121,88 @@ export default function FluxoFinanceiro() {
       setConfirmando(null);
     }
   }
+  const categoriasPorTipo = useMemo(() => {
+    const tipos = ['Receitas', 'Despesas'];
+    return Object.fromEntries(tipos.map(tipo => {
+      const nomes = [
+        ...categoriasCatalogo.filter(item => item.tipo === tipo).map(item => item.nome),
+        ...transacoes.filter(item => item.tipo === tipo).map(item => item.categoria),
+      ];
+      return [tipo, [...new Set(nomes.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'))];
+    }));
+  }, [categoriasCatalogo, transacoes]);
+  const categoriasPrincipaisPorTipo = useMemo(() => {
+    const preferidas = {
+      Receitas: ['Salário', 'Freelance', 'Investimentos', 'Presentes'],
+      Despesas: ['Alimentação', 'Moradia', 'Transporte', 'Saúde'],
+    };
+    return Object.fromEntries(['Receitas', 'Despesas'].map(tipo => {
+      const contagem = transacoes.filter(item => item.tipo === tipo && item.categoria)
+        .reduce((mapa, item) => mapa.set(item.categoria, (mapa.get(item.categoria) || 0) + 1), new Map());
+      const frequentes = [...contagem].sort((a, b) => b[1] - a[1]).map(([nome]) => nome);
+      return [tipo, [...new Set([...preferidas[tipo], ...frequentes])]
+        .filter(nome => categoriasPorTipo[tipo].includes(nome)).slice(0, 4)];
+    }));
+  }, [categoriasPorTipo, transacoes]);
+  const tiposCategoriaExibidos = abaSelecionada === 'Geral' ? ['Receitas', 'Despesas'] : [abaSelecionada];
+  const contasDisponiveis = useMemo(() => [...new Set(
+    transacoes.map(item => item.tipoConta).filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'pt-BR')), [transacoes]);
+  const filtrosAtivos = [statusFiltro !== 'Todos', contaFiltro !== 'Todos', categoriaFiltro !== 'Todos'].filter(Boolean).length;
+
+  function abrirFiltros() {
+    setStatusRascunho(statusFiltro);
+    setContaRascunho(contaFiltro);
+    setCategoriaRascunho(categoriaFiltro);
+    const [tipoSelecionado, nomeSelecionado] = categoriaFiltro.split('::');
+    setTipoOutrosAberto(categoriaFiltro !== 'Todos' && !categoriasPrincipaisPorTipo[tipoSelecionado]?.includes(nomeSelecionado) ? tipoSelecionado : null);
+    setErroCategorias('');
+    setFiltroAberto(true);
+    const tipos = abaSelecionada === 'Geral'
+      ? ['Receita', 'Despesa']
+      : [abaSelecionada === 'Receitas' ? 'Receita' : 'Despesa'];
+    setCarregandoCategorias(true);
+    Promise.all(tipos.map(tipo => apiAutenticada(`/financeiro/opcoes?tipo=${encodeURIComponent(tipo)}`)))
+      .then(respostas => {
+        const categorias = respostas.flatMap((resposta, indice) =>
+          resposta.categorias.map(categoria => ({
+            nome: categoria.nome,
+            tipo: tipos[indice] === 'Receita' ? 'Receitas' : 'Despesas',
+          }))
+        );
+        setCategoriasCatalogo(categorias);
+      })
+      .catch(falha => setErroCategorias(falha.message || 'Não foi possível carregar as categorias.'))
+      .finally(() => setCarregandoCategorias(false));
+  }
+
+  function aplicarFiltros() {
+    setStatusFiltro(statusRascunho);
+    setContaFiltro(contaRascunho);
+    setCategoriaFiltro(categoriaRascunho);
+    setFiltroAberto(false);
+  }
+
+  function selecionarCategoria(tipo, nome) {
+    setCategoriaRascunho(`${tipo}::${nome}`);
+  }
+
+  function selecionarTodasCategorias() {
+    setCategoriaRascunho('Todos');
+    setTipoOutrosAberto(null);
+  }
+
+  function limparFiltros() {
+    setStatusFiltro('Todos');
+    setStatusRascunho('Todos');
+    setContaFiltro('Todos');
+    setContaRascunho('Todos');
+    setCategoriaFiltro('Todos');
+    setCategoriaRascunho('Todos');
+    setTipoOutrosAberto(null);
+    setFiltroAberto(false);
+  }
+
   const transacoesFiltradas = useMemo(() => {
     return transacoes.filter(item => {
       const tipoCorresponde =
@@ -90,9 +214,12 @@ export default function FluxoFinanceiro() {
       const contaCorresponde =
         contaFiltro === 'Todos' || item.tipoConta === contaFiltro;
 
-      return tipoCorresponde && statusCorresponde && contaCorresponde;
+      const categoriaCorresponde = categoriaFiltro === 'Todos' ||
+        `${item.tipo}::${item.categoria}` === categoriaFiltro;
+
+      return tipoCorresponde && statusCorresponde && contaCorresponde && categoriaCorresponde;
     });
-  }, [abaSelecionada, statusFiltro, contaFiltro, transacoes]);
+  }, [abaSelecionada, statusFiltro, contaFiltro, categoriaFiltro, transacoes]);
 
   const gruposMes = useMemo(() => {
     const grupos = new Map();
@@ -126,10 +253,10 @@ export default function FluxoFinanceiro() {
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Abrir filtros de movimentações"
-            onPress={() => setFiltroAberto(true)}
+            onPress={abrirFiltros}
             style={estilos.botaoFiltro}
           >
-            <Text style={estilos.textoFiltro}>Filtrar</Text>
+            <Text style={estilos.textoFiltro}>{filtrosAtivos ? `Filtrar · ${filtrosAtivos}` : 'Filtrar'}</Text>
           </TouchableOpacity>
         </View>
         {erro ? <View><Text accessibilityRole="alert" style={estilos.dadosTexto}>{erro}</Text><TouchableOpacity accessibilityRole="button" onPress={recarregar} style={{ minHeight: 44, justifyContent: 'center' }}><Text style={{ color: cores.textoLink }}>Tentar novamente</Text></TouchableOpacity></View> : null}
@@ -181,7 +308,7 @@ export default function FluxoFinanceiro() {
             </View>
           </CartaoAnimado>)}
         </View>)}
-        {!carregando && !erro && transacoesFiltradas.length === 0 ? <Text style={estilos.dadosTexto}>Nenhuma transação cadastrada.</Text> : null}
+        {!carregando && !erro && transacoesFiltradas.length === 0 ? <Text style={estilos.dadosTexto}>{transacoes.length ? 'Nenhuma movimentação corresponde aos filtros. Ajuste ou limpe os filtros.' : 'Nenhuma movimentação cadastrada.'}</Text> : null}
       </CartaoAnimado>
     </ScrollView>
     <Modal
@@ -203,152 +330,127 @@ export default function FluxoFinanceiro() {
             padding: 20,
             borderRadius: 16,
             backgroundColor: cores.superficie,
+            width: '100%',
+            maxWidth: 600,
+            maxHeight: '90%',
+            alignSelf: 'center',
           }}
         >
-          <Text style={estilos.dadosTitulo}>Filtrar</Text>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: '600',
-              color: cores.textoPrincipal,
-
-            }}
+          <Text accessibilityRole="header" style={estilos.dadosTitulo}>Filtros</Text>
+          <ScrollView
+            style={{ flexShrink: 1 }}
+            contentContainerStyle={{ paddingBottom: 14 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            Situação
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 10,
-              marginTop: 12,
-            }}
-          >
-            {[
-              { valor: 'Todos', rotulo: 'Todas' },
-              { valor: 'Confirmada', rotulo: 'Efetuadas' },
-              { valor: 'Pendente', rotulo: 'Pendentes' },
-              { valor: 'Cancelada', rotulo: 'Canceladas' },
-            ].map(({ valor, rotulo }) => {
-              const selecionado = statusFiltro === valor;
 
+            <Text style={{ color: cores.textoPrincipal, fontSize: 16, fontWeight: '700', }}>
+              Situação
+            </Text>
+            <OpcoesFiltro
+              opcoes={[
+                { valor: 'Todos', rotulo: 'Todas' },
+                { valor: 'Confirmada', rotulo: 'Efetuadas' },
+                { valor: 'Pendente', rotulo: 'Pendentes' },
+                { valor: 'Cancelada', rotulo: 'Canceladas' },
+              ]}
+              selecionado={statusRascunho}
+              aoSelecionar={setStatusRascunho}
+              cores={cores}
+            />
+
+            <Text style={{ color: cores.textoPrincipal, fontSize: 16, fontWeight: '700', marginTop: 18 }}>
+              Conta
+            </Text>
+            <OpcoesFiltro
+              opcoes={[
+                { valor: 'Todos', rotulo: 'Todas' },
+                ...contasDisponiveis.map(conta => ({
+                  valor: conta,
+                  rotulo: conta === 'Conta Corrente' ? 'Corrente' : conta === 'Investimento' ? 'Investimentos' : conta,
+                })),
+              ]}
+              selecionado={contaRascunho}
+              aoSelecionar={setContaRascunho}
+              cores={cores}
+            />
+
+            <Text style={{ color: cores.textoPrincipal, fontSize: 16, fontWeight: '700', marginTop: 18 }}>
+              Categoria
+            </Text>
+            <OpcoesFiltro
+              opcoes={[{ valor: 'Todos', rotulo: 'Todas as categorias' }]}
+              selecionado={categoriaRascunho}
+              aoSelecionar={selecionarTodasCategorias}
+              cores={cores}
+            />
+            {tiposCategoriaExibidos.map(tipo => {
+              const estaAberto = tipoOutrosAberto === tipo;
+              const selecionadoForaDosPrincipais = categoriaRascunho.startsWith(`${tipo}::`) &&
+                !categoriasPrincipaisPorTipo[tipo].some(nome => `${tipo}::${nome}` === categoriaRascunho);
               return (
-                <TouchableOpacity
-                  key={valor}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: selecionado }}
-                  onPress={() => setStatusFiltro(valor)}
-                  style={{
-                    minHeight: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1.5,
-                    borderColor: selecionado ? cores.primaria : cores.borda,
-                    borderRadius: 999,
-                    paddingHorizontal: 16,
-                    paddingVertical: 9,
-                    backgroundColor: selecionado ? cores.primaria : 'transparent',
-                  }}
-                >
-                  <Text
+                <View key={tipo} style={{ marginTop: 14 }}>
+                  <Text style={{ color: cores.textoPrincipal, fontSize: 14, fontWeight: '700' }}>{tipo}</Text>
+                  <OpcoesFiltro
+                    opcoes={categoriasPrincipaisPorTipo[tipo].map(nome => ({ valor: `${tipo}::${nome}`, rotulo: nome }))}
+                    selecionado={categoriaRascunho}
+                    aoSelecionar={valor => selecionarCategoria(tipo, valor.slice(tipo.length + 2))}
+                    cores={cores}
+                  />
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: estaAberto, selected: estaAberto || selecionadoForaDosPrincipais }}
+                    onPress={() => setTipoOutrosAberto(estaAberto ? null : tipo)}
                     style={{
-                      color: selecionado ? cores.sobrePrimaria : cores.textoPrincipal,
-                      fontSize: 14,
-                      fontWeight: '600',
+                      minHeight: 40,
+                      alignSelf: 'flex-start',
+                      justifyContent: 'center',
+                      borderWidth: 1.5,
+                      borderColor: estaAberto || selecionadoForaDosPrincipais ? cores.primaria : cores.borda,
+                      borderRadius: 999,
+                      paddingHorizontal: 15,
+                      marginTop: 8,
+                      backgroundColor: estaAberto || selecionadoForaDosPrincipais ? cores.primaria : 'transparent',
                     }}
                   >
-                    {selecionado ? '✓  ' : ''}
-                    {rotulo}
-                  </Text>
-                </TouchableOpacity>
-
-              );
-
-            })}
-
-          </View>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: '600',
-              color: cores.textoPrincipal,
-              marginTop: 20,
-
-            }}
-          >
-            Contas
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 10,
-              marginTop: 12,
-            }}
-          >
-            {[
-              { valor: 'Todos', rotulo: 'Todas as contas' },
-              { valor: 'Conta Corrente', rotulo: 'Corrente' },
-              { valor: 'Poupança', rotulo: 'Poupança' },
-              { valor: 'Carteira', rotulo: 'Carteira' },
-              { valor: 'Investimento', rotulo: 'Investimentos' },
-            ].map(({ valor, rotulo }) => {
-              const selecionado = contaFiltro === valor;
-
-              return (
-                <TouchableOpacity
-                  key={valor}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: selecionado }}
-                  onPress={() => setContaFiltro(valor)}
-                  style={{
-                    minHeight: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1.5,
-                    borderColor: selecionado ? cores.primaria : cores.borda,
-                    borderRadius: 999,
-                    paddingHorizontal: 16,
-                    paddingVertical: 9,
-                    backgroundColor: selecionado ? cores.primaria : 'transparent',
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: selecionado ? cores.sobrePrimaria : cores.textoPrincipal,
-                      fontSize: 14,
-                      fontWeight: '600',
-                    }}
-                  >
-                    {selecionado ? '✓  ' : ''}
-                    {rotulo}
-                  </Text>
-                </TouchableOpacity>
+                    <Text style={{ color: estaAberto || selecionadoForaDosPrincipais ? cores.sobrePrimaria : cores.textoPrincipal, fontSize: 13, fontWeight: '600' }}>
+                      {estaAberto ? 'Ocultar outras' : 'Outros'}
+                    </Text>
+                  </TouchableOpacity>
+                  {estaAberto ? (
+                    <View style={{ marginTop: 10, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: cores.borda, backgroundColor: cores.superficieSecundaria }}>
+                      {carregandoCategorias ? <ActivityIndicator accessibilityLabel="Carregando categorias" color={cores.primaria} style={{ marginVertical: 12 }} /> : null}
+                      {erroCategorias ? <Text accessibilityRole="alert" style={{ color: cores.perigo, fontSize: 13, marginTop: 8 }}>{erroCategorias}</Text> : null}
+                      {categoriasPorTipo[tipo].length ? (
+                        <OpcoesFiltro
+                          opcoes={categoriasPorTipo[tipo].map(nome => ({ valor: `${tipo}::${nome}`, rotulo: nome }))}
+                          selecionado={categoriaRascunho}
+                          aoSelecionar={valor => selecionarCategoria(tipo, valor.slice(tipo.length + 2))}
+                          cores={cores}
+                        />
+                      ) : !carregandoCategorias ? (
+                        <Text style={{ color: cores.textoSecundario, fontSize: 13, marginTop: 8 }}>Nenhuma categoria disponível.</Text>
+                      ) : null}
+                    </View>
+                  ) : null}
+                </View>
               );
             })}
+          </ScrollView>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingTop: 12, borderTopWidth: 1, borderTopColor: cores.borda }}>
+            <TouchableOpacity accessibilityRole="button" onPress={limparFiltros} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
+              <Text style={{ color: cores.perigo, fontWeight: '600' }}>Limpar</Text>
+            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setFiltroAberto(false)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 }}>
+                <Text style={{ color: cores.textoSecundario }}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" onPress={aplicarFiltros} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 18, borderRadius: 12, backgroundColor: cores.primaria }}>
+                <Text style={{ color: cores.sobrePrimaria, fontWeight: '700' }}>Aplicar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() => setFiltroAberto(false)}
-            style={{ minHeight: 44, justifyContent: 'center' }}
-          >
-            <Text style={{ color: cores.textoLink, }}>Aplicar filtro</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() => {
-              setStatusFiltro('Todos');
-              setContaFiltro('Todos');
-              setFiltroAberto(false);
-            }}
-            style={{ minHeight: 44, justifyContent: 'center' }}
-          >
-            <Text style={{ color: cores.perigo, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}>Limpar filtro</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
