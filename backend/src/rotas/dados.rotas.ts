@@ -81,7 +81,7 @@ rotasDados.get('/financeiro/transacoes', async (requisicao: RequisicaoAutenticad
     const [linhas] = await bancoDados.query<DataRow[]>(`SELECT t.id_transacao AS id, t.descricao, t.valor,
         DATE_FORMAT(t.data_transacao, '%Y-%m-%d') AS data,
         c.nome AS categoria, tt.nome AS tipo, st.nome AS status, t.observacao,
-        co.nome AS conta, tc.nome AS tipoConta,
+        co.nome AS conta, tc.nome AS tipoConta, t.parcela_atual AS parcelaAtual, t.total_parcelas AS totalParcelas,
         t.data_transacao > CURDATE() AS futura
        FROM transacoes t
        INNER JOIN categorias c ON c.id_categoria = t.id_categoria
@@ -107,6 +107,8 @@ rotasDados.get('/financeiro/transacoes', async (requisicao: RequisicaoAutenticad
         observacao: linha.observacao ? String(linha.observacao) : '',
         conta: String(linha.conta),
         tipoConta: String(linha.tipoConta),
+        parcelaAtual: linha.parcelaAtual === null ? null : Number(linha.parcelaAtual),
+        totalParcelas: linha.totalParcelas === null ? null : Number(linha.totalParcelas),
         anexos: anexos.filter(item => String(item.transacaoId) === String(linha.id)).map(item => ({
           id: String(item.id),
           nome: String(item.nome),

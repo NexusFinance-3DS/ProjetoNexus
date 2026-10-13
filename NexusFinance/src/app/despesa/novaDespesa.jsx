@@ -24,6 +24,8 @@ export default function NovaDespesa() {
   const [dados, setData] = useState(hoje());
   const [paga, setPaga] = useState(true);
   const [recorrente, setRecorrente] = useState(false);
+  const [parcelada, setParcelada] = useState(false);
+  const [parcelas, setParcelas] = useState('2');
   const [observacao, setObservacao] = useState('');
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
@@ -40,6 +42,7 @@ export default function NovaDespesa() {
         descricao,
         data: dados,
         recorrente,
+        parcelas: parcelada ? Number(parcelas) : 1,
         observacao,
         status: paga ? 'Confirmada' : 'Pendente'
       }));
@@ -56,7 +59,7 @@ export default function NovaDespesa() {
       <KeyboardAvoidingView style={estilosTeclado.desvioArea}>
         <ScrollView contentContainerStyle={estilosTeclado.rolagemConteudo} keyboardShouldPersistTaps="handled">
           <View style={estilos.adicionarValor}>
-            <Text style={estilos.titulo}>Adicione o valor:</Text>
+            <Text style={estilos.titulo}>{parcelada ? 'Valor total da despesa:' : 'Adicione o valor:'}</Text>
             <TextInput style={[estilos.campoValor, estilosCompartilhados.textoAlinhamentoDireita]} value={valor} onChangeText={setValor} mask="currency" keyboardType="decimal-pad" placeholder="R$ 0,00" placeholderTextColor={cores.textoIndicativo} />
           </View>
           <View style={estilos.campoCompleto}>
@@ -68,6 +71,18 @@ export default function NovaDespesa() {
             <CampoData style={estilos.campo} placeholder="DD/MM/AAAA" placeholderTextColor={cores.textoIndicativo} value={dados} onChangeText={setData} />
           </View>
           <SeletoresTransacao opcoes={opcoes} desabilitado={salvando} />
+          <View style={estilos.listaItem}>
+            <View style={estilos.iconeCaixa}><Icon name="credit-card" size={20} color={cores.textoPrincipal} /></View>
+            <View style={estilosCompartilhados.flexivel}>
+              <Text style={estilos.listaItemTexto}>Despesa parcelada</Text>
+              <Text style={estilos.listaItemSecundario}>O valor informado será dividido em parcelas mensais</Text>
+            </View>
+            <Switch value={parcelada} disabled={salvando} onValueChange={ativo => { setParcelada(ativo); if (ativo) setRecorrente(false); }} />
+          </View>
+          {parcelada ? <View style={estilos.campoCompleto}>
+            <Text style={estilosCompartilhados.formularioRotulo}>Número de parcelas (2 a 60)</Text>
+            <TextInput style={estilos.campo} value={parcelas} onChangeText={setParcelas} keyboardType="number-pad" maxLength={2} placeholder="Ex.: 6" placeholderTextColor={cores.textoIndicativo} />
+          </View> : null}
           <View style={estilos.listaItem}>
             <View style={estilos.iconeCaixa}>
               <Icon name="check-circle" size={20} color={cores.textoPrincipal} />
@@ -86,7 +101,7 @@ export default function NovaDespesa() {
               <Text style={estilos.listaItemTexto}>Despesa fixa</Text>
               <Text style={estilos.listaItemSecundario}>Próximos meses serão lançados como pendentes</Text>
             </View>
-            <Switch value={recorrente} onValueChange={setRecorrente} />
+            <Switch value={recorrente} disabled={salvando || parcelada} onValueChange={ativo => { setRecorrente(ativo); if (ativo) setParcelada(false); }} />
           </View>
           <View style={estilos.campoCompleto}>
             <Text style={estilosCompartilhados.formularioRotulo}>Observação (opcional)</Text>

@@ -24,6 +24,8 @@ export default function NovaReceita() {
   const [dados, setData] = useState(hoje());
   const [recebida, setRecebida] = useState(true);
   const [recorrente, setRecorrente] = useState(false);
+  const [parcelada, setParcelada] = useState(false);
+  const [parcelas, setParcelas] = useState('2');
   const [observacao, setObservacao] = useState('');
   const [enviarParaMeta, setEnviarParaMeta] = useState(false);
   const [metas, setMetas] = useState([]);
@@ -77,9 +79,10 @@ export default function NovaReceita() {
         descricao,
         data: dados,
         recorrente,
+        parcelas: parcelada ? Number(parcelas) : 1,
         observacao,
         status: recebida ? 'Confirmada' : 'Pendente',
-        ...(enviarParaMeta && metaId ? {
+        ...(enviarParaMeta && metaId && !parcelada ? {
           metaId
         } : {})
       }));
@@ -96,7 +99,7 @@ export default function NovaReceita() {
       <KeyboardAvoidingView style={estilosTeclado.desvioArea}>
         <ScrollView contentContainerStyle={estilosTeclado.rolagemConteudo} keyboardShouldPersistTaps="handled">
           <View style={estilos.adicionarValor}>
-            <Text style={estilos.titulo}>Adicione o valor:</Text>
+            <Text style={estilos.titulo}>{parcelada ? 'Valor total da receita:' : 'Adicione o valor:'}</Text>
             <TextInput style={[estilos.campoValor, estilosCompartilhados.textoAlinhamentoDireita]} value={valor} onChangeText={setValor} mask="currency" keyboardType="decimal-pad" placeholder="R$ 0,00" placeholderTextColor={cores.textoIndicativo} />
           </View>
           <View style={estilos.campoCompleto}>
@@ -108,6 +111,18 @@ export default function NovaReceita() {
             <CampoData style={estilos.campo} placeholder="DD/MM/AAAA" placeholderTextColor={cores.textoIndicativo} value={dados} onChangeText={setData} />
           </View>
           <SeletoresTransacao opcoes={opcoes} desabilitado={salvando} />
+          <View style={estilos.listaItem}>
+            <View style={estilos.iconeCaixa}><Icon name="credit-card" size={20} color={cores.textoPrincipal} /></View>
+            <View style={estilosCompartilhados.flexivel}>
+              <Text style={estilos.listaItemTexto}>Receita parcelada</Text>
+              <Text style={estilos.listaItemSecundario}>O valor informado será dividido em parcelas mensais</Text>
+            </View>
+            <Switch value={parcelada} disabled={salvando} onValueChange={ativo => { setParcelada(ativo); if (ativo) { setRecorrente(false); setEnviarParaMeta(false); setMetaId(''); } }} />
+          </View>
+          {parcelada ? <View style={estilos.campoCompleto}>
+            <Text style={estilosCompartilhados.formularioRotulo}>Número de parcelas (2 a 60)</Text>
+            <TextInput style={estilos.campo} value={parcelas} onChangeText={setParcelas} keyboardType="number-pad" maxLength={2} placeholder="Ex.: 6" placeholderTextColor={cores.textoIndicativo} />
+          </View> : null}
           <View style={estilos.listaItem}>
             <View style={estilos.iconeCaixa}>
               <Icon name="check-circle" size={20} color={cores.textoPrincipal} />
@@ -132,7 +147,7 @@ export default function NovaReceita() {
               <Text style={estilos.listaItemTexto}>Receita fixa</Text>
               <Text style={estilos.listaItemSecundario}>Próximos meses serão lançados como pendentes</Text>
             </View>
-            <Switch value={recorrente} onValueChange={setRecorrente} disabled={salvando} />
+            <Switch value={recorrente} onValueChange={ativo => { setRecorrente(ativo); if (ativo) setParcelada(false); }} disabled={salvando || parcelada} />
           </View>
 
           <View style={estilos.listaItem}>
@@ -143,7 +158,7 @@ export default function NovaReceita() {
               <Text style={estilos.listaItemTexto}>Enviar para uma meta</Text>
               <Text style={estilos.listaItemSecundario}>Destinar esta receita para uma meta</Text>
             </View>
-            <Switch value={enviarParaMeta} onValueChange={alterarEnvioParaMeta} disabled={salvando || !recebida} />
+            <Switch value={enviarParaMeta} onValueChange={alterarEnvioParaMeta} disabled={salvando || !recebida || parcelada} />
           </View>
 
           {enviarParaMeta ? <View style={estilos.campoCompleto}>

@@ -490,9 +490,20 @@ function criarEstilosApp(cores) {
     botaoAtivo: {
       backgroundColor: cores.primaria
     },
-    textoFiltro: {
+    textoABA: {
       color: cores.textoPrincipal,
-      fontSize: 14
+      fontSize: 14,
+      fontWeight: '600'
+    },
+    textoFiltro: {
+      alignSelf: 'flex-end',
+      color: cores.textoPrincipal,
+      fontSize: 14,
+      backgroundColor:"#251eae",
+      paddingHorizontal: 15,
+      paddingVertical: 8,
+      borderRadius: 20,
+      marginBottom: 15,
     },
     textoAtivo: {
       color: cores.sobrePrimaria,
@@ -508,12 +519,12 @@ function criarEstilosApp(cores) {
     },
     dadosTitulo: {
       color: cores.textoPrincipal,
-      fontSize: 18,
+      fontSize: 24,
       fontWeight: '700',
       marginBottom: 16
     },
     dadosTexto: {
-      color: cores.textoSecundario,
+      color: "#ffffff",
       fontSize: 14,
       marginTop: 12
     },
@@ -758,7 +769,7 @@ function criarEstilosApp(cores) {
   });
 
   // layout
-  
+
 
   // login
   const estilosLogin = StyleSheet.create({

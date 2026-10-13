@@ -28,7 +28,7 @@ export const configuracao = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: Number(process.env.EMAIL_PORT || 587),
     user: obrigatoria('EMAIL_USER'),
-    password: obrigatoria('EMAIL_APP_PASSWORD'),
+    password: obrigatoria('EMAIL_PASSWORD'),
     from:
       process.env.EMAIL_FROM ||
       `Nexus Finance <${obrigatoria('EMAIL_USER')}>`
