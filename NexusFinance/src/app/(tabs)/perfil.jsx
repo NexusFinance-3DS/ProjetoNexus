@@ -104,10 +104,10 @@ export default function Perfil() {
             <Icon name="chevron-right" size={24} color={cores.textoPrincipal} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={estilos.itemMenu} onPress={() => router.push('/relatorios')}>
+          <TouchableOpacity style={estilos.itemMenu} onPress={() => router.push('/painel')}>
             <View style={estilos.itemEsquerda}>
-              <Icon name="description" size={24} color={cores.textoPrincipal} />
-              <Text style={estilos.itemTexto}>Relatórios</Text>
+              <Icon name="bar-chart" size={24} color={cores.textoPrincipal} />
+              <Text style={estilos.itemTexto}>Painel financeiro</Text>
             </View>
             <Icon name="chevron-right" size={24} color={cores.textoPrincipal} />
           </TouchableOpacity>

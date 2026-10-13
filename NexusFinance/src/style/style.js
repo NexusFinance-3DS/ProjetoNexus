@@ -1769,82 +1769,6 @@ function criarEstilosApp(cores) {
     }
   });
 
-  // relatorios
-  const estilosRelatorios = StyleSheet.create({
-    recipiente: {
-      flex: 1,
-      backgroundColor: cores.fundo,
-      alignItems: 'stretch',
-      paddingHorizontal: 10
-    },
-    cartao: {
-      backgroundColor: cores.superficie,
-      marginHorizontal: 18,
-      marginBottom: 5,
-      marginTop: 20,
-      borderRadius: 22,
-      padding: 18,
-      borderWidth: 1,
-      borderColor: cores.borda
-    },
-    cartaoTitulo: {
-      color: cores.textoPrincipal,
-      fontSize: 22,
-      fontWeight: 'bold',
-      marginBottom: 15
-    },
-    pickerRecipiente: {
-      backgroundColor: cores.superficie,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: cores.borda,
-      overflow: 'hidden'
-    },
-    picker: {
-      color: cores.textoPrincipal,
-      height: 55
-    },
-    itemResumo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 20,
-      paddingBottom: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: cores.borda
-    },
-    textos: {
-      marginLeft: 15,
-      flex: 1
-    },
-    rotulo: {
-      color: cores.textoSecundario,
-      fontSize: 15,
-      marginBottom: 3
-    },
-    valor: {
-      color: cores.textoPrincipal,
-      fontSize: 20,
-      fontWeight: 'bold'
-    },
-    botao: {
-      backgroundColor: cores.primaria,
-      padding: 14,
-      marginHorizontal: 18,
-      marginTop: 10,
-      height: 56,
-      borderRadius: 16,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'row'
-    },
-    botaoTexto: {
-      color: cores.sobrePrimaria,
-      fontSize: 17,
-      fontWeight: 'bold',
-      marginLeft: 10
-    }
-  });
-
   // sobreApp
   const estilosSobreApp = StyleSheet.create({
     recipiente: {
@@ -2114,7 +2038,6 @@ function criarEstilosApp(cores) {
     estilosNovaSenha,
     estilosPerfil,
     estilosRecuperarSenha,
-    estilosRelatorios,
     estilosSobreApp,
     estilosTeclado,
     estilosCompartilhados,

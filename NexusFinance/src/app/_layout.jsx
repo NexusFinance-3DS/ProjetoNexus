@@ -90,9 +90,6 @@ function Rotas() {
         <Stack.Screen name="(tabs)/perfil" options={{
         title: 'Perfil'
       }} />
-        <Stack.Screen name="(tabs)/relatorios" options={{
-        title: 'Relatórios'
-      }} />
       </Stack.Protected>
     </Stack>;
 }

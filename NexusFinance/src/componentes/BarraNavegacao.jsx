@@ -55,10 +55,6 @@ const MAIS_ACOES = [{
   icon: 'bar-chart',
   route: "/painel"
 }, {
-  label: 'Relatórios',
-  icon: 'description',
-  route: '/relatorios'
-}, {
   label: 'Perfil',
   icon: 'person',
   route: '/perfil'
