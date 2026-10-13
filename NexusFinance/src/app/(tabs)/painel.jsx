@@ -15,20 +15,25 @@ import { formatarReais } from "../../servicos/financeiro";
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const rotuloMes = periodo => `${MESES[Number(periodo.slice(5, 7)) - 1]}/${periodo.slice(2, 4)}`;
 
-function GraficoReceitasDespesas({ historico, cores, estilos }) {
+function GraficoReceitasDespesas({ historico, cores, estilos, selecionado, aoSelecionar }) {
   const maximo = Math.max(1, ...historico.flatMap(item => [Number(item.receitas) || 0, Number(item.despesas) || 0]));
-  return <View accessibilityLabel="Gráfico de barras comparando receitas e despesas dos últimos seis meses" style={estilos.areaGrafico}>
+  return <View accessibilityLabel="Gráfico de barras comparando receitas e despesas dos últimos doze meses" style={estilos.areaGrafico}>
     <View pointerEvents="none" style={estilos.linhasGrafico}>
       <View style={estilos.linhaGrafico} /><View style={estilos.linhaGrafico} /><View style={estilos.linhaGrafico} />
     </View>
     <View style={estilos.barrasLinha}>
-      {historico.map(item => <View key={item.periodo} style={estilos.grupoMes}>
-        <View style={estilos.parBarras}>
-          <View style={[estilos.barra, { height: `${Math.max(3, (Number(item.receitas) || 0) / maximo * 100)}%`, backgroundColor: cores.sucesso }]} />
-          <View style={[estilos.barra, { height: `${Math.max(3, (Number(item.despesas) || 0) / maximo * 100)}%`, backgroundColor: cores.perigo }]} />
-        </View>
-        <Text style={estilos.rotuloMes}>{rotuloMes(item.periodo)}</Text>
-      </View>)}
+      {historico.map(item => {
+        const receitas = Number(item.receitas) || 0;
+        const despesas = Number(item.despesas) || 0;
+        const ativo = selecionado?.periodo === item.periodo;
+        return <Pressable key={item.periodo} accessibilityRole="button" accessibilityLabel={`${rotuloMes(item.periodo)}. Receitas ${formatarReais(receitas)}. Despesas ${formatarReais(despesas)}.`} accessibilityState={{ selected: ativo }} onPress={() => aoSelecionar(item)} style={[estilos.grupoMes, ativo && estilos.grupoSelecionado]}>
+          <View style={estilos.parBarras}>
+            <View style={[estilos.barra, { height: `${receitas ? Math.max(2, receitas / maximo * 100) : 0}%`, minHeight: receitas ? 4 : 0, backgroundColor: cores.sucesso }]} />
+            <View style={[estilos.barra, { height: `${despesas ? Math.max(2, despesas / maximo * 100) : 0}%`, minHeight: despesas ? 4 : 0, backgroundColor: cores.perigo }]} />
+          </View>
+          <Text style={[estilos.rotuloMes, ativo && estilos.rotuloMesAtivo]}>{MESES[Number(item.periodo.slice(5, 7)) - 1]}{'\n'}{item.periodo.slice(2, 4)}</Text>
+        </Pressable>;
+      })}
     </View>
   </View>;
 }
@@ -40,7 +45,10 @@ export default function Painel() {
   const { dados, erro, carregando, recarregar } = useResumoFinanceiro();
   const [exportando, setExportando] = useState(false);
   const [erroExportacao, setErroExportacao] = useState('');
-  const historico = (dados.historico || []).slice(-6);
+  const historico = (dados.historico || []).slice(-12);
+  const temDadosGrafico = historico.some(item => Number(item.receitas) > 0 || Number(item.despesas) > 0);
+  const [periodoSelecionado, setPeriodoSelecionado] = useState(null);
+  const mesSelecionado = historico.find(item => item.periodo === periodoSelecionado) || historico[historico.length - 1] || null;
   const atual = dados.atual || { totalReceitas: 0, totalDespesas: 0, saldo: 0 };
   const taxaEconomia = Number(atual.totalReceitas) > 0 ? Number(atual.saldo) / Number(atual.totalReceitas) * 100 : null;
   const percentualAnterior = dados.variacaoDespesas?.percentual;
@@ -102,22 +110,24 @@ export default function Painel() {
               <View style={estilosPagina.cabecalhoCard}>
                 <View style={estilosPagina.titulosCard}>
                   <Text accessibilityRole="header" style={estilosPagina.tituloCard}>Receitas e despesas</Text>
-                  <Text style={estilosPagina.legenda}>Comparativo mensal · últimos 6 meses</Text>
+                  <Text style={estilosPagina.legenda}>Comparativo mensal · últimos 12 meses</Text>
                 </View>
                 <Pressable accessibilityRole="button" accessibilityLabel="Baixar PDF de receitas e despesas" disabled={exportando} onPress={() => exportar('comparativo')} style={estilosPagina.botaoBaixar}>
                   <Icon name={exportando ? 'hourglass-empty' : 'file-download'} size={19} color={cores.primaria} />
                 </Pressable>
               </View>
-              {historico.length ? <>
-                <GraficoReceitasDespesas historico={historico} cores={cores} estilos={estilosPagina} />
+              {historico.length && temDadosGrafico ? <>
+                <GraficoReceitasDespesas historico={historico} cores={cores} estilos={estilosPagina} selecionado={mesSelecionado} aoSelecionar={item => setPeriodoSelecionado(item.periodo)} />
                 <View style={estilosPagina.legendaGrafico}>
                   <View style={estilosPagina.itemLegenda}><View style={[estilosPagina.pontoLegenda, { backgroundColor: cores.sucesso }]} /><Text style={estilosPagina.legenda}>Receitas</Text></View>
                   <View style={estilosPagina.itemLegenda}><View style={[estilosPagina.pontoLegenda, { backgroundColor: cores.perigo }]} /><Text style={estilosPagina.legenda}>Despesas</Text></View>
                   <Text style={estilosPagina.legenda}>R$ · valores realizados</Text>
                 </View>
+                <Text style={estilosPagina.mesDetalhe}>{mesSelecionado ? `Valores realizados em ${rotuloMes(mesSelecionado.periodo)}` : 'Valores do mês'}</Text>
                 <View style={estilosPagina.totalizadores}>
-                  <View style={estilosPagina.totalizador}><Text style={estilosPagina.legenda}>Receitas no mês</Text><Text style={[estilosPagina.valorTotal, { color: cores.sucesso }]}>{formatarReais(atual.totalReceitas)}</Text></View>
-                  <View style={estilosPagina.totalizador}><Text style={estilosPagina.legenda}>Despesas no mês</Text><Text style={[estilosPagina.valorTotal, { color: cores.perigo }]}>{formatarReais(atual.totalDespesas)}</Text></View>
+                  <View style={estilosPagina.totalizador}><Text style={estilosPagina.legenda}>Receitas</Text><Text style={[estilosPagina.valorTotal, { color: cores.sucesso }]}>{formatarReais(mesSelecionado?.receitas || 0)}</Text></View>
+                  <View style={estilosPagina.totalizador}><Text style={estilosPagina.legenda}>Despesas</Text><Text style={[estilosPagina.valorTotal, { color: cores.perigo }]}>{formatarReais(mesSelecionado?.despesas || 0)}</Text></View>
+                  <View style={estilosPagina.totalizador}><Text style={estilosPagina.legenda}>Resultado</Text><Text style={[estilosPagina.valorTotal, { color: (mesSelecionado?.saldo || 0) >= 0 ? cores.sucesso : cores.perigo }]}>{formatarReais(mesSelecionado?.saldo || 0)}</Text></View>
                 </View>
               </> : <Text style={estilosPagina.vazio}>Ainda não há movimentações para comparar.</Text>}
             </CartaoPainel>
@@ -198,14 +208,17 @@ const criarEstilosPagina = cores => StyleSheet.create({
   linhasGrafico: { ...StyleSheet.absoluteFillObject, justifyContent: 'space-between', paddingBottom: 28, paddingTop: 5 },
   linhaGrafico: { height: 1, backgroundColor: cores.divisor, opacity: 0.75 },
   barrasLinha: { height: 174, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-around' },
-  grupoMes: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 8 },
+  grupoMes: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 8, borderRadius: 9 },
+  grupoSelecionado: { backgroundColor: cores.primariaSuave },
   parBarras: { height: 140, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: 5 },
-  barra: { width: 12, maxHeight: '100%', minHeight: 4, borderTopLeftRadius: 6, borderTopRightRadius: 6 },
-  rotuloMes: { height: 22, color: cores.textoSecundario, fontSize: 10 },
+  barra: { width: 8, maxHeight: '100%', minHeight: 4, borderTopLeftRadius: 6, borderTopRightRadius: 6 },
+  rotuloMes: { height: 26, color: cores.textoSecundario, fontSize: 9, lineHeight: 12, textAlign: 'center' },
+  rotuloMesAtivo: { color: cores.textoPrincipal, fontWeight: '700' },
   legendaGrafico: { flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginTop: 8 },
   itemLegenda: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   pontoLegenda: { width: 8, height: 8, borderRadius: 4 },
   totalizadores: { flexDirection: 'row', gap: 20, flexWrap: 'wrap', marginTop: 18, paddingTop: 15, borderTopWidth: 1, borderTopColor: cores.divisor },
+  mesDetalhe: { color: cores.textoSecundario, fontSize: 12, marginTop: 12 },
   totalizador: { flex: 1, minWidth: 125, gap: 3 },
   valorTotal: { fontSize: 17, fontWeight: '700' },
   vazio: { marginVertical: 16, color: cores.textoSecundario, fontSize: 14, lineHeight: 21 },

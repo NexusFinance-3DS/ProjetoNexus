@@ -45,9 +45,9 @@ O aplicativo já salva o `token` retornado usando `expo-secure-store` no Android
 
 ## Contas, categorias e arquivos
 
-O cadastro da transação recebe `tipo`, `valor`, `descricao`, `data`, `categoriaId`, `tipoContaId`, `recorrente`, `status` e `observacao`. Sem arquivo, use JSON. Com arquivo, use multipart/form-data com o campo `arquivo`; o cliente deve deixar o fetch definir o boundary. Aceita um arquivo não vazio de até 10 MiB. O tipo de conta escolhido usa uma conta ativa desse tipo do usuário, criando-a quando necessário.
+O cadastro da transação recebe `tipo`, `valor`, `descricao`, `data`, `categoriaId`, `tipoContaId`, `recorrente`, `parcelas` (opcional, de 1 a 60), `status` e `observacao`. Em transações parceladas, `valor` é o total, dividido em lançamentos mensais; cada parcela fica identificada no fluxo financeiro. Parcelamento e recorrência fixa são opções mutuamente exclusivas. Sem arquivo, use JSON. Com arquivo, use multipart/form-data com o campo `arquivo`; o cliente deve deixar o fetch definir o boundary. Aceita um arquivo não vazio de até 10 MiB. O tipo de conta escolhido usa uma conta ativa desse tipo do usuário, criando-a quando necessário.
 
-As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e para o tipo de transação escolhido. Os arquivos ficam em `backend/uploads/transacoes` (ou em `UPLOAD_DIR`), com os metadados em `anexos_transacao`. Preserve o diretório de arquivos junto com os backups do banco. As tabelas já existem em `bancoDados/estrutura.sql`; esta alteração não exige recriar o banco.
+As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e para o tipo de transação escolhido. Os arquivos ficam em `backend/uploads/transacoes` (ou em `UPLOAD_DIR`), com os metadados em `anexos_transacao`. Preserve o diretório de arquivos junto com os backups do banco. Para bancos existentes, execute `npm run migrate` antes de iniciar a API; a migração adiciona os campos de identificação das parcelas sem apagar dados.
 
 ## Regras financeiras
 

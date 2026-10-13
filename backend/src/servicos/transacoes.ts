@@ -32,6 +32,11 @@ export function dataTransacaoValida(data: string): boolean {
   const convertido = new Date(`${data}T00:00:00Z`);
   return !Number.isNaN(convertido.getTime()) && convertido.toISOString().slice(0, 10) === data;
 }
+function dataParcela(data: string, deslocamento: number): string {
+  const [ano, mes, dia] = data.split('-').map(Number);
+  const ultimoDia = new Date(Date.UTC(ano, mes + deslocamento, 0)).getUTCDate();
+  return new Date(Date.UTC(ano, mes - 1 + deslocamento, Math.min(dia, ultimoDia))).toISOString().slice(0, 10);
+}
 export async function confirmarTransacao(idUsuario: number, idTransacao: unknown) {
   const id = identificadorPositivo(idTransacao);
   if (!id) throw new ErroApi(400, 'Transação inválida.');
@@ -65,6 +70,7 @@ export async function criarTransacao(idUsuario: number, corpo: Record<string, un
   const idTipoConta = corpo.tipoContaId === undefined ? null : identificadorPositivo(corpo.tipoContaId);
   const metaId = corpo.metaId === undefined || corpo.metaId === null || corpo.metaId === '' ? null : identificadorPositivo(corpo.metaId);
   const valor = converterValorMonetario(corpo.valor);
+  const quantidadeParcelas = corpo.parcelas === undefined ? 1 : Number(corpo.parcelas);
   const data = normalizarData(corpo.data);
   const observacoes = typeof corpo.observacao === 'string' ? corpo.observacao.trim() : null;
   if (!nomeTipo) throw new ErroApi(400, 'Tipo de transação inválido.');
@@ -74,6 +80,10 @@ export async function criarTransacao(idUsuario: number, corpo: Record<string, un
   if (corpo.metaId !== undefined && corpo.metaId !== null && corpo.metaId !== '' && !metaId) throw new ErroApi(400, 'Selecione uma meta válida.');
   if (metaId && nomeTipo !== 'Receita') throw new ErroApi(400, 'Somente receitas podem ser enviadas para uma meta.');
   if (!Number.isFinite(valor) || valor <= 0 || valor > 9999999999.99) throw new ErroApi(400, 'Informe um valor válido.');
+  if (!Number.isInteger(quantidadeParcelas) || quantidadeParcelas < 1 || quantidadeParcelas > 60) throw new ErroApi(400, 'O parcelamento deve ter entre 1 e 60 parcelas.');
+  if (quantidadeParcelas > Math.round(valor * 100)) throw new ErroApi(400, 'O valor total precisa ter pelo menos R$ 0,01 por parcela.');
+  if (quantidadeParcelas > 1 && (corpo.recorrente === true || corpo.recorrente === 'true')) throw new ErroApi(400, 'Uma transação não pode ser parcelada e recorrente ao mesmo tempo.');
+  if (quantidadeParcelas > 1 && metaId) throw new ErroApi(400, 'Receitas parceladas não podem ser enviadas diretamente para uma meta.');
   if (!dataTransacaoValida(data)) throw new ErroApi(400, 'Informe uma data válida.');
   if (observacoes && observacoes.length > 5000) throw new ErroApi(400, 'A observação deve ter até 5000 caracteres.');
   if (arquivo && !arquivo.size) throw new ErroApi(400, 'O arquivo está vazio.');
@@ -118,11 +128,23 @@ export async function criarTransacao(idUsuario: number, corpo: Record<string, un
         id: criado.insertId
       } as RowDataPacket;
     }
-    const [resultado] = await conexao.execute<ResultSetHeader>(`INSERT INTO transacoes (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao, descricao, valor, data_transacao, observacao)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [idUsuario, conta.id, categoria.id, tipo.id, status.id, descricao, valor, data, observacoes]);
+    const valorTotalCentavos = Math.round(valor * 100);
+    const primeiroId = (await conexao.execute<ResultSetHeader>(`INSERT INTO transacoes (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao, descricao, valor, data_transacao, observacao, parcela_atual, total_parcelas)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [idUsuario, conta.id, categoria.id, tipo.id, status.id, descricao, quantidadeParcelas > 1 ? (Math.floor(valorTotalCentavos / quantidadeParcelas) + (valorTotalCentavos % quantidadeParcelas > 0 ? 1 : 0)) / 100 : valor, data, observacoes, quantidadeParcelas > 1 ? 1 : null, quantidadeParcelas > 1 ? quantidadeParcelas : null]))[0];
+    let statusParcela = status.id;
+    if (quantidadeParcelas > 1) {
+      const [[pendente]] = await conexao.query<RowDataPacket[]>("SELECT id_status_transacao AS id FROM status_transacao WHERE nome = 'Pendente' LIMIT 1");
+      statusParcela = pendente.id;
+    }
+    for (let parcela = 2; parcela <= quantidadeParcelas; parcela++) {
+      const centavosParcela = Math.floor(valorTotalCentavos / quantidadeParcelas) + (parcela <= valorTotalCentavos % quantidadeParcelas ? 1 : 0);
+      await conexao.execute(`INSERT INTO transacoes (id_usuario, id_conta, id_categoria, id_tipo_transacao, id_status_transacao, descricao, valor, data_transacao, observacao, parcela_atual, total_parcelas)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [idUsuario, conta.id, categoria.id, tipo.id, statusParcela, descricao, centavosParcela / 100, dataParcela(data, parcela - 1), observacoes, parcela, quantidadeParcelas]);
+    }
+    const idTransacao = primeiroId.insertId;
     if (metaId && meta) {
       await conexao.execute(`INSERT INTO movimentacoes_metas (id_meta, id_transacao, tipo, valor, data_movimentacao, descricao)
-         VALUES (?, ?, 'deposito', ?, ?, ?)`, [metaId, resultado.insertId, valor, data, descricao]);
+         VALUES (?, ?, 'deposito', ?, ?, ?)`, [metaId, idTransacao, valor, data, descricao]);
       const [[totalMeta]] = await conexao.query<RowDataPacket[]>(`SELECT COALESCE(SUM(CASE WHEN tipo = 'deposito' THEN valor ELSE -valor END), 0) AS atual
          FROM movimentacoes_metas
          WHERE id_meta = ?`, [metaId]);
@@ -131,23 +153,23 @@ export async function criarTransacao(idUsuario: number, corpo: Record<string, un
       }
     }
     if (corpo.recorrente === true || corpo.recorrente === 'true') {
-      await conexao.execute("INSERT INTO recorrencias (id_usuario, id_transacao_origem, frequencia, data_inicio) VALUES (?, ?, 'mensal', ?)", [idUsuario, resultado.insertId, data]);
+      await conexao.execute("INSERT INTO recorrencias (id_usuario, id_transacao_origem, frequencia, data_inicio) VALUES (?, ?, 'mensal', ?)", [idUsuario, idTransacao, data]);
     }
     let idAnexo: number | undefined;
     if (arquivo) {
       arquivoArmazenado = await armazenarAnexo(arquivo);
-      const [anexo] = await conexao.execute<ResultSetHeader>('INSERT INTO anexos_transacao (id_transacao, nome_arquivo, caminho_arquivo, tipo_arquivo, tamanho_arquivo) VALUES (?, ?, ?, ?, ?)', [resultado.insertId, nomeAnexo(arquivo.originalname), arquivoArmazenado, arquivo.mimetype.slice(0, 100), arquivo.size]);
+      const [anexo] = await conexao.execute<ResultSetHeader>('INSERT INTO anexos_transacao (id_transacao, nome_arquivo, caminho_arquivo, tipo_arquivo, tamanho_arquivo) VALUES (?, ?, ?, ?, ?)', [idTransacao, nomeAnexo(arquivo.originalname), arquivoArmazenado, arquivo.mimetype.slice(0, 100), arquivo.size]);
       idAnexo = anexo.insertId;
     }
     const [[tipoNotificacao]] = await conexao.query<RowDataPacket[]>("SELECT id_tipo_notificacao AS id FROM tipos_notificacao WHERE nome = 'Financeira' LIMIT 1");
     const [[preferencias]] = await conexao.query<RowDataPacket[]>('SELECT notificacoes_ativas FROM configuracoes WHERE id_usuario = ?', [idUsuario]);
     if (tipoNotificacao && (!preferencias || preferencias.notificacoes_ativas)) {
-      await conexao.execute('INSERT INTO notificacoes (id_usuario, id_tipo_notificacao, titulo, descricao) VALUES (?, ?, ?, ?)', [idUsuario, tipoNotificacao.id, `${nomeTipo} adicionada`, `${descricao} no valor de R$ ${valor.toFixed(2)}`]);
+      await conexao.execute('INSERT INTO notificacoes (id_usuario, id_tipo_notificacao, titulo, descricao) VALUES (?, ?, ?, ?)', [idUsuario, tipoNotificacao.id, `${nomeTipo} adicionada`, `${descricao} no valor total de R$ ${valor.toFixed(2)}`]);
     }
     await conexao.commit();
     return {
-      mensagem: metaId ? `${nomeTipo} salva e adicionada à meta com sucesso.` : `${nomeTipo} salva com sucesso.`,
-      id: resultado.insertId,
+      mensagem: quantidadeParcelas > 1 ? `${nomeTipo} dividida em ${quantidadeParcelas} parcelas mensais.` : metaId ? `${nomeTipo} salva e adicionada à meta com sucesso.` : `${nomeTipo} salva com sucesso.`,
+      id: idTransacao,
       anexoId: idAnexo
     };
   } catch (falha) {

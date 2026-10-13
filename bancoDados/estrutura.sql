@@ -283,6 +283,10 @@ CREATE TABLE transacoes (
 
     data_transacao DATE NOT NULL,
 
+    parcela_atual TINYINT UNSIGNED NULL,
+
+    total_parcelas TINYINT UNSIGNED NULL,
+
     observacao TEXT NULL,
 
     criada_em DATETIME NOT NULL

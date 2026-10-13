@@ -6,8 +6,8 @@ export const diferencaMonetaria = (a: number, b: number) => (centavos(a) - centa
 export function periodosMensais(hoje: string) {
   const [ano, mes] = hoje.split('-').map(Number);
   return Array.from({
-    length: 6
-  }, (_, i) => new Date(Date.UTC(ano, mes - 6 + i, 1)).toISOString().slice(0, 7));
+    length: 12
+  }, (_, i) => new Date(Date.UTC(ano, mes - 12 + i, 1)).toISOString().slice(0, 7));
 }
 export async function resumoFinanceiro(idUsuario: number) {
   const conexao = await bancoDados.getConnection();
@@ -58,7 +58,7 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
       AND t.data_transacao >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
       AND t.data_transacao <= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)`, [idUsuario]);
   const periodos = periodosMensais(hoje);
-  const periodoAtual = periodos[5];
+  const periodoAtual = periodos[11];
   const [linhas] = await conexao.query<RowDataPacket[]>(`SELECT
     DATE_FORMAT(t.data_transacao, '%Y-%m') AS periodo, tt.nome AS tipo, c.nome AS categoria,
     (st.nome = 'Confirmada' AND t.data_transacao <= ?) AS realizado, SUM(t.valor) AS valor
@@ -75,6 +75,10 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
   const previsao = {
     totalReceitas: 0,
     totalDespesas: 0,
+    receitasRealizadas: 0,
+    despesasRealizadas: 0,
+    receitasPrevistas: 0,
+    despesasPrevistas: 0,
     saldo: 0
   };
   const categorias = new Map<string, number>();
@@ -82,6 +86,10 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
     const valor = centavos(item.valor);
     if (item.periodo === periodoAtual) {
       if (item.tipo === 'Receita') previsao.totalReceitas += valor;else previsao.totalDespesas += valor;
+      const realizadas = Number(item.realizado) === 1;
+      if (item.tipo === 'Receita') {
+        if (realizadas) previsao.receitasRealizadas += valor;else previsao.receitasPrevistas += valor;
+      } else if (realizadas) previsao.despesasRealizadas += valor;else previsao.despesasPrevistas += valor;
     }
     if (!Number(item.realizado)) continue;
     const mes = historico.find(m => m.periodo === item.periodo)!;
@@ -98,13 +106,17 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
   previsao.saldo = (previsao.totalReceitas - previsao.totalDespesas) / 100;
   previsao.totalReceitas /= 100;
   previsao.totalDespesas /= 100;
+  previsao.receitasRealizadas /= 100;
+  previsao.despesasRealizadas /= 100;
+  previsao.receitasPrevistas /= 100;
+  previsao.despesasPrevistas /= 100;
   const totais = (i: number) => ({
     totalReceitas: historico[i].receitas,
     totalDespesas: historico[i].despesas,
     saldo: historico[i].saldo
   });
-  const atual = totais(5),
-    anterior = totais(4);
+  const atual = totais(11),
+    anterior = totais(10);
   const diferenca = diferencaMonetaria(atual.saldo, anterior.saldo);
   const despesasPeriodoAnterior = centavos(linhaDespesasPeriodoAnterior.total) / 100;
   const diferencaDespesas = diferencaMonetaria(atual.totalDespesas, despesasPeriodoAnterior);

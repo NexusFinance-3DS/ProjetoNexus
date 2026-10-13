@@ -67,7 +67,9 @@ export default function VisaoFinanceira({ dados, aoExportar, exportando = false 
           <Text style={estilos.rotulo}>{nome}</Text>
           <Text style={[estilos.valorResumo, { color: cor }]}>{formatarReais(valor)}</Text>
         </View>)}
-        <Text style={estilos.nota}>Inclui valores realizados e lançamentos previstos.</Text>
+        <Text style={estilos.nota}>Já realizado: receitas {formatarReais(previsao.receitasRealizadas || 0)} · despesas {formatarReais(previsao.despesasRealizadas || 0)}</Text>
+        <Text style={estilos.nota}>Ainda previsto: receitas {formatarReais(previsao.receitasPrevistas || 0)} · despesas {formatarReais(previsao.despesasPrevistas || 0)}</Text>
+        <Text style={estilos.nota}>Considera apenas lançamentos cadastrados até o fim do mês; não prevê gastos ou receitas ainda não registrados.</Text>
       </Cartao>
     </View>
 
