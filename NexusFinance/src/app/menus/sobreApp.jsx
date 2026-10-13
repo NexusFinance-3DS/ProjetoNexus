@@ -47,7 +47,7 @@ export default function SobreApp() {
               <Icon name="insert-chart" size={22} color={cores.sobrePrimaria} />
             </View>
             <View style={estilos.destaqueTexts}>
-              <Text style={estilos.destaqueTitulo}>Relatórios Detalhados</Text>
+              <Text style={estilos.destaqueTitulo}>Painel financeiro</Text>
               <Text style={estilos.destaqueTexto}>Visualize seu progresso com gráficos claros.</Text>
             </View>
           </View>
@@ -69,8 +69,8 @@ export default function SobreApp() {
           <View>
             <Text style={estilos.informacoesTitulo}>Seus registros</Text>
             <Text style={estilos.informacoesTexto}>
-              Consulte suas receitas e despesas no Fluxo financeiro. Use Relatórios para acompanhar
-              os totais por período.
+              Consulte suas receitas e despesas no Fluxo financeiro. Use o Painel financeiro para
+              analisar resultados, previsões e metas em um só lugar.
             </Text>
           </View>
         </View>

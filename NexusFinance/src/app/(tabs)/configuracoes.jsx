@@ -163,8 +163,6 @@ export default function Configuracoes() {
           <Text style={estilos.cartaoTitulo}>Dados e ajuda</Text>
           {item('download', exportando ? 'Exportando...' : 'Exportar transações (CSV)', exportar, exportando)}
           <View style={estilos.divisor} />
-          {item('picture-as-pdf', 'Relatórios em PDF', () => router.push('/relatorios'))}
-          <View style={estilos.divisor} />
           {item('help-outline', 'Central de ajuda', () => router.push('/menus/centralAjuda'))}
           <View style={estilos.divisor} />
           {item('info', 'Sobre o aplicativo', () => router.push('/menus/sobreApp'))}

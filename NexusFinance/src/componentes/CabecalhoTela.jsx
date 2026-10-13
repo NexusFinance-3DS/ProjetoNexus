@@ -25,7 +25,6 @@ const titulos = {
   metas: 'Minhas metas',
   notificacoes: 'Notificações',
   perfil: 'Perfil',
-  relatorios: 'Relatórios'
 };
 export default function CabecalhoTela({
   onLayout: aoMedir
