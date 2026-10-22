@@ -24,7 +24,7 @@
       "package": "com.projetonexus.nexusfinance"
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/images.png"
     },
     "plugins": [
