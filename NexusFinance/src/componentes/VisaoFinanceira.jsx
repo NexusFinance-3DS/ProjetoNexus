@@ -7,11 +7,7 @@ import CartaoPainel from './CartaoPainel';
 import { useSessao } from '../contextos/ContextoSessao';
 import { useEstilosTema } from '../contextos/ContextoTema';
 import { useEstilosApp } from '../style/style';
-import { useSessao } from '../contextos/ContextoSessao';
-import { useEstilosTema } from '../contextos/ContextoTema';
-import { useEstilosApp } from '../style/style';
 import { apiAutenticada, formatarReais } from '../servicos/financeiro';
-import { router } from 'expo-router';
 
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const rotuloMes = periodo => `${MESES[Number(periodo.slice(5, 7)) - 1]}/${periodo.slice(2, 4)}`;
@@ -166,165 +162,65 @@ export default function VisaoFinanceira({ dados, aoExportar, exportando = false,
     </View>
 
     <View style={[estilos.grade, larguraGrande && estilos.duasColunas]}>
-      <Cartao
-        titulo="Limites de gastos"
-        subtitulo="Acompanhe seu orçamento por categoria"
-        style={[larguraGrande && estilos.coluna]}
-      >
-        {(() => {
-          const limites = dados.limites || {};
-          const limiteMensal = Number(limites.total) || 0;
+      <Cartao titulo="Limite de gastos" subtitulo="Distribuição das despesas">
+        {temCategorias ? (
+          <View style={estilos.cabecalhoLimite}>
+            <View style={estilos.totalLimiteBox}>
+              <Text style={estilos.rotulo}>Total do limite</Text>
+              <Text style={estilos.valorTotalLimite}>{formatarReais(limiteTotal || 0)}</Text>
+            </View>
+            <Pressable accessibilityRole="button" accessibilityLabel={textoBotaoLimite === 'Adicionar' ? 'Adicionar limite de gastos' : 'Editar limite de gastos'} onPress={abrirModalLimite} style={estilos.botaoAdicionarContainer}>
+              <Text style={estilos.textoBotaoLimite}>{textoBotaoLimite}</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={estilos.areaVazia}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Adicionar limite de gastos" onPress={abrirModalLimite} style={estilos.botaoAdicionarCentralizado}>
+              <Text style={estilos.textoBotaoAdicionarVazio}>Adicionar</Text>
+            </Pressable>
+          </View>
+        )}
 
-          const totalGasto = categorias.reduce(
-            (total, item) => total + (Number(item.valor) || 0),
-            0
-          );
+        {categoriasVisiveis.length ? categoriasVisiveis.map((item, index) => {
+          const valor = Number(item.valor) || 0;
+          const percentual = limiteTotal > 0 ? valor / limiteTotal * 100 : 0;
+          const corCategoria = obterCorPorPercentual(percentual, cores);
+          const situacaoCategoria = obterSituacaoPorPercentual(percentual);
+          return <View key={`${item.nome}-${index}`} style={estilos.categoria}>
+            <View style={estilos.categoriaCabecalho}><Text style={estilos.rotulo}>{item.nome}</Text><Text style={[estilos.valorResumo, { color: corCategoria }]}>{formatarReais(valor)}</Text></View>
+            <View style={estilos.trilho}><View style={[estilos.preenchimento, { width: `${Math.min(100, percentual)}%`, backgroundColor: corCategoria }]} /></View>
+            <Text style={[estilos.pequeno, { color: corCategoria }]}>{percentual.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% do limite total · {situacaoCategoria}</Text>
+          </View>;
+        }) : <Text style={estilos.vazio}>Nenhuma categoria registrada para esse limite.</Text>}
 
-          const percentualTotal =
-            limiteMensal > 0
-              ? (totalGasto / limiteMensal) * 100
-              : 0;
+        {existemMaisCategorias && (
+          <Pressable accessibilityRole="button" accessibilityLabel={mostrarTodasCategorias ? 'Ocultar outras categorias' : 'Mostrar outras categorias'} onPress={() => setMostrarTodasCategorias(valor => !valor)} style={estilos.botaoOutrasCategorias}>
+            <Text style={estilos.textoBotaoOutrasCategorias}>{mostrarTodasCategorias ? 'Ocultar' : 'Outras'}</Text>
+            <Icon name="arrow-forward" size={15} color={cores.textoPrincipal} />
+          </Pressable>
+        )}
 
-          const restante = limiteMensal - totalGasto;
+        {temCategorias && (
+          <View style={estilos.rodapeLimite}>
+            <View style={estilos.resumoLimite}>
+              <Text style={estilos.rotuloResumo}>Total gasto</Text>
+              <Text style={[estilos.valorResumoTotal, { color: corGastoTotal }]}>{formatarReais(totalGasto)}</Text>
+            </View>
+            <View style={estilos.resumoLimiteRight}>
+              <Text style={estilos.rotuloResumo}>Disponível no limite</Text>
+              <Text style={[estilos.valorResumoDisponivel, { color: valorDisponivel < 0 ? cores.perigo : cores.sucesso }]}>{formatarReais(valorDisponivel)}</Text>
+            </View>
+          </View>
+        )}
 
-          return (
-            <>
-              <View style={estilos.resumoLimite}>
-                <View style={estilos.cabecalhoLimite}>
-                  <Text style={estilos.pequeno}>
-                    Limite mensal total
-                  </Text>
-
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Adicionar limite mensal"
-                    onPress={() => router.push('/metas')}
-                    style={estilos.botaoAdicionarLimite}
-                  >
-                    <Icon name="add" size={18} color={cores.textoLink} />
-                    <Text style={estilos.textoAdicionarLimite}>
-                      Adicionar limite
-                    </Text>
-                  </Pressable>
-                </View>
-
-                <Text style={estilos.valorLimite}>
-                  {limiteMensal > 0 ? formatarReais(limiteMensal) : 'Não definido'}
-                </Text>
-
-                {limiteMensal > 0 ? (
-                  <>
-                    <View style={estilos.trilho}>
-                      <View
-                        style={[
-                          estilos.preenchimento,
-                          {
-                            width: `${Math.min(100, percentualTotal)}%`,
-                            backgroundColor:
-                              percentualTotal >= 100
-                                ? cores.perigo
-                                : percentualTotal >= 80
-                                  ? cores.graficoLaranja
-                                  : cores.primaria,
-                          },
-                        ]}
-                      />
-                    </View>
-
-                    <View style={estilos.categoriaCabecalho}>
-                      <Text style={estilos.pequeno}>
-                        Gasto: {formatarReais(totalGasto)}
-                      </Text>
-
-                      <Text
-                        style={[
-                          estilos.pequeno,
-                          { color: restante < 0 ? cores.perigo : cores.sucesso },
-                        ]}
-                      >
-                        {restante < 0
-                          ? `Excedido: ${formatarReais(Math.abs(restante))}`
-                          : `Restam: ${formatarReais(restante)}`}
-                      </Text>
-                    </View>
-                  </>
-                ) : (
-                  <Text style={estilos.nota}>
-                    Defina um limite mensal para acompanhar seus gastos.
-                  </Text>
-                )}
-              </View>
-
-              <View style={estilos.separadorLimites} />
-
-              <Text style={estilos.rotulo}>
-                Despesas por categoria
-              </Text>
-
-              {categorias.length ? categorias.map((item, index) => {
-                const gasto = Number(item.valor) || 0;
-                const limite = Number(limites.categorias?.[item.nome]) || 0;
-
-                const percentual = limite > 0 ? (gasto / limite) * 100 : 0;
-
-                const cor =
-                  percentual >= 100
-                    ? cores.perigo
-                    : percentual >= 80
-                      ? cores.graficoLaranja
-                      : coresCategorias[index % coresCategorias.length];
-
-                return (
-                  <View key={item.nome} style={estilos.categoria}>
-                    <View style={estilos.categoriaCabecalho}>
-                      <Text style={estilos.rotulo}>{item.nome}</Text>
-
-                      <Text style={estilos.valorResumo}>
-                        {formatarReais(gasto)}
-                      </Text>
-                    </View>
-
-                    <View style={estilos.trilho}>
-                      <View
-                        style={[
-                          estilos.preenchimento,
-                          {
-                            width: `${Math.min(100, limite > 0 ? percentual : 0)}%`,
-                            backgroundColor: cor,
-                          },
-                        ]}
-                      />
-                    </View>
-
-                    {limite > 0 ? (
-                      <View style={estilos.categoriaCabecalho}>
-                        <Text style={estilos.pequeno}>
-                          {percentual.toLocaleString('pt-BR', {
-                            maximumFractionDigits: 1,
-                          })}% do limite
-                        </Text>
-
-                        <Text style={[estilos.pequeno, { color: cor }]}>
-                          {gasto > limite
-                            ? `Excedido em ${formatarReais(gasto - limite)}`
-                            : `${formatarReais(limite - gasto)} restantes`}
-                        </Text>
-                      </View>
-                    ) : (
-                      <Text style={estilos.pequeno}>
-                        Limite não definido para esta categoria.
-                      </Text>
-                    )}
-                  </View>
-                );
-              }) : (
-                <Text style={estilos.vazio}>
-                  Nenhuma despesa realizada neste mês.
-                </Text>
-              )}
-            </>
-          );
-        })()}
+        {temCategorias && (
+          <View style={estilos.usoLimiteWrap}>
+            <View style={estilos.trilhoResumo}>
+              <View style={[estilos.preenchimentoResumo, { width: `${Math.min(100, percentualUtilizado)}%`, backgroundColor: corGastoTotal }]} />
+            </View>
+            <Text style={[estilos.pequeno, { color: corGastoTotal }]}>{percentualUtilizado.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}% do limite total utilizado · {situacaoGastoTotal}</Text>
+          </View>
+        )}
       </Cartao>
     </View>
 
