@@ -184,7 +184,9 @@ export function CampoFormulario({
 const criarEstilos = cores => StyleSheet.create({
   campo: {
     minHeight: 48,
-    paddingVertical: 12
+    paddingVertical: 12,
+    textAlignVertical: 'center',
+    flexShrink: 1
   },
   barraFerramentas: {
     backgroundColor: cores.superficie,

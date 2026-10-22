@@ -122,6 +122,8 @@ CREATE TABLE configuracoes (
     tema ENUM('claro', 'escuro', 'sistema')
         NOT NULL DEFAULT 'escuro',
 
+    limite_gasto_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+
     moeda CHAR(3) NOT NULL DEFAULT 'BRL',
 
     atualizado_em DATETIME NOT NULL

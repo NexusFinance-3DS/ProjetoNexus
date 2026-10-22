@@ -259,6 +259,7 @@ function criarEstilosApp(cores) {
   const estilosCentralAjuda = StyleSheet.create({
     recipiente: {
       flex: 1,
+      maxWidth: '100%',
       backgroundColor: cores.fundo,
       alignItems: 'stretch',
       paddingHorizontal: 10
@@ -272,7 +273,8 @@ function criarEstilosApp(cores) {
       borderWidth: 1,
       borderColor: cores.borda,
       paddingVertical: 12,
-      overflow: 'hidden'
+      overflow: 'hidden',
+      maxWidth: '100%'
     },
     cartaoTitulo: {
       color: cores.textoPrincipal,
@@ -287,19 +289,23 @@ function criarEstilosApp(cores) {
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: 18,
-      paddingVertical: 18
+      paddingVertical: 18,
+      flexWrap: 'wrap',
+      maxWidth: '100%'
     },
     itemEsquerda: {
       flex: 1,
       minWidth: 0,
       flexDirection: 'row',
-      alignItems: 'center'
+      alignItems: 'center',
+      flexShrink: 1
     },
     itemTexto: {
       color: cores.textoPrincipal,
       fontSize: 16,
       marginLeft: 15,
-      flexShrink: 1
+      flexShrink: 1,
+      maxWidth: '100%'
     },
     divisor: {
       height: 1,
