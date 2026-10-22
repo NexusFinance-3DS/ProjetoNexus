@@ -16,10 +16,12 @@ rotasDados.use(autenticar);
 rotasDados.use(rotasOpcoesFinanceiras);
 rotasDados.get('/configuracoes', async (requisicao: RequisicaoAutenticada, resposta, proximo) => {
   try {
-    const [[linha]] = await bancoDados.query<RowDataPacket[]>('SELECT notificacoes_ativas, tema FROM configuracoes WHERE id_usuario = ?', [requisicao.userId]);
+    const [[linha]] = await bancoDados.query<RowDataPacket[]>('SELECT notificacoes_ativas, tema, limite_gasto_total FROM configuracoes WHERE id_usuario = ?', [requisicao.userId]);
+    const limiteGastoTotal = Number(linha?.limite_gasto_total ?? 0);
     resposta.json({
       notificacoes: linha ? Boolean(linha.notificacoes_ativas) : true,
-      tema: linha?.tema === 'claro' ? 'claro' : 'escuro'
+      tema: linha?.tema === 'claro' ? 'claro' : 'escuro',
+      limiteGastoTotal: Number.isFinite(limiteGastoTotal) ? limiteGastoTotal : 0
     });
   } catch (falha) {
     proximo(falha);
@@ -29,9 +31,10 @@ rotasDados.put('/configuracoes', async (requisicao: RequisicaoAutenticada, respo
   try {
     const {
       notificacoes,
-      tema
+      tema,
+      limiteGastoTotal
     } = requisicao.body || {};
-    if (notificacoes === undefined && tema === undefined) return resposta.status(400).json({
+    if (notificacoes === undefined && tema === undefined && limiteGastoTotal === undefined) return resposta.status(400).json({
       mensagem: 'Informe a preferência que deseja alterar.'
     });
     if (notificacoes !== undefined && typeof notificacoes !== 'boolean') return resposta.status(400).json({
@@ -40,13 +43,21 @@ rotasDados.put('/configuracoes', async (requisicao: RequisicaoAutenticada, respo
     if (tema !== undefined && tema !== 'claro' && tema !== 'escuro') return resposta.status(400).json({
       mensagem: 'Escolha tema claro ou escuro.'
     });
-    // Update only supplied preferences so concurrent changes do not overwrite each other.
-    const alteracoes = [notificacoes !== undefined ? 'notificacoes_ativas = VALUES(notificacoes_ativas)' : '', tema !== undefined ? 'tema = VALUES(tema)' : ''].filter(Boolean).join(', ');
-    await bancoDados.execute(`INSERT INTO configuracoes (id_usuario, notificacoes_ativas, tema) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ${alteracoes}`, [requisicao.userId, notificacoes ?? true, tema ?? 'escuro']);
-    const [[linha]] = await bancoDados.query<RowDataPacket[]>('SELECT notificacoes_ativas, tema FROM configuracoes WHERE id_usuario = ?', [requisicao.userId]);
+    const limiteNumerico = limiteGastoTotal === undefined ? undefined : Number(limiteGastoTotal);
+    if (limiteNumerico !== undefined && (!Number.isFinite(limiteNumerico) || limiteNumerico < 0)) return resposta.status(400).json({
+      mensagem: 'Informe um valor de limite válido.'
+    });
+    const alteracoes = [
+      notificacoes !== undefined ? 'notificacoes_ativas = VALUES(notificacoes_ativas)' : '',
+      tema !== undefined ? 'tema = VALUES(tema)' : '',
+      limiteNumerico !== undefined ? 'limite_gasto_total = VALUES(limite_gasto_total)' : ''
+    ].filter(Boolean).join(', ');
+    await bancoDados.execute(`INSERT INTO configuracoes (id_usuario, notificacoes_ativas, tema, limite_gasto_total) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE ${alteracoes}`, [requisicao.userId, notificacoes ?? true, tema ?? 'escuro', limiteNumerico ?? 0]);
+    const [[linha]] = await bancoDados.query<RowDataPacket[]>('SELECT notificacoes_ativas, tema, limite_gasto_total FROM configuracoes WHERE id_usuario = ?', [requisicao.userId]);
     resposta.json({
       notificacoes: Boolean(linha.notificacoes_ativas),
-      tema: linha.tema
+      tema: linha.tema,
+      limiteGastoTotal: Number(linha.limite_gasto_total || 0)
     });
   } catch (falha) {
     proximo(falha);

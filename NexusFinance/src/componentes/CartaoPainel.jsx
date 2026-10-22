@@ -7,6 +7,8 @@ export default function CartaoPainel({ children, style, ...props }) {
   const { cores } = useEstilosApp();
   const styles = useMemo(() => StyleSheet.create({
     card: {
+      width: '100%',
+      maxWidth: '100%',
       padding: 18,
       borderRadius: 20,
       borderWidth: 1,

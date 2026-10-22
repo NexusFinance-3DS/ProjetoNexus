@@ -59,6 +59,11 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
       AND t.data_transacao <= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)`, [idUsuario]);
   const periodos = periodosMensais(hoje);
   const periodoAtual = periodos[11];
+  const [categoriasBase] = await conexao.query<RowDataPacket[]>(`SELECT c.nome
+    FROM categorias c
+    JOIN tipos_transacao tt USING (id_tipo_transacao)
+    WHERE tt.nome = 'Despesa' AND c.ativa = TRUE AND (c.id_usuario IS NULL OR c.id_usuario = ?)
+    ORDER BY c.padrao DESC, c.nome`, [idUsuario]);
   const [linhas] = await conexao.query<RowDataPacket[]>(`SELECT
     DATE_FORMAT(t.data_transacao, '%Y-%m') AS periodo, tt.nome AS tipo, c.nome AS categoria,
     (st.nome = 'Confirmada' AND t.data_transacao <= ?) AS realizado, SUM(t.valor) AS valor
@@ -82,6 +87,9 @@ async function lerResumo(conexao: PoolConnection, idUsuario: number) {
     saldo: 0
   };
   const categorias = new Map<string, number>();
+  for (const categoria of categoriasBase) {
+    categorias.set(String(categoria.nome), 0);
+  }
   for (const item of linhas) {
     const valor = centavos(item.valor);
     if (item.periodo === periodoAtual) {
