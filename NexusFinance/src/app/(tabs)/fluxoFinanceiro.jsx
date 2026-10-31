@@ -58,6 +58,8 @@ export default function FluxoFinanceiro() {
   const [transacoes, setTransacoes] = useState([]);
   const [contaFiltro, setContaFiltro] = useState('Todos');
   const [contaRascunho, setContaRascunho] = useState('Todos');
+  const [mesFiltro, setMesFiltro] = useState('Todos');
+  const [mesRascunho, setMesRascunho] = useState('Todos');
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todos');
   const [categoriaRascunho, setCategoriaRascunho] = useState('Todos');
   const [categoriasCatalogo, setCategoriasCatalogo] = useState([]);
@@ -148,11 +150,15 @@ export default function FluxoFinanceiro() {
   const contasDisponiveis = useMemo(() => [...new Set(
     transacoes.map(item => item.tipoConta).filter(Boolean)
   )].sort((a, b) => a.localeCompare(b, 'pt-BR')), [transacoes]);
-  const filtrosAtivos = [statusFiltro !== 'Todos', contaFiltro !== 'Todos', categoriaFiltro !== 'Todos'].filter(Boolean).length;
+  const mesesDisponiveis = useMemo(() => [...new Set(
+    transacoes.map(item => String(item.data || '').slice(0, 7)).filter(Boolean)
+  )].sort((a, b) => b.localeCompare(a)), [transacoes]);
+  const filtrosAtivos = [statusFiltro !== 'Todos', contaFiltro !== 'Todos', mesFiltro !== 'Todos', categoriaFiltro !== 'Todos'].filter(Boolean).length;
 
   function abrirFiltros() {
     setStatusRascunho(statusFiltro);
     setContaRascunho(contaFiltro);
+    setMesRascunho(mesFiltro);
     setCategoriaRascunho(categoriaFiltro);
     const [tipoSelecionado, nomeSelecionado] = categoriaFiltro.split('::');
     setTipoOutrosAberto(categoriaFiltro !== 'Todos' && !categoriasPrincipaisPorTipo[tipoSelecionado]?.includes(nomeSelecionado) ? tipoSelecionado : null);
@@ -179,6 +185,7 @@ export default function FluxoFinanceiro() {
   function aplicarFiltros() {
     setStatusFiltro(statusRascunho);
     setContaFiltro(contaRascunho);
+    setMesFiltro(mesRascunho);
     setCategoriaFiltro(categoriaRascunho);
     setFiltroAberto(false);
   }
@@ -197,6 +204,8 @@ export default function FluxoFinanceiro() {
     setStatusRascunho('Todos');
     setContaFiltro('Todos');
     setContaRascunho('Todos');
+    setMesFiltro('Todos');
+    setMesRascunho('Todos');
     setCategoriaFiltro('Todos');
     setCategoriaRascunho('Todos');
     setTipoOutrosAberto(null);
@@ -214,12 +223,15 @@ export default function FluxoFinanceiro() {
       const contaCorresponde =
         contaFiltro === 'Todos' || item.tipoConta === contaFiltro;
 
+      const mesCorresponde =
+        mesFiltro === 'Todos' || String(item.data).slice(0, 7) === mesFiltro;
+
       const categoriaCorresponde = categoriaFiltro === 'Todos' ||
         `${item.tipo}::${item.categoria}` === categoriaFiltro;
 
-      return tipoCorresponde && statusCorresponde && contaCorresponde && categoriaCorresponde;
+      return tipoCorresponde && statusCorresponde && contaCorresponde && mesCorresponde && categoriaCorresponde;
     });
-  }, [abaSelecionada, statusFiltro, contaFiltro, categoriaFiltro, transacoes]);
+  }, [abaSelecionada, statusFiltro, contaFiltro, mesFiltro, categoriaFiltro, transacoes]);
 
   const gruposMes = useMemo(() => {
     const grupos = new Map();
@@ -262,27 +274,20 @@ export default function FluxoFinanceiro() {
         {erro ? <View><Text accessibilityRole="alert" style={estilos.dadosTexto}>{erro}</Text><TouchableOpacity accessibilityRole="button" onPress={recarregar} style={{ minHeight: 44, justifyContent: 'center' }}><Text style={{ color: cores.textoLink }}>Tentar novamente</Text></TouchableOpacity></View> : null}
         {carregando ? <ActivityIndicator accessibilityLabel="Carregando transações" color={cores.primaria} /> : null}
         {gruposMes.map(([mes, itens]) => <View key={mes}>
-          <Text accessibilityRole="header" style={{ color: cores.textoPrincipal, fontSize: 15, fontWeight: '700', textTransform: 'capitalize', marginTop: 10, marginBottom: 4 }}>{nomeMes(mes)}</Text>
+          <Text accessibilityRole="header" style={{ color: cores.textoPrincipal, fontSize: 15, fontWeight: '700', textTransform: 'capitalize', marginTop: 10, marginBottom: 4, backgroundColor: "#251eae", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, }}> {nomeMes(mes)}</Text>
           {itens.map((item, index) => <CartaoAnimado key={item.id} style={estilos.transacaoItem} atraso={260 + index * 30}>
-            <View style={estilosCompartilhados.flexivel}>
-              <Text style={estilos.transacaoDescricao}>{item.descricao}</Text>
-              <Text style={estilos.transacaoCategoria}>
-                {item.categoria} · {item.conta || item.tipoConta}
+            <View style={[estilosCompartilhados.flexivel, { flex: 1, flexShrink: 1, maxWidth: '60%', marginRight: 8 }]}>
+              <Text style={[estilos.transacaoDescricao, { flexShrink: 1 }]}>
+                {item.descricao}
               </Text>
-              {item.observacao ? <Text style={estilos.transacaoCategoria}>{item.observacao}</Text> : null}
-              {item.anexos?.map(anexo => <TouchableOpacity key={anexo.id} accessibilityRole="button" accessibilityLabel={`Abrir anexo ${anexo.nome}`} disabled={!!abrindo} onPress={() => baixar(anexo)} style={{
-                minHeight: 44,
-                justifyContent: 'center'
-              }}>
-                <Text style={{
-                  color: cores.textoLink,
-                  fontSize: 13
-                }}>
-                  {abrindo === anexo.id ? 'Baixando...' : `📎 ${anexo.nome}`}
-                </Text>
-              </TouchableOpacity>)}
+              <Text style={estilos.transacaoCategoria}>
+                {item.categoria}
+              </Text>
+              <Text style={estilos.transacaoConta}>
+                {item.conta || item.tipoConta}
+              </Text>
             </View>
-            <View style={estilos.transacaoDireita}>
+            <View style={[estilos.transacaoDireita, { flexShrink: 0 }, ]}>
               <Text style={[estilos.transacaoValor, item.tipo === 'Receitas' ? estilos.receita : estilos.despesa]}>
                 {item.tipo === 'Receitas' ? '+' : '-'} {formatarReais(item.valor)}
               </Text>
@@ -360,6 +365,22 @@ export default function FluxoFinanceiro() {
             />
 
             <Text style={{ color: cores.textoPrincipal, fontSize: 16, fontWeight: '700', marginTop: 18 }}>
+              Mês
+            </Text>
+            <OpcoesFiltro
+              opcoes={[
+                { valor: 'Todos', rotulo: 'Todos os meses' },
+                ...mesesDisponiveis.map(mes => ({
+                  valor: mes,
+                  rotulo: nomeMes(mes),
+                })),
+              ]}
+              selecionado={mesRascunho}
+              aoSelecionar={setMesRascunho}
+              cores={cores}
+            />
+
+            <Text style={{ color: cores.textoPrincipal, fontSize: 16, fontWeight: '700', marginTop: 18 }}>
               Conta
             </Text>
             <OpcoesFiltro
@@ -405,11 +426,11 @@ export default function FluxoFinanceiro() {
                       minHeight: 40,
                       alignSelf: 'flex-start',
                       justifyContent: 'center',
-                      borderWidth: 1.5,
+                      borderWidth: .5,
                       borderColor: estaAberto || selecionadoForaDosPrincipais ? cores.primaria : cores.borda,
                       borderRadius: 999,
                       paddingHorizontal: 15,
-                      marginTop: 8,
+                      marginTop: 10,
                       backgroundColor: estaAberto || selecionadoForaDosPrincipais ? cores.primaria : 'transparent',
                     }}
                   >
@@ -418,7 +439,7 @@ export default function FluxoFinanceiro() {
                     </Text>
                   </TouchableOpacity>
                   {estaAberto ? (
-                    <View style={{ marginTop: 10, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: cores.borda, backgroundColor: cores.superficieSecundaria }}>
+                    <View style={{ marginTop: 100, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: cores.borda, backgroundColor: cores.superficieSecundaria }}>
                       {carregandoCategorias ? <ActivityIndicator accessibilityLabel="Carregando categorias" color={cores.primaria} style={{ marginVertical: 12 }} /> : null}
                       {erroCategorias ? <Text accessibilityRole="alert" style={{ color: cores.perigo, fontSize: 13, marginTop: 8 }}>{erroCategorias}</Text> : null}
                       {categoriasPorTipo[tipo].length ? (

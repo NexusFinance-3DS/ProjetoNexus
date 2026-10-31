@@ -16,7 +16,6 @@ function SeletorOpcao({
   const estilos = useEstilosTema(criarEstilos);
   const [aberto, setAberto] = useState(false);
   return <>
-      <Text style={estilos.rotulo}>{rotulo}</Text>
       <Pressable disabled={desabilitado} accessibilityRole="button" accessibilityLabel={rotulo} accessibilityState={{
       disabled: desabilitado,
       expanded: aberto
@@ -24,10 +23,18 @@ function SeletorOpcao({
       Keyboard.dismiss();
       setAberto(true);
     }} style={[estilos.seletor, desabilitado && estilos.desabilitado]}>
-        <Text style={estilos.valor}>
-          {itens.find(item => item.id === valor)?.nome || 'Selecione uma opção'}
-        </Text>
-        <Icon name="expand-more" color={cores.textoPrincipal} size={24} />
+        <View style={estilos.valorLinha}>
+          <View style={estilos.iconeCampo}>
+            <Icon name={rotulo === 'Tipo de conta' ? 'account-balance-wallet' : 'category'} color={cores.textoPrincipal} size={18} />
+          </View>
+          <View style={estilos.valorBloco}>
+            <Text style={estilos.rotuloInterno}>{rotulo}</Text>
+            <Text style={estilos.valor} numberOfLines={1} ellipsizeMode="tail">
+              {itens.find(item => item.id === valor)?.nome || 'Selecione uma opção'}
+            </Text>
+          </View>
+          <Icon name="expand-more" color={cores.textoPrincipal} size={24} />
+        </View>
       </Pressable>
       <Modal visible={aberto} transparent animationType="fade" onRequestClose={() => setAberto(false)}>
         <View style={estilos.sobreposicao}>
@@ -143,20 +150,23 @@ export function AnexoTransacao({
   } = useTema();
   const estilos = useEstilosTema(criarEstilos);
   return <View style={estilos.campos}>
-      <Text style={estilos.rotulo}>Arquivo (opcional)</Text>
-      <View style={estilos.anexo}>
-        <Pressable accessibilityRole="button" accessibilityLabel={opcoes.arquivo ? 'Trocar arquivo' : 'Adicionar arquivo'} disabled={desabilitado} onPress={opcoes.selecionarArquivo} style={estilos.arquivoBotao}>
-          <Icon name="attach-file" size={23} color={cores.textoPrincipal} />
-          <View style={estilos.arquivoTexto}>
-            <Text style={estilos.valor}>{opcoes.arquivo?.name || 'Adicionar arquivo'}</Text>
+      <View style={estilos.anexoCaixa}>
+        <View style={estilos.anexoLinha}>
+          <View style={estilos.iconeCampo}>
+            <Icon name="attach-file" size={18} color={cores.textoPrincipal} />
+          </View>
+          <View style={estilos.valorBloco}>
+            <Pressable accessibilityRole="button" accessibilityLabel={opcoes.arquivo ? 'Trocar arquivo' : 'Adicionar arquivo'} disabled={desabilitado} onPress={opcoes.selecionarArquivo} style={estilos.arquivoBotao}>
+              <Text style={estilos.valor} numberOfLines={1} ellipsizeMode="tail">{opcoes.arquivo?.name || 'Adicionar arquivo'}</Text>
+            </Pressable>
             <Text style={estilos.legenda}>
               {opcoes.arquivo ? `${Math.ceil((opcoes.arquivo.size || 0) / 1024)} KB · Toque para trocar` : 'Até 10 MB'}
             </Text>
           </View>
-        </Pressable>
-        {opcoes.arquivo && <Pressable accessibilityRole="button" accessibilityLabel="Remover arquivo" disabled={desabilitado} onPress={opcoes.removerArquivo} style={estilos.iconeBotao}>
-            <Icon name="close" color={cores.perigo} size={23} />
-          </Pressable>}
+          {opcoes.arquivo && <Pressable accessibilityRole="button" accessibilityLabel="Remover arquivo" disabled={desabilitado} onPress={opcoes.removerArquivo} style={estilos.iconeBotao}>
+              <Icon name="close" color={cores.perigo} size={23} />
+            </Pressable>}
+        </View>
       </View>
       {opcoes.erroArquivo ? <Text style={estilos.erro}>{opcoes.erroArquivo}</Text> : null}
     </View>;
@@ -168,25 +178,53 @@ const criarEstilos = cores => StyleSheet.create({
   },
   rotulo: {
     color: cores.textoPrincipal,
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '600',
     marginLeft: 10,
     marginBottom: 6
   },
+  rotuloInterno: {
+    color: cores.textoPrincipal,
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+    textTransform: 'uppercase',
+    marginBottom: 2
+  },
   seletor: {
-    minHeight: 50,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    minHeight: 64,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
     backgroundColor: cores.campo,
     borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    gap: 0,
     marginBottom: 14
   },
+  valorLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  valorBloco: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center'
+  },
+  iconeCampo: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: cores.superficieElevada,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   valor: {
-    color: cores.textoPrincipal,
+    color: cores.textoSecundario,
     fontSize: 15,
-    flexShrink: 1
+    flexShrink: 1,
+    flex: 1
   },
   desabilitado: {
     opacity: 0.5
@@ -311,19 +349,26 @@ const criarEstilos = cores => StyleSheet.create({
     fontSize: 15,
     fontWeight: '600'
   },
-  anexo: {
+  anexoCaixa: {
+    width: '100%',
+    minHeight: 64,
+    backgroundColor: cores.campo,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
+    marginBottom: 14,
+    justifyContent: 'center'
+  },
+  anexoLinha: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: cores.campo,
-    borderRadius: 10
+    gap: 10
   },
   arquivoBotao: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 12,
-    minHeight: 60
+    minHeight: 22,
+    justifyContent: 'center'
   },
   arquivoTexto: {
     flex: 1,

@@ -63,12 +63,22 @@ export default function NovaDespesa() {
             <TextInput style={[estilos.campoValor, estilosCompartilhados.textoAlinhamentoDireita]} value={valor} onChangeText={setValor} mask="currency" keyboardType="decimal-pad" placeholder="R$ 0,00" placeholderTextColor={cores.textoIndicativo} />
           </View>
           <View style={estilos.campoCompleto}>
-            <Text style={estilosCompartilhados.formularioRotulo}>Descrição</Text>
-            <TextInput style={estilos.campo} placeholder="Ex.: Conta de luz" placeholderTextColor={cores.textoIndicativo} maxLength={255} value={descricao} onChangeText={setDescricao} />
+            <View style={estilos.campoCaixa}>
+              <View style={estilos.campoLinha}>
+                <View style={estilos.campoIcone}><Icon name="title" size={18} color={cores.textoPrincipal} /></View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={estilos.campoRotulo}>Título</Text>
+                  <TextInput style={estilos.campoInterno} placeholder="Ex.: Conta de luz" placeholderTextColor={cores.textoIndicativo} maxLength={255} value={descricao} onChangeText={setDescricao} />
+                </View>
+              </View>
+            </View>
           </View>
           <View style={estilos.campoCompleto}>
-            <Text style={estilosCompartilhados.formularioRotulo}>Data (DD/MM/AAAA)</Text>
-            <CampoData style={estilos.campo} placeholder="DD/MM/AAAA" placeholderTextColor={cores.textoIndicativo} value={dados} onChangeText={setData} />
+            <View style={estilos.campoCaixa}>
+              <View style={estilos.campoLinha}>
+                <CampoData style={estilos.campoInterno} placeholder="DD/MM/AAAA" placeholderTextColor={cores.textoIndicativo} value={dados} onChangeText={setData} />
+              </View>
+            </View>
           </View>
           <SeletoresTransacao opcoes={opcoes} desabilitado={salvando} />
           <View style={estilos.listaItem}>
@@ -80,8 +90,15 @@ export default function NovaDespesa() {
             <Switch value={parcelada} disabled={salvando} onValueChange={ativo => { setParcelada(ativo); if (ativo) setRecorrente(false); }} />
           </View>
           {parcelada ? <View style={estilos.campoCompleto}>
-            <Text style={estilosCompartilhados.formularioRotulo}>Número de parcelas (2 a 60)</Text>
-            <TextInput style={estilos.campo} value={parcelas} onChangeText={setParcelas} keyboardType="number-pad" maxLength={2} placeholder="Ex.: 6" placeholderTextColor={cores.textoIndicativo} />
+            <View style={estilos.campoCaixa}>
+              <View style={estilos.campoLinha}>
+                <View style={estilos.campoIcone}><Icon name="format-list-numbered" size={18} color={cores.textoPrincipal} /></View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={estilos.campoRotulo}>Número de parcelas (2 a 60)</Text>
+                  <TextInput style={estilos.campoInterno} value={parcelas} onChangeText={setParcelas} keyboardType="number-pad" maxLength={2} placeholder="Ex.: 6" placeholderTextColor={cores.textoIndicativo} />
+                </View>
+              </View>
+            </View>
           </View> : null}
           <View style={estilos.listaItem}>
             <View style={estilos.iconeCaixa}>
@@ -104,8 +121,15 @@ export default function NovaDespesa() {
             <Switch value={recorrente} disabled={salvando || parcelada} onValueChange={ativo => { setRecorrente(ativo); if (ativo) setParcelada(false); }} />
           </View>
           <View style={estilos.campoCompleto}>
-            <Text style={estilosCompartilhados.formularioRotulo}>Observação (opcional)</Text>
-            <TextInput style={[estilos.campo, estilosCompartilhados.multilinhaCampo]} placeholder="Observação" placeholderTextColor={cores.textoIndicativo} multiline value={observacao} onChangeText={setObservacao} />
+            <View style={[estilos.campoCaixa, {marginTop: 10}]}>
+              <View style={estilos.campoLinha}>
+                <View style={estilos.campoIcone}><Icon name="notes" size={18} color={cores.textoPrincipal} /></View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={estilos.campoRotulo}>Observação (opcional)</Text>
+                  <TextInput style={[estilos.campoInterno, { minHeight: 60, textAlignVertical: 'top' }]} placeholder="Observação" placeholderTextColor={cores.textoIndicativo} multiline value={observacao} onChangeText={setObservacao} />
+                </View>
+              </View>
+            </View>
           </View>
           <AnexoTransacao opcoes={opcoes} desabilitado={salvando} />
           {erro ? <Text style={estilosCompartilhados.erroTexto}>{erro}</Text> : null}
