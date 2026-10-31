@@ -192,7 +192,7 @@ function criarEstilosApp(cores) {
       paddingRight: 20
     },
     botao: {
-      width: '100%',
+      width: '90%',
       minHeight: 48,
       backgroundColor: cores.primaria,
       borderRadius: 10,
@@ -459,23 +459,15 @@ function criarEstilosApp(cores) {
       alignItems: 'stretch',
       paddingHorizontal: 10
     },
-    // ---------- PIE CHART ----------
-
-    // ---------- LINHA ----------
-
-    // ---------- RESUMO ----------
-
-    // ---------- GERAL ----------
 
   });
 
   // fluxoFinanceiro
   const estilosFluxoFinanceiro = StyleSheet.create({
     recipiente: {
-      flex: 1,
       backgroundColor: cores.fundo,
       alignItems: 'stretch',
-      paddingHorizontal: 10
+      flex: 1,
     },
     filtroRecipiente: {
       flexDirection: 'row',
@@ -505,7 +497,7 @@ function criarEstilosApp(cores) {
       alignSelf: 'flex-end',
       color: cores.textoPrincipal,
       fontSize: 14,
-      backgroundColor:"#251eae",
+      backgroundColor: "#251eae",
       paddingHorizontal: 15,
       paddingVertical: 8,
       borderRadius: 20,
@@ -535,8 +527,8 @@ function criarEstilosApp(cores) {
       marginTop: 12
     },
     transacaoItem: {
-      flexWrap: 'wrap',
-      gap: 12,
+      flexWrap: 'nowrap',
+      gap: 10,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -554,13 +546,18 @@ function criarEstilosApp(cores) {
       fontSize: 12,
       marginTop: 4
     },
+    transacaoConta: {
+      color: cores.textoSecundario,
+      fontSize: 12,
+      marginTop: -2
+    },
     transacaoDireita: {
-      flexGrow: 1,
-      flexShrink: 1,
+      flexShrink: 0,
+      width: "100",
       alignItems: 'flex-end'
     },
     transacaoValor: {
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: '700'
     },
     receita: {
@@ -1321,6 +1318,49 @@ function criarEstilosApp(cores) {
       paddingHorizontal: 12,
       marginBottom: 14
     },
+    campoCaixa: {
+      width: '100%',
+      minHeight: 64,
+      backgroundColor: cores.campo,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingTop: 10,
+      paddingBottom: 10,
+      marginBottom: 14,
+      justifyContent: 'center'
+    },
+    campoRotulo: {
+      color: cores.textoPrincipal,
+      fontSize: 11,
+      fontWeight: '600',
+      letterSpacing: 0.2,
+      textTransform: 'uppercase',
+      marginBottom: 4,
+      marginLeft: 0
+    },
+    campoInterno: {
+      color: cores.textoSecundario,
+      fontSize: 16,
+      minHeight: 22,
+      padding: 0,
+      backgroundColor: 'transparent',
+      flex: 1,
+      fontWeight: '500',
+      marginTop: -8
+    },
+    campoLinha: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10
+    },
+    campoIcone: {
+      width: 30,
+      height: 30,
+      borderRadius: 8,
+      backgroundColor: cores.superficieElevada,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
     campoCompleto: {
       paddingHorizontal: 16,
       marginBottom: 4
@@ -1421,6 +1461,49 @@ function criarEstilosApp(cores) {
       borderRadius: 10,
       paddingHorizontal: 12,
       marginBottom: 14
+    },
+    campoCaixa: {
+      width: '100%',
+      minHeight: 64,
+      backgroundColor: cores.campo,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingTop: 10,
+      paddingBottom: 10,
+      marginBottom: 14,
+      justifyContent: 'center'
+    },
+    campoRotulo: {
+      color: cores.textoPrincipal,
+      fontSize: 11,
+      fontWeight: '600',
+      letterSpacing: 0.2,
+      textTransform: 'uppercase',
+      marginBottom: 4,
+      marginLeft: 0
+    },
+    campoInterno: {
+      color: cores.textoPrincipal,
+      fontSize: 16,
+      minHeight: 22,
+      padding: 0,
+      backgroundColor: 'transparent',
+      flex: 1,
+      fontWeight: '500',
+      marginTop: -8,
+    },
+    campoLinha: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10
+    },
+    campoIcone: {
+      width: 30,
+      height: 30,
+      borderRadius: 8,
+      backgroundColor: cores.superficieElevada,
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     campoCompleto: {
       paddingHorizontal: 16,
@@ -1936,6 +2019,7 @@ function criarEstilosApp(cores) {
       textAlign: 'center'
     },
     flexivel: {
+      flexDirection: 'column',
       minWidth: 0,
       flex: 1
     },
