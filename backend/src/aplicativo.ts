@@ -4,10 +4,28 @@ import { rotasAutenticacao } from "./rotas/autenticacao.rotas";
 import { rotasDados } from "./rotas/dados.rotas";
 import multer from 'multer';
 import { ErroApi } from "./middlewares/erros";
+import { configuracao } from './config/configuracao';
 const aplicativo = express();
 export { aplicativo };
-aplicativo.use(cors());
-aplicativo.use(express.json());
+aplicativo.disable('x-powered-by');
+aplicativo.use(cors({
+  origin(origem, callback) {
+    if (!origem || configuracao.cors.includes(origem)) return callback(null, true);
+    callback(new ErroApi(403, 'Origem não autorizada.'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Authorization', 'Content-Type'],
+  maxAge: 86400
+}));
+aplicativo.use((_requisicao, resposta, proximo) => {
+  resposta.setHeader('X-Content-Type-Options', 'nosniff');
+  resposta.setHeader('Referrer-Policy', 'no-referrer');
+  resposta.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  resposta.setHeader('Cache-Control', 'no-store');
+  if (process.env.NODE_ENV === 'production') resposta.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  proximo();
+});
+aplicativo.use(express.json({ limit: '100kb' }));
 aplicativo.get('/', (_requisicao, resposta) => {
   resposta.json({
     mensagem: 'API Nexus Finance funcionando.'

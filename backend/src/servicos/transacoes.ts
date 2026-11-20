@@ -2,7 +2,7 @@ import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { bancoDados } from "../bancoDados/bancoDados";
 import { ErroApi } from "../middlewares/erros";
 import { normalizarData } from "../utilitarios/validacoes";
-import { nomeAnexo, removerAnexo, armazenarAnexo } from "./anexos";
+import { nomeAnexo, removerAnexo, armazenarAnexo, validarAnexo } from "./anexos";
 export function identificadorPositivo(valor: unknown): number | null {
   if (typeof valor !== 'string' && typeof valor !== 'number' || !/^\d+$/.test(String(valor))) return null;
   const id = Number(valor);
@@ -87,6 +87,14 @@ export async function criarTransacao(idUsuario: number, corpo: Record<string, un
   if (!dataTransacaoValida(data)) throw new ErroApi(400, 'Informe uma data válida.');
   if (observacoes && observacoes.length > 5000) throw new ErroApi(400, 'A observação deve ter até 5000 caracteres.');
   if (arquivo && !arquivo.size) throw new ErroApi(400, 'O arquivo está vazio.');
+  let anexoValidado: { tipo: string; checksum: string } | null = null;
+  if (arquivo) {
+    try {
+      anexoValidado = validarAnexo(arquivo);
+    } catch (falha) {
+      throw new ErroApi(400, falha instanceof Error ? falha.message : 'Anexo inválido.');
+    }
+  }
   if (corpo.status !== undefined && corpo.status !== 'Pendente' && corpo.status !== 'Confirmada') throw new ErroApi(400, 'Status inválido.');
   if (metaId && corpo.status === 'Pendente') throw new ErroApi(400, 'Somente receitas confirmadas podem ser enviadas para uma meta.');
   const conexao = await bancoDados.getConnection();
@@ -158,7 +166,7 @@ export async function criarTransacao(idUsuario: number, corpo: Record<string, un
     let idAnexo: number | undefined;
     if (arquivo) {
       arquivoArmazenado = await armazenarAnexo(arquivo);
-      const [anexo] = await conexao.execute<ResultSetHeader>('INSERT INTO anexos_transacao (id_transacao, nome_arquivo, caminho_arquivo, tipo_arquivo, tamanho_arquivo) VALUES (?, ?, ?, ?, ?)', [idTransacao, nomeAnexo(arquivo.originalname), arquivoArmazenado, arquivo.mimetype.slice(0, 100), arquivo.size]);
+      const [anexo] = await conexao.execute<ResultSetHeader>('INSERT INTO anexos_transacao (id_transacao, nome_arquivo, caminho_arquivo, tipo_arquivo, tamanho_arquivo, checksum_sha256) VALUES (?, ?, ?, ?, ?, ?)', [idTransacao, nomeAnexo(arquivo.originalname), arquivoArmazenado, anexoValidado!.tipo, arquivo.size, anexoValidado!.checksum]);
       idAnexo = anexo.insertId;
     }
     const [[tipoNotificacao]] = await conexao.query<RowDataPacket[]>("SELECT id_tipo_notificacao AS id FROM tipos_notificacao WHERE nome = 'Financeira' LIMIT 1");

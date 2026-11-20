@@ -24,8 +24,6 @@ CREATE TABLE usuarios (
 
     senha_hash VARCHAR(255) NOT NULL,
 
-    cpf VARCHAR(14) NULL,
-
     telefone VARCHAR(20) NULL,
 
     data_nascimento DATE NULL,
@@ -43,8 +41,6 @@ CREATE TABLE usuarios (
     CONSTRAINT uq_usuarios_email
         UNIQUE (email),
 
-    CONSTRAINT uq_usuarios_cpf
-        UNIQUE (cpf)
 ) ENGINE=InnoDB;
 
 
@@ -57,17 +53,19 @@ CREATE TABLE recuperacoes_senha (
 
     id_usuario INT UNSIGNED NOT NULL,
 
-    token VARCHAR(255) NOT NULL,
+    token_hash CHAR(64) CHARACTER SET ascii NOT NULL,
 
     expira_em DATETIME NOT NULL,
 
     utilizado BOOLEAN NOT NULL DEFAULT FALSE,
 
+    utilizado_em DATETIME NULL,
+
     criado_em DATETIME NOT NULL
         DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT uq_recuperacoes_token
-        UNIQUE (token),
+    CONSTRAINT uq_recuperacoes_token_hash
+        UNIQUE (token_hash),
 
     CONSTRAINT fk_recuperacoes_usuario
         FOREIGN KEY (id_usuario)
@@ -370,6 +368,8 @@ CREATE TABLE anexos_transacao (
 
     tamanho_arquivo BIGINT UNSIGNED NULL,
 
+    checksum_sha256 CHAR(64) CHARACTER SET ascii NULL,
+
     criado_em DATETIME NOT NULL
         DEFAULT CURRENT_TIMESTAMP,
 
@@ -378,6 +378,31 @@ CREATE TABLE anexos_transacao (
         REFERENCES transacoes(id_transacao)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+
+-- =====================================================
+-- 18. SOLICITAÇÕES DE PRIVACIDADE (DIREITOS DO TITULAR)
+-- =====================================================
+
+CREATE TABLE solicitacoes_privacidade (
+    id_solicitacao BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT UNSIGNED NOT NULL,
+    tipo ENUM('acesso', 'exportacao', 'correcao', 'eliminacao') NOT NULL,
+    status ENUM('aberta', 'em_analise', 'concluida', 'negada') NOT NULL DEFAULT 'aberta',
+    justificativa TEXT NULL,
+    resposta TEXT NULL,
+    solicitado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    concluido_em DATETIME NULL,
+
+    CONSTRAINT fk_solicitacoes_privacidade_usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE,
+
+    INDEX idx_solicitacoes_privacidade_usuario_status
+        (id_usuario, status, solicitado_em)
 ) ENGINE=InnoDB;
 
 

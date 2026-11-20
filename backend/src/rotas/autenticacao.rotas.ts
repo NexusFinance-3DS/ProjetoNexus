@@ -1,4 +1,4 @@
-import { randomInt } from 'crypto';
+import { createHmac, randomInt } from 'crypto';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
@@ -6,6 +6,7 @@ import { autenticar, RequisicaoAutenticada, criarToken } from "../middlewares/au
 import { bancoDados } from "../bancoDados/bancoDados";
 import { enviarCodigoRecuperacao } from '../servicos/email';
 import { dataNascimentoValida, emailValido, normalizarData, normalizarEmail, erroSenha } from "../utilitarios/validacoes";
+import { configuracao } from '../config/configuracao';
 interface UserRow extends RowDataPacket {
   id_usuario: number;
   nome: string;
@@ -17,11 +18,14 @@ interface UserRow extends RowDataPacket {
 interface RecoveryRow extends RowDataPacket {
   id_recuperacao: number;
   id_usuario: number;
-  token: string;
+  token_hash: string;
   expira_em: Date;
   utilizado: number;
 }
 export const rotasAutenticacao = Router();
+function hashCodigo(codigo: string): string {
+  return createHmac('sha256', configuracao.recuperacao.segredo).update(codigo).digest('hex');
+}
 rotasAutenticacao.post('/cadastro', async (requisicao, resposta, proximo) => {
   try {
     const nome = typeof requisicao.body.nome === 'string' ? requisicao.body.nome.trim() : '';
@@ -35,7 +39,7 @@ rotasAutenticacao.post('/cadastro', async (requisicao, resposta, proximo) => {
     if (!emailValido(email)) return resposta.status(400).json({
       mensagem: 'Informe um e-mail válido, como nome@exemplo.com.'
     });
-    if (!dataNascimentoValida(dataNascimento)) return resposta.status(400).json({
+    if (dataNascimento && !dataNascimentoValida(dataNascimento)) return resposta.status(400).json({
       mensagem: 'Confira a data de nascimento. Use o formato DD/MM/AAAA.'
     });
     const senhaErro = erroSenha(senha);
@@ -53,7 +57,7 @@ rotasAutenticacao.post('/cadastro', async (requisicao, resposta, proximo) => {
     const conexao = await bancoDados.getConnection();
     try {
       await conexao.beginTransaction();
-      const [resultado] = await conexao.execute<ResultSetHeader>('INSERT INTO usuarios (nome, email, data_nascimento, senha_hash) VALUES (?, ?, ?, ?)', [nome, email, dataNascimento, senhaHash]);
+      const [resultado] = await conexao.execute<ResultSetHeader>('INSERT INTO usuarios (nome, email, data_nascimento, senha_hash) VALUES (?, ?, ?, ?)', [nome, email, dataNascimento || null, senhaHash]);
       await conexao.execute('INSERT INTO configuracoes (id_usuario) VALUES (?)', [resultado.insertId]);
       const [[tipoConta]] = await conexao.query<RowDataPacket[]>("SELECT id_tipo_conta FROM tipos_conta WHERE nome = 'Conta Corrente' LIMIT 1");
       if (tipoConta) {
@@ -140,9 +144,9 @@ rotasAutenticacao.post('/recuperar-senha', async (requisicao, resposta, proximo)
     const [usuarios] = await bancoDados.query<UserRow[]>('SELECT id_usuario, email FROM usuarios WHERE email = ? AND ativo = TRUE LIMIT 1', [email]);
     if (usuarios.length) {
       const codigo = String(randomInt(100000, 1000000));
-      const hashCodigo = await bcrypt.hash(codigo, 10);
+      const tokenHash = hashCodigo(codigo);
       await bancoDados.execute('UPDATE recuperacoes_senha SET utilizado = TRUE WHERE id_usuario = ? AND utilizado = FALSE', [usuarios[0].id_usuario]);
-      await bancoDados.execute('INSERT INTO recuperacoes_senha (id_usuario, token, expira_em) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE))', [usuarios[0].id_usuario, hashCodigo]);
+      await bancoDados.execute('INSERT INTO recuperacoes_senha (id_usuario, token_hash, expira_em) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE))', [usuarios[0].id_usuario, tokenHash]);
       await enviarCodigoRecuperacao(email, codigo);
     }
     resposta.json({
@@ -185,12 +189,12 @@ rotasAutenticacao.post('/nova-senha', async (requisicao, resposta, proximo) => {
       await conexao.beginTransaction();
       // Lock the active code while consuming it. Concurrent password-reset
       // requests using the same code must not both succeed.
-      const [linhas] = await conexao.query<RecoveryRow[]>(`SELECT r.id_recuperacao, r.id_usuario, r.token, r.expira_em, r.utilizado
+      const [linhas] = await conexao.query<RecoveryRow[]>(`SELECT r.id_recuperacao, r.id_usuario, r.token_hash, r.expira_em, r.utilizado
          FROM recuperacoes_senha r
          INNER JOIN usuarios u ON u.id_usuario = r.id_usuario
          WHERE u.email = ? AND r.utilizado = FALSE AND r.expira_em > NOW()
          ORDER BY r.criado_em DESC LIMIT 1 FOR UPDATE`, [email]);
-      const recuperacao = linhas[0] && await bcrypt.compare(codigo, linhas[0].token) ? linhas[0] : null;
+      const recuperacao = linhas[0] && hashCodigo(codigo) === linhas[0].token_hash ? linhas[0] : null;
       if (!recuperacao) {
         await conexao.rollback();
         return resposta.status(400).json({
@@ -199,7 +203,7 @@ rotasAutenticacao.post('/nova-senha', async (requisicao, resposta, proximo) => {
       }
       await conexao.execute('UPDATE usuarios SET senha_hash = ? WHERE id_usuario = ?', [await bcrypt.hash(senha, 10), recuperacao.id_usuario]);
       // Revoke other outstanding reset codes for the account as well.
-      await conexao.execute('UPDATE recuperacoes_senha SET utilizado = TRUE WHERE id_usuario = ? AND utilizado = FALSE', [recuperacao.id_usuario]);
+      await conexao.execute('UPDATE recuperacoes_senha SET utilizado = TRUE, utilizado_em = NOW() WHERE id_usuario = ? AND utilizado = FALSE', [recuperacao.id_usuario]);
       await conexao.commit();
       resposta.json({
         mensagem: 'Senha alterada com sucesso.'
@@ -216,10 +220,12 @@ rotasAutenticacao.post('/nova-senha', async (requisicao, resposta, proximo) => {
 });
 async function encontrarRecuperacaoValida(email: string, codigo: string): Promise<RecoveryRow | null> {
   if (!emailValido(email) || !/^\d{6}$/.test(codigo)) return null;
-  const [linhas] = await bancoDados.query<RecoveryRow[]>(`SELECT r.id_recuperacao, r.id_usuario, r.token, r.expira_em, r.utilizado
+  const [linhas] = await bancoDados.query<RecoveryRow[]>(`SELECT r.id_recuperacao, r.id_usuario, r.token_hash, r.expira_em, r.utilizado
      FROM recuperacoes_senha r
      INNER JOIN usuarios u ON u.id_usuario = r.id_usuario
      WHERE u.email = ? AND r.utilizado = FALSE AND r.expira_em > NOW()
      ORDER BY r.criado_em DESC LIMIT 1`, [email]);
-  return linhas[0] && (await bcrypt.compare(codigo, linhas[0].token)) ? linhas[0] : null;
+  if (!linhas[0]) return null;
+  if (hashCodigo(codigo) === linhas[0].token_hash) return linhas[0];
+  return null;
 }
