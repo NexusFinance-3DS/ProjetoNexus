@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { Alert, View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons';
 import BarraNavegacao from "../../componentes/BarraNavegacao";
@@ -24,6 +24,7 @@ export default function Configuracoes() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [exportando, setExportando] = useState(false);
+  const [solicitandoExclusao, setSolicitandoExclusao] = useState(false);
   const [erro, setErro] = useState('');
   useFocusEffect(useCallback(() => {
     let ativo = true;
@@ -70,6 +71,30 @@ export default function Configuracoes() {
     } finally {
       setExportando(false);
     }
+  }
+  function solicitarExclusao() {
+    Alert.alert('Solicitar exclusão da conta?', 'O pedido será analisado. Seus dados não serão apagados automaticamente e retenções legais poderão ser avaliadas.', [{
+      text: 'Cancelar',
+      style: 'cancel'
+    }, {
+      text: 'Solicitar',
+      style: 'destructive',
+      onPress: async () => {
+        setSolicitandoExclusao(true);
+        setErro('');
+        try {
+          const resposta = await apiAutenticada('/privacidade/solicitacoes', {
+            method: 'POST',
+            body: JSON.stringify({ tipo: 'eliminacao' })
+          });
+          Alert.alert('Solicitação registrada', resposta.mensagem);
+        } catch (falha) {
+          setErro(falha.message);
+        } finally {
+          setSolicitandoExclusao(false);
+        }
+      }
+    }]);
   }
   function item(icone, rotulo, acao, desabilitado = false) {
     return <TouchableOpacity accessibilityRole="button" style={estilos.item} onPress={acao} disabled={desabilitado}>
@@ -162,6 +187,8 @@ export default function Configuracoes() {
         <CartaoAnimado style={estilos.cartao} atraso={180}>
           <Text style={estilos.cartaoTitulo}>Dados e ajuda</Text>
           {item('download', exportando ? 'Exportando...' : 'Exportar transações (CSV)', exportar, exportando)}
+          <View style={estilos.divisor} />
+          {item('privacy-tip', solicitandoExclusao ? 'Enviando solicitação...' : 'Solicitar exclusão da conta', solicitarExclusao, solicitandoExclusao)}
           <View style={estilos.divisor} />
           {item('help-outline', 'Central de ajuda', () => router.push('/menus/centralAjuda'))}
           <View style={estilos.divisor} />

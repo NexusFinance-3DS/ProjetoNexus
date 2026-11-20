@@ -328,13 +328,39 @@ rotasDados.put('/usuarios/me', async (requisicao: RequisicaoAutenticada, respost
     if (!emailValido(email)) return resposta.status(400).json({
       mensagem: 'E-mail inválido.'
     });
-    if (!dataNascimentoValida(dataNascimento)) return resposta.status(400).json({
+    if (dataNascimento && !dataNascimentoValida(dataNascimento)) return resposta.status(400).json({
       mensagem: 'Data de nascimento inválida.'
     });
-    await bancoDados.execute('UPDATE usuarios SET nome = ?, email = ?, telefone = ?, data_nascimento = ? WHERE id_usuario = ?', [nome, email, telefone, dataNascimento, requisicao.userId!]);
+    await bancoDados.execute('UPDATE usuarios SET nome = ?, email = ?, telefone = ?, data_nascimento = ? WHERE id_usuario = ?', [nome, email, telefone, dataNascimento || null, requisicao.userId!]);
     resposta.json({
       mensagem: 'Cadastro atualizado com sucesso.'
     });
+  } catch (falha) {
+    proximo(falha);
+  }
+});
+
+rotasDados.get('/privacidade/solicitacoes', async (requisicao: RequisicaoAutenticada, resposta, proximo) => {
+  try {
+    const [linhas] = await bancoDados.query<DataRow[]>(`SELECT id_solicitacao AS id, tipo, status, solicitado_em AS solicitadoEm, concluido_em AS concluidoEm
+      FROM solicitacoes_privacidade WHERE id_usuario = ? ORDER BY solicitado_em DESC LIMIT 20`, [requisicao.userId]);
+    resposta.json({ solicitacoes: linhas });
+  } catch (falha) {
+    proximo(falha);
+  }
+});
+
+rotasDados.post('/privacidade/solicitacoes', async (requisicao: RequisicaoAutenticada, resposta, proximo) => {
+  try {
+    const tipo = requisicao.body?.tipo;
+    if (!['acesso', 'exportacao', 'correcao', 'eliminacao'].includes(tipo)) {
+      return resposta.status(400).json({ mensagem: 'Tipo de solicitação de privacidade inválido.' });
+    }
+    const [pendentes] = await bancoDados.query<RowDataPacket[]>(`SELECT id_solicitacao FROM solicitacoes_privacidade
+      WHERE id_usuario = ? AND tipo = ? AND status IN ('aberta', 'em_analise') LIMIT 1`, [requisicao.userId, tipo]);
+    if (pendentes.length) return resposta.status(409).json({ mensagem: 'Já existe uma solicitação em andamento para este assunto.' });
+    await bancoDados.execute('INSERT INTO solicitacoes_privacidade (id_usuario, tipo) VALUES (?, ?)', [requisicao.userId, tipo]);
+    resposta.status(201).json({ mensagem: 'Solicitação registrada. Você receberá retorno pelo canal de atendimento informado no aviso de privacidade.' });
   } catch (falha) {
     proximo(falha);
   }

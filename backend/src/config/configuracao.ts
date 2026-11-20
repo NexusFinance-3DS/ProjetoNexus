@@ -3,6 +3,14 @@ const segredoConfigurado = process.env.JWT_SECRET?.trim();
 if (process.env.NODE_ENV === 'production' && (!segredoConfigurado || segredoConfigurado.length < 32)) {
   throw new Error('Configure JWT_SECRET com pelo menos 32 caracteres antes de iniciar em produção.');
 }
+const segredoRecuperacao = process.env.RECOVERY_TOKEN_SECRET?.trim();
+if (process.env.NODE_ENV === 'production' && (!segredoRecuperacao || segredoRecuperacao.length < 32)) {
+  throw new Error('Configure RECOVERY_TOKEN_SECRET com pelo menos 32 caracteres antes de iniciar em produção.');
+}
+const origensAplicativo = (process.env.APP_ORIGINS || '').split(',').map(origem => origem.trim()).filter(Boolean);
+if (process.env.NODE_ENV === 'production' && !origensAplicativo.length) {
+  throw new Error('Configure APP_ORIGINS com as origens web autorizadas antes de iniciar em produção.');
+}
 function obrigatoria(nome: string, alternativa?: string): string {
   const valor = process.env[nome] || alternativa;
   if (!valor) {
@@ -18,12 +26,17 @@ export const configuracao = {
     port: Number(process.env.DB_PORT || 3306),
     user: obrigatoria('DB_USER', 'root'),
     password: process.env.DB_PASSWORD || '',
-    database: obrigatoria('DB_NAME', 'nexus_finance')
+    database: obrigatoria('DB_NAME', 'nexus_finance'),
+    usarTls: process.env.DB_SSL === 'true'
   },
   jwt: {
     segredo: obrigatoria('JWT_SECRET'),
-    validade: process.env.JWT_EXPIRES_IN || '7d'
+    validade: process.env.JWT_EXPIRES_IN || '1d'
   },
+  recuperacao: {
+    segredo: obrigatoria('RECOVERY_TOKEN_SECRET', segredoConfigurado)
+  },
+  cors: origensAplicativo,
   email: {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: Number(process.env.EMAIL_PORT || 587),

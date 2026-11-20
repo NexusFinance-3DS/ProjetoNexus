@@ -294,7 +294,9 @@ export default function FluxoFinanceiro() {
               <Text style={estilos.transacaoData}>{formatarData(item.data)}</Text>
               <Text style={{
                 color: item.status === 'Pendente' ? cores.graficoLaranja : cores.textoSecundario,
-                fontSize: 12
+                fontSize: 10,
+                fontWeight: '600',
+                marginLeft: 4,
               }}>
                 {item.status}
                 {item.futura && item.status !== 'Cancelada' ? ' · agendada' : ''}

@@ -5,7 +5,7 @@ API simples em TypeScript para cadastro, login, sessão e recuperação de senha
 ## Como executar
 
 1. Inicie o MySQL (no XAMPP, use **Start** no módulo MySQL). Apenas na primeira instalação, importe `../bancoDados/estrutura.sql`: esse arquivo apaga e recria o banco, portanto não o execute sobre dados que deseja preservar.
-2. Crie `.env` e configure `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` e `JWT_SECRET`. Consulte os valores de desenvolvimento em `src/config/configuracao.ts`.
+2. Crie `.env` e configure `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`, `RECOVERY_TOKEN_SECRET`, `EMAIL_USER` e `EMAIL_PASSWORD`. Em produção, `JWT_SECRET` e `RECOVERY_TOKEN_SECRET` precisam ter ao menos 32 caracteres, `APP_ORIGINS` deve listar as origens web permitidas separadas por vírgula e `DB_SSL=true` ativa TLS com validação de certificado para o banco.
 3. Dentro desta pasta, execute `npm install`, `npm run migrate` e depois `npm run dev`. A migração adiciona o controle de recorrências sem apagar dados; também pode ser executada como `npm run build` seguido de `node dist/bancoDados/migrar.js`.
 
 A API ficará disponível em `http://localhost:3000`.
@@ -14,7 +14,7 @@ O backend precisa continuar aberto em um terminal enquanto o aplicativo Expo est
 
 ## Rotas
 
-- `POST /auth/cadastro` — recebe `nome`, `email`, `dataNascimento`, `senha` e `confirmarSenha`.
+- `POST /auth/cadastro` — recebe `nome`, `email`, `senha` e `confirmarSenha`; `dataNascimento` é opcional.
 - `POST /auth/login` — recebe `email` e `senha` e devolve o token JWT.
 - `GET /auth/sessao` — recebe o header `Authorization: Bearer TOKEN`.
 - `POST /auth/logout` — confirma o logout; o aplicativo deve apagar o token armazenado.
@@ -32,12 +32,13 @@ O backend precisa continuar aberto em um terminal enquanto o aplicativo Expo est
 - `GET/POST /metas` — consulta e cria metas.
 - `GET /notificacoes` — consulta as notificações reais do usuário.
 - `GET/PUT /usuarios/me` — consulta e atualiza o cadastro do usuário.
+- `GET/POST /privacidade/solicitacoes` — consulta e registra pedidos de acesso, exportação, correção ou eliminação. A equipe responsável deve avaliar e concluir cada pedido.
 
 Todas as rotas após as rotas de autenticação exigem o header `Authorization: Bearer TOKEN`.
 
 ## Recuperação de senha
 
-Se `EMAIL_USER` e `EMAIL_PASSWORD` estiverem configurados, o código será enviado por SMTP. Em desenvolvimento, sem essas variáveis, ele aparece no terminal. O código expira em 15 minutos e é salvo no banco apenas como hash.
+O código é enviado por SMTP, expira em 15 minutos e é armazenado como HMAC.
 
 ## Sessão no aplicativo
 
@@ -47,7 +48,11 @@ O aplicativo já salva o `token` retornado usando `expo-secure-store` no Android
 
 O cadastro da transação recebe `tipo`, `valor`, `descricao`, `data`, `categoriaId`, `tipoContaId`, `recorrente`, `parcelas` (opcional, de 1 a 60), `status` e `observacao`. Em transações parceladas, `valor` é o total, dividido em lançamentos mensais; cada parcela fica identificada no fluxo financeiro. Parcelamento e recorrência fixa são opções mutuamente exclusivas. Sem arquivo, use JSON. Com arquivo, use multipart/form-data com o campo `arquivo`; o cliente deve deixar o fetch definir o boundary. Aceita um arquivo não vazio de até 10 MiB. O tipo de conta escolhido usa uma conta ativa desse tipo do usuário, criando-a quando necessário.
 
-As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e para o tipo de transação escolhido. Os arquivos ficam em `backend/uploads/transacoes` (ou em `UPLOAD_DIR`), com os metadados em `anexos_transacao`. Preserve o diretório de arquivos junto com os backups do banco. Para bancos existentes, execute `npm run migrate` antes de iniciar a API; a migração adiciona os campos de identificação das parcelas sem apagar dados.
+As categorias personalizadas ficam no MySQL e aparecem apenas para seu dono e para o tipo de transação escolhido. Os arquivos ficam em `backend/uploads/transacoes` (ou em `UPLOAD_DIR`), com os metadados em `anexos_transacao`. São aceitos somente PDF, PNG e JPEG de até 10 MiB, com a assinatura do arquivo validada e SHA-256 registrado. Mantenha o diretório fora de uma área pública, com permissões restritas, criptografia e rotina de varredura antimalware. Para bancos existentes, execute `npm run migrate` antes de iniciar a API.
+
+## Privacidade e produção
+
+O sistema registra solicitações de direitos do titular, mas isso não executa exclusões automaticamente. Antes de concluir uma solicitação, valide a identidade, verifique obrigações de retenção, remova também anexos e defina a resposta ao titular. Publique um aviso de privacidade e mantenha processo de incidentes, inventário de tratamentos, prazos de retenção e contratos com fornecedores. Essas medidas organizacionais são necessárias: mudanças técnicas, isoladamente, não tornam o serviço plenamente conforme à LGPD.
 
 ## Regras financeiras
 
